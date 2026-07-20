@@ -20,6 +20,13 @@ This repository currently contains only the company-level governance documentati
 
 ## Repository map
 
-- `docs/engineering-assessment.md` — engineering baseline and risk assessment.
-- `docs/company-design.md` — operating model for the AI company.
-- `docs/repository-architecture.md` — long-term repository blueprint.
+- [docs/engineering-assessment.md](docs/engineering-assessment.md) — engineering baseline and risk assessment.
+- [docs/company-design.md](docs/company-design.md) — operating model for the AI company.
+- [docs/repository-architecture.md](docs/repository-architecture.md) — long-term repository blueprint.
+- [docs/platform-standards.md](docs/platform-standards.md) — shared engineering standards for future product repositories.
+- [docs/architecture-review-checklist.md](docs/architecture-review-checklist.md) — evidence required before implementation begins.
+- [docs/security-baseline.md](docs/security-baseline.md) — minimum security posture for all product delivery.
+- [docs/release-evidence-model.md](docs/release-evidence-model.md) — evidence-backed release policy.
+- [docs/adr-template.md](docs/adr-template.md) — standard template for architectural decisions.
+- [docs/adr-workflow.md](docs/adr-workflow.md) — governance workflow for decision records.
+- [docs/product-repo-template.md](docs/product-repo-template.md) — default structure for future product repositories.
