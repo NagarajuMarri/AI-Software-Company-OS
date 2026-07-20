@@ -2,6 +2,8 @@
 
 This document is the approved organizational source-of-truth for ASCOS. It defines the reusable company structure that governs future software projects across AI, SaaS, government, mobile, enterprise, FinTech, healthcare, education, and trading domains.
 
+The internal capability model for the Engineering Office is defined separately in [engineering-capability-model.md](engineering-capability-model.md). This document remains the authoritative source for office-level company organization, while the capability document defines how Engineering Office assembles internal delivery capability.
+
 ## Office governance charter
 
 The company is governed through a centralized office model with explicit authority boundaries and a clear escalation path.

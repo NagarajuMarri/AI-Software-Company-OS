@@ -22,6 +22,7 @@ This repository currently contains only the company-level governance documentati
 
 - [docs/engineering-assessment.md](docs/engineering-assessment.md) — engineering baseline and risk assessment.
 - [docs/company-design.md](docs/company-design.md) — approved organizational source-of-truth for ASCOS.
+- [docs/engineering-capability-model.md](docs/engineering-capability-model.md) — internal capability model for the Engineering Office.
 - [docs/repository-architecture.md](docs/repository-architecture.md) — long-term repository blueprint.
 - [docs/platform-standards.md](docs/platform-standards.md) — shared engineering standards for future product repositories.
 - [docs/architecture-review-checklist.md](docs/architecture-review-checklist.md) — evidence required before implementation begins.
