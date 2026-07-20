@@ -199,3 +199,9 @@ Archived chapters remain available for historical reference but are no longer ac
 This repository already contains the foundational governance documents for standards, review, security, release evidence, and ADR practice. The Constitution framework should reuse those assets rather than replace them.
 
 The Constitution is therefore a governance control layer on top of the existing ASCOS foundation, not a second, competing system.
+
+## Current repository consistency note
+
+The current repository keeps the organizational source-of-truth in [docs/company-design.md](docs/company-design.md). The Constitution framework is intentionally higher-order governance and must reference the existing company design rather than create a separate competing model.
+
+The repository should remain in this structure for now. If ASCOS later needs a dedicated governance directory for constitutional publication, that migration should be introduced only as a controlled future expansion and must preserve the organizational authority defined in [docs/company-design.md](docs/company-design.md).

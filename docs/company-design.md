@@ -1,5 +1,91 @@
 # Phase 2 — Company Design
 
+This document is the approved organizational source-of-truth for ASCOS. It defines the reusable company structure that governs future software projects across AI, SaaS, government, mobile, enterprise, FinTech, healthcare, education, and trading domains.
+
+## Office governance charter
+
+The company is governed through a centralized office model with explicit authority boundaries and a clear escalation path.
+
+### Executive Office
+
+- Mission: define strategic direction, portfolio priorities, and company-level governance outcomes.
+- Responsibilities: set investment priorities, authorize major product direction, resolve executive escalations, and ensure the company remains aligned to strategic outcomes.
+- Decision authority: approves major portfolio changes, enterprise risk posture, and unresolved cross-office conflicts.
+- Inputs: market signals, product demand, portfolio risk, governance constraints, and strategic objectives.
+- Outputs: strategic direction, investment decisions, escalation outcomes, and company-level governance alignment.
+- Success metrics: predictable portfolio decisions, fewer unresolved escalations, and consistent strategic execution.
+- Dependencies: Architecture Office for feasibility; Security Office for risk context; Quality Office for readiness evidence.
+
+### Architecture Office
+
+- Mission: own reusable architecture standards and long-term technical governance.
+- Responsibilities: define architecture principles, review product architecture, maintain pattern reuse, and preserve the integrity of the ASCOS platform model.
+- Decision authority: approves architectural direction for major initiatives and determines whether a design aligns with company standards.
+- Inputs: product goals, domain scope, integration needs, platform constraints, security expectations, and compliance requirements.
+- Outputs: architecture principles, approved architecture summaries, reference patterns, and governance-aligned design decisions.
+- Success metrics: fewer rework cycles, stronger reuse of approved patterns, and improved maintainability.
+- Dependencies: Engineering Office for implementation feasibility; Security Office for design constraints; Documentation Office for traceability.
+
+### Engineering Office
+
+- Mission: execute product delivery in a way that remains aligned to architecture, quality, and release policy.
+- Responsibilities: coordinate implementation, manage delivery execution, and keep product execution inside approved governance boundaries.
+- Decision authority: approves engineering execution decisions within architecture and policy constraints.
+- Inputs: approved architecture, scope commitments, platform guardrails, delivery readiness, and quality/security constraints.
+- Outputs: working software, delivery evidence, implementation status, and release readiness artifacts.
+- Success metrics: predictable delivery, lower implementation drift, and more reliable execution against plan.
+- Dependencies: Architecture Office for design authority; Quality Office for sign-off; Security Office for control constraints; DevOps Office for deployment support.
+
+### Quality Office
+
+- Mission: govern quality expectations, validation evidence, and release confidence.
+- Responsibilities: define quality policy, review test evidence, enforce reliability expectations, and confirm readiness for release.
+- Decision authority: owns quality sign-off for production readiness and determines whether a product is sufficiently validated for promotion.
+- Inputs: testing evidence, defect data, release artifacts, operational reliability results, and policy requirements.
+- Outputs: quality sign-off, quality reports, and release confidence evidence.
+- Success metrics: lower defect escape rate, stronger governance discipline, and more reliable release outcomes.
+- Dependencies: Engineering Office for execution evidence; Security Office for risk validation; DevOps Office for release evidence; Documentation Office for record retention.
+
+### Security Office
+
+- Mission: define and enforce the security posture of ASCOS and all future products.
+- Responsibilities: own security standards, review high-risk product posture, define secure-by-design requirements, and govern compliance risk.
+- Decision authority: approves security requirements for high-risk or regulated projects and may block a release when residual risk is unacceptable.
+- Inputs: architecture proposals, data classifications, dependency analysis, policy requirements, and incident posture.
+- Outputs: security baseline guidance, review outcomes, risk decisions, and incident response ownership.
+- Success metrics: fewer critical security incidents, faster remediation, and stronger control consistency across products.
+- Dependencies: Architecture Office for design review; Engineering Office for implementation evidence; Executive Office for risk escalation.
+
+### DevOps Office
+
+- Mission: provide the reusable delivery and operational enablement platform for ASCOS projects.
+- Responsibilities: standardize environments, support deployments, govern release pathways, maintain observability readiness, and support operational continuity.
+- Decision authority: approves deployment patterns and release enablement within policy bounds.
+- Inputs: release schedule, environment requirements, observability needs, and deployment constraints.
+- Outputs: deployment standards, environment patterns, release enablement artifacts, and operational readiness signals.
+- Success metrics: faster release readiness, lower deployment uncertainty, and stronger recovery capability.
+- Dependencies: Engineering Office for release content; Security Office for safe deployment controls; Quality Office for release evidence; Documentation Office for runbook traceability.
+
+### Documentation Office
+
+- Mission: maintain a durable, reviewable, and reusable knowledge record for all ASCOS projects.
+- Responsibilities: define documentation standards, preserve review records, and ensure architecture, operations, release, and governance evidence remain discoverable.
+- Decision authority: owns documentation policy and naming standards and confirms that records are complete enough to satisfy governance needs.
+- Inputs: product records, architecture decisions, release evidence, review outcomes, and operational learning.
+- Outputs: documentation standards, governance records, reference materials, and decision traceability artifacts.
+- Success metrics: faster onboarding, lower documentation drift, and higher decision traceability.
+- Dependencies: all offices for input quality and review discipline; Knowledge Management Office for institutional memory structure.
+
+### Knowledge Management Office
+
+- Mission: preserve institutional memory and ensure future teams can learn from prior decisions.
+- Responsibilities: maintain decision history, govern knowledge capture across lifecycle events, and ensure reusable lessons remain searchable and traceable.
+- Decision authority: decides what knowledge must be retained formally and defines archive requirements for previous decisions.
+- Inputs: ADRs, incidents, postmortems, release lessons, and product onboarding records.
+- Outputs: knowledge repository structure, learning summaries, decision traceability records, and reusable organizational memory assets.
+- Success metrics: faster onboarding, stronger reuse of prior decisions, and fewer repeated failures.
+- Dependencies: Documentation Office for record structure; Executive Office for strategic knowledge priority; all offices for evidence contribution.
+
 ## Executive organization
 
 The company must be governed as a multi-product platform company with a central platform office.

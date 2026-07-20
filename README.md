@@ -21,7 +21,7 @@ This repository currently contains only the company-level governance documentati
 ## Repository map
 
 - [docs/engineering-assessment.md](docs/engineering-assessment.md) — engineering baseline and risk assessment.
-- [docs/company-design.md](docs/company-design.md) — operating model for the AI company.
+- [docs/company-design.md](docs/company-design.md) — approved organizational source-of-truth for ASCOS.
 - [docs/repository-architecture.md](docs/repository-architecture.md) — long-term repository blueprint.
 - [docs/platform-standards.md](docs/platform-standards.md) — shared engineering standards for future product repositories.
 - [docs/architecture-review-checklist.md](docs/architecture-review-checklist.md) — evidence required before implementation begins.
@@ -30,3 +30,5 @@ This repository currently contains only the company-level governance documentati
 - [docs/adr-template.md](docs/adr-template.md) — standard template for architectural decisions.
 - [docs/adr-workflow.md](docs/adr-workflow.md) — governance workflow for decision records.
 - [docs/product-repo-template.md](docs/product-repo-template.md) — default structure for future product repositories.
+- [docs/constitution-framework.md](docs/constitution-framework.md) — governance framework for the ASCOS Constitution.
+- [docs/constitution-index.md](docs/constitution-index.md) — chapter registry and formal Constitution inventory.
