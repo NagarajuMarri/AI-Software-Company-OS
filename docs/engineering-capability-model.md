@@ -14,7 +14,7 @@ Engineering Office owns product implementation and technical delivery. Peer offi
 
 The following model is preferred because it creates durable capability boundaries without over-organizing every project.
 
-ASCOS is an AI-first operating system, so AI Engineering should be treated as a durable shared core capability with project-activated specialist sub-practices. This preserves reuse across the portfolio while avoiding unnecessary permanent department growth.
+ASCOS is an AI software company operating system. AI Engineering is therefore a durable permanent core capability within the Engineering Office, while project-specific AI specialist sub-practices are activated only when needed. This preserves reusable AI capability across the portfolio without implying that every future product must contain AI functionality.
 
 ### Permanent capabilities
 
@@ -84,25 +84,25 @@ These are reusable across most ASCOS projects and should remain visible as durab
 
 These should not be created as permanent departments unless a portfolio need is repeatedly justified.
 
-5. API Engineering
+#### API Engineering
    - Classification: embedded practice under Backend Engineering and Platform and Integration Engineering.
    - Purpose: define and maintain service contract design, public and internal API consistency, and contract quality.
    - Why not a separate permanent department: API work is usually part of backend and integration delivery, and splitting it into a separate department creates unnecessary structure.
 
-6. Performance and Reliability Engineering
+#### Performance and Reliability Engineering
    - Classification: cross-capability engineering practice coordinated with the DevOps Office.
    - Purpose: improve resilience, throughput, latency, capacity readiness, and system health behavior.
    - Why not a separate permanent department: performance and reliability concerns belong to engineering execution, platform enablement, and DevOps operational governance rather than to a standalone company-wide function in every project.
 
-7. Mobile Engineering
+#### Mobile Engineering
    - Classification: project-activated capability when mobile delivery is needed.
    - Purpose: deliver native or cross-platform mobile product experiences.
    - Why not a permanent department: not every ASCOS product requires mobile delivery, so mobile should be activated when required by the portfolio.
 
-8. AI specialist sub-practices
+#### AI specialist sub-practices
    - Classification: project-activated specialist sub-practices under the permanent AI Engineering core capability.
    - Examples: LLM and model-provider abstraction, prompt and agent engineering, RAG and retrieval systems, AI evaluation, AI safety and guardrails, multimodal, speech and vision integration, AI cost/latency/reliability tuning, AI observability, and data/model governance coordination.
-   - Why this structure is preferred: ASCOS needs a durable AI core capability, but not every product needs the full specialist stack at once. The permanent AI Engineering core provides reusable standards, while project-specific AI specialist sub-practices are activated only when product demand justifies them.
+   - Why this structure is preferred: ASCOS requires a durable permanent AI Engineering core, but not every product needs the full specialist stack at once. AI-heavy projects use the permanent AI core plus the selected specialist sub-practices required by that product.
 
 ## Delivery model
 
@@ -156,7 +156,7 @@ The Engineering Office remains responsible for implementation, but the project m
 
 ### AI-heavy projects
 
-AI-heavy projects may require a temporary specialist capability for model integration, evaluation, data preparation, and operational readiness, but that specialist remains a scoped project capability rather than a permanent Office-level department.
+AI-heavy projects use the permanent AI Engineering core capability together with the specific specialist sub-practices required for that product, such as model integration, evaluation, retrieval design, multimodal processing, or AI operational readiness.
 
 ## Authority model
 
@@ -227,7 +227,7 @@ Cons:
 
 Pros:
 
-- preserves [docs/company-design.md](docs/company-design.md) as the clean organizational source-of-truth
+- preserves [company-design.md](company-design.md) as the clean organizational source-of-truth
 - keeps engineering capability structure distinct and readable
 - allows future scaling without overloading the organization document
 
@@ -241,8 +241,8 @@ Option B is preferred.
 
 Reason:
 
-- [docs/company-design.md](docs/company-design.md) should remain the authoritative document for office-level company organization.
-- [docs/engineering-capability-model.md](docs/engineering-capability-model.md) is the best place to define the internal capability assembly model used by the Engineering Office.
+- [company-design.md](company-design.md) should remain the authoritative document for office-level company organization.
+- [engineering-capability-model.md](engineering-capability-model.md) is the best place to define the internal capability assembly model used by the Engineering Office.
 
 This produces a cleaner source-of-truth boundary.
 
