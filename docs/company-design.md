@@ -86,9 +86,9 @@ The company is governed through a centralized office model with explicit authori
 - Success metrics: faster onboarding, stronger reuse of prior decisions, and fewer repeated failures.
 - Dependencies: Documentation Office for record structure; Executive Office for strategic knowledge priority; all offices for evidence contribution.
 
-## Executive organization
+## Distinct operating details
 
-The company must be governed as a multi-product platform company with a central platform office.
+The Office Governance Charter above is the authoritative definition of office mission, authority, inputs, outputs, metrics, and dependencies. The sections below capture only distinct operating detail that is not already expressed in the charter.
 
 ### Executive roles
 
@@ -100,11 +100,11 @@ The company must be governed as a multi-product platform company with a central 
 - Chief DevOps Officer: owns engineering enablement, pipelines, environments, and automation.
 - Chief Knowledge Officer: owns documentation quality, institutional memory, and decision traceability.
 
-## Engineering organization
+### Execution model
 
-The engineering organization is separated into platform and product delivery.
+The engineering organization is separated into platform and product delivery. This distinction exists to preserve shared standards while allowing domain-specific execution.
 
-### Platform engineering
+#### Platform engineering
 
 Owns:
 
@@ -116,7 +116,7 @@ Owns:
 - AI platform policy
 - company-wide engineering documentation
 
-### Product engineering
+#### Product engineering
 
 Owns:
 
@@ -125,85 +125,21 @@ Owns:
 - team-level backlog and iteration
 - quality and release responsibility within platform guardrails
 
-## Quality organization
+### Quality policy note
 
-Quality must be a formal operating function, not a last-minute review step.
+Quality remains a formal operating function. No product may be promoted to production without a documented quality sign-off and a verified evidence trail.
 
-### Focus areas
+### Security policy note
 
-- test strategy
-- release readiness review
-- production incident review
-- product reliability governance
-- compliance with acceptance criteria
+Security is centralized and policy-driven. Security controls must be codified in standards and enforced through pipelines whenever possible.
 
-### Rule
+### DevOps operating detail
 
-No product may be promoted to production without a documented quality sign-off and a verified evidence trail.
+DevOps is a shared capability team, not a team-specific workaround. It standardizes deployment enablement and operational readiness while keeping the delivery model company-wide and reusable.
 
-## Security organization
+### Documentation and knowledge operating detail
 
-Security is centralized and policy-driven.
-
-### Security domains
-
-- identity and access
-- secrets management
-- secure SDLC
-- AI safety controls
-- legal and regulatory compliance
-- incident response
-
-### Rule
-
-Security controls must be codified in standards and enforced through pipelines whenever possible.
-
-## DevOps organization
-
-DevOps is a shared capability team, not a team-specific workaround.
-
-### Responsibilities
-
-- CI/CD standardization
-- reusable environment patterns
-- observability baseline
-- infrastructure-as-code standards
-- automated deployment policy
-- incident recovery automation
-
-## Documentation organization
-
-Documentation is a strategic asset.
-
-### Documentation domains
-
-- architecture
-- engineering standards
-- security standards
-- release management
-- operational runbooks
-- decision records
-
-### Rule
-
-Every major decision must be documented in a durable artifact that can be referenced by future teams.
-
-## Knowledge management
-
-The company must preserve knowledge using a disciplined repository model.
-
-### Required knowledge assets
-
-- architecture docs
-- ADRs
-- runbooks
-- decision logs
-- incident postmortems
-- product onboarding guides
-
-### Standard
-
-Knowledge must be searchable, versioned, and traceable to system decisions.
+Documentation is a strategic asset. The company must preserve knowledge using a disciplined repository model so that architecture docs, ADRs, runbooks, decision logs, incident postmortems, and product onboarding guides remain searchable, versioned, and traceable to system decisions.
 
 ## Project lifecycle
 

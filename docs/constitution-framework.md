@@ -202,6 +202,6 @@ The Constitution is therefore a governance control layer on top of the existing 
 
 ## Current repository consistency note
 
-The current repository keeps the organizational source-of-truth in [docs/company-design.md](docs/company-design.md). The Constitution framework is intentionally higher-order governance and must reference the existing company design rather than create a separate competing model.
+The current repository keeps the organizational source-of-truth in [company-design.md](company-design.md). The Constitution framework is intentionally higher-order governance and must reference the existing company design rather than create a separate competing model.
 
-The repository should remain in this structure for now. If ASCOS later needs a dedicated governance directory for constitutional publication, that migration should be introduced only as a controlled future expansion and must preserve the organizational authority defined in [docs/company-design.md](docs/company-design.md).
+The repository should remain in this structure for now. If ASCOS later needs a dedicated governance directory for constitutional publication, that migration should be introduced only as a controlled future expansion and must preserve the organizational authority defined in [company-design.md](company-design.md).
