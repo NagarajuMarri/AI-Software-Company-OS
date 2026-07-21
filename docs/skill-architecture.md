@@ -285,7 +285,7 @@ Skill Architecture relates to other architecture domains as follows:
 - Role Architecture: Business Roles require skills but retain responsibility, authority, and accountability.
 - Digital Twin Architecture: Digital Twins receive approved skill assignments only within the scope of their corresponding Business Role and delegated responsibility.
 - Decision Architecture: Decisions concerning skill creation, approval, assignment, revision, deprecation, and retirement are governed by Decision Architecture.
-- Future Tool Architecture: Tools support the application of skills but are not skills.
+- Tool Architecture: Tools support the application of Skills but remain reusable operational resources distinct from Skills.
 - Future Execution Architecture: Execution coordinates the application of skills but is not defined here.
 - Future Evidence Architecture: Evidence demonstrates skill application and outcomes but is not defined here.
 - Future Knowledge Architecture: Knowledge supports skill application but is not itself a skill.
