@@ -16,7 +16,7 @@ Provide a durable engineering foundation for building hundreds of future softwar
 
 ## Current repository state
 
-This repository now contains the foundational governance architecture, organizational architecture, engineering capability architecture, role architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
+This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
 
@@ -24,6 +24,7 @@ This repository now contains the foundational governance architecture, organizat
 - [docs/company-design.md](docs/company-design.md) — approved organizational source-of-truth for ASCOS.
 - [docs/engineering-capability-model.md](docs/engineering-capability-model.md) — internal capability model for the Engineering Office.
 - [docs/role-architecture.md](docs/role-architecture.md) — authoritative source of truth for reusable engineering business roles, scalable role tiers, capability assignments, and optional digital-twin fulfilment principles.
+- [docs/digital-twin-architecture.md](docs/digital-twin-architecture.md) — the authoritative architecture describing how Business Roles are fulfilled through Digital Twins while remaining technology independent.
 - [docs/repository-architecture.md](docs/repository-architecture.md) — long-term repository blueprint.
 - [docs/platform-standards.md](docs/platform-standards.md) — shared engineering standards for future product repositories.
 - [docs/architecture-review-checklist.md](docs/architecture-review-checklist.md) — evidence required before implementation begins.

@@ -146,7 +146,7 @@ Future fulfilment technologies must be replaceable without changing:
 - Governance
 - Company Design
 
-This architecture is intentionally technology-independent. It is designed to remain valid as execution technologies evolve over time.
+This architecture is intentionally technology-independent. It is designed to remain valid as fulfilment technologies evolve over time.
 
 ## 10. Design Principles Summary
 

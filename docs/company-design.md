@@ -163,21 +163,9 @@ Decision-making follows a clear order:
 4. Product team preferences
 5. Temporary local optimization
 
-## Agent communication model
+Operational fulfilment architecture is defined separately through the Digital Twin Architecture.
 
-The company should use a structured agent model where each agent is purpose-bound and policy-aware.
-
-### Agent roles
-
-- Planning agent: turns goals into execution plans.
-- Architecture agent: validates system structure and standards.
-- Security agent: checks guardrails and policy alignment.
-- Quality agent: verifies test and readiness evidence.
-- Operations agent: validates observability and release readiness.
-
-### Communication standard
-
-All agent communication should be explicit, evidence-based, and traceable to a shared decision record.
+Company Design intentionally does not define fulfilment mechanisms.
 
 ## Engineering workflow
 
