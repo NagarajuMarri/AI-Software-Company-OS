@@ -158,5 +158,5 @@ The following concise principles summarize the architecture for future reference
 - The Digital Twin operates only within delegated authority.
 - The Digital Twin is constrained by policy and governance.
 - The Digital Twin produces evidence of fulfilment.
-- The architecture remains stable even as execution technologies change.
+- The architecture remains stable even as fulfilment technologies change.
 - Business architecture remains stable while fulfilment architecture evolves.
