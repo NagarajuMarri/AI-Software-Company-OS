@@ -1,5 +1,7 @@
 # Phase 1 — Engineering Assessment
 
+Status note: This document records the initial repository baseline. It was written before the ASCOS foundation milestones were implemented and is retained as historical assessment evidence. It does not represent the current repository state.
+
 ## Current repository
 
 The repository is currently in a very early state. Evidence from the workspace and Git metadata shows no application code, no build system, no product folders, and no tracked project structure beyond the Git repository itself.
