@@ -35,3 +35,15 @@ class ArtifactNotFoundError(RuntimeDomainError):
 
 class InvalidLifecycleTransitionError(RuntimeDomainError):
     """Raised when a lifecycle state change is not allowed."""
+
+
+class DuplicateAgentError(RuntimeDomainError):
+    """Raised when an agent identifier is already registered."""
+
+
+class AgentNotFoundError(RuntimeDomainError):
+    """Raised when an agent cannot be found."""
+
+
+class InvalidAgentStateTransitionError(RuntimeDomainError):
+    """Raised when an agent state change is not allowed."""
