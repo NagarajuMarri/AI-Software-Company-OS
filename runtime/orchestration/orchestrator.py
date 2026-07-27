@@ -140,6 +140,13 @@ class Orchestrator:
             package_id=package_id,
             work_item_id=work_item_id,
             agent_id=result.agent.id,
+            required_role=required_role,
+            required_capabilities=(
+                [] if required_capabilities is None else required_capabilities
+            ),
+            selection_reason=result.reason,
+            selected_agent_priority=result.agent.priority,
+            selected_agent_active_assignment_count=active_after_assignment - 1,
         )
         assignment.change_status(AssignmentStatus.ACTIVE)
 

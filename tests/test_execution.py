@@ -125,7 +125,7 @@ def test_duplicate_executor_prevention() -> None:
 
 
 def test_compatible_executor_selection() -> None:
-    _, _, _, registry, _, worker = build_execution_runtime()
+    _, _, orchestrator, registry, _, worker = build_execution_runtime()
     incompatible = DeterministicExecutor(
         "frontend",
         [AgentRole.FRONTEND_ENGINEER],
@@ -135,7 +135,8 @@ def test_compatible_executor_selection() -> None:
     registry.register_executor(incompatible)
     registry.register_executor(compatible)
 
-    assert registry.select_executor(worker) is compatible
+    assignment = orchestrator.get_assignment("assignment")
+    assert registry.select_executor(worker, assignment) is compatible
 
 
 @pytest.mark.parametrize(

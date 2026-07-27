@@ -25,7 +25,9 @@ LIFECYCLE_TRANSITIONS: dict[LifecycleState, frozenset[LifecycleState]] = {
     LifecycleState.ASSIGNED: frozenset(
         {LifecycleState.READY, LifecycleState.RUNNING}
     ),
-    LifecycleState.RUNNING: frozenset({LifecycleState.REVIEW}),
+    LifecycleState.RUNNING: frozenset(
+        {LifecycleState.ASSIGNED, LifecycleState.REVIEW}
+    ),
     LifecycleState.REVIEW: frozenset(
         {LifecycleState.APPROVED, LifecycleState.REJECTED}
     ),

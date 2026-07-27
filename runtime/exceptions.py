@@ -91,3 +91,19 @@ class InvalidExecutionStateTransitionError(RuntimeDomainError):
 
 class ExecutionFailedError(RuntimeDomainError):
     """Raised after a failed execution has been recorded."""
+
+
+class RecoveryNotFoundError(RuntimeDomainError):
+    """Raised when a recovery record cannot be found."""
+
+
+class DuplicateRecoveryError(RuntimeDomainError):
+    """Raised when a recovery record identifier already exists."""
+
+
+class InvalidRecoveryActionError(RuntimeDomainError):
+    """Raised when a recovery action value is invalid."""
+
+
+class ExecutionNotRecoverableError(RuntimeDomainError):
+    """Raised when execution state does not permit recovery."""

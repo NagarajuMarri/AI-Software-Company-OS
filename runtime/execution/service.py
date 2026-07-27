@@ -69,7 +69,7 @@ class ExecutionService:
                 "Execution requires work item ASSIGNED"
             )
         agent = self.agent_registry.get_agent(assignment.agent_id)
-        executor = self.executor_registry.select_executor(agent)
+        executor = self.executor_registry.select_executor(agent, assignment)
         execution = ExecutionResult(
             id=execution_id,
             assignment_id=assignment.id,
