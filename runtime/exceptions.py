@@ -67,3 +67,27 @@ class InvalidAssignmentStateTransitionError(RuntimeDomainError):
 
 class AgentCapacityError(RuntimeDomainError):
     """Raised when matching agents have no remaining task capacity."""
+
+
+class ExecutorNotFoundError(RuntimeDomainError):
+    """Raised when an executor cannot be found."""
+
+
+class DuplicateExecutorError(RuntimeDomainError):
+    """Raised when an executor identifier is already registered."""
+
+
+class ExecutionNotFoundError(RuntimeDomainError):
+    """Raised when an execution cannot be found."""
+
+
+class DuplicateExecutionError(RuntimeDomainError):
+    """Raised when an execution identifier already exists."""
+
+
+class InvalidExecutionStateTransitionError(RuntimeDomainError):
+    """Raised when an execution state change is not allowed."""
+
+
+class ExecutionFailedError(RuntimeDomainError):
+    """Raised after a failed execution has been recorded."""
