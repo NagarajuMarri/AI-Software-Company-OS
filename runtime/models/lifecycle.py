@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from enum import Enum
 
+from runtime.exceptions import InvalidLifecycleTransitionError
+
 
 class LifecycleState(str, Enum):
     """Enumeration of supported lifecycle states for runtime work items and artifacts."""
@@ -15,3 +17,29 @@ class LifecycleState(str, Enum):
     REJECTED = "REJECTED"
     COMPLETED = "COMPLETED"
     RELEASED = "RELEASED"
+
+
+LIFECYCLE_TRANSITIONS: dict[LifecycleState, frozenset[LifecycleState]] = {
+    LifecycleState.CREATED: frozenset({LifecycleState.READY}),
+    LifecycleState.READY: frozenset({LifecycleState.ASSIGNED}),
+    LifecycleState.ASSIGNED: frozenset({LifecycleState.RUNNING}),
+    LifecycleState.RUNNING: frozenset({LifecycleState.REVIEW}),
+    LifecycleState.REVIEW: frozenset(
+        {LifecycleState.APPROVED, LifecycleState.REJECTED}
+    ),
+    LifecycleState.REJECTED: frozenset({LifecycleState.RUNNING}),
+    LifecycleState.APPROVED: frozenset({LifecycleState.COMPLETED}),
+    LifecycleState.COMPLETED: frozenset({LifecycleState.RELEASED}),
+    LifecycleState.RELEASED: frozenset(),
+}
+
+
+def validate_lifecycle_transition(
+    current_state: LifecycleState,
+    new_state: LifecycleState,
+) -> None:
+    """Raise when a lifecycle transition is outside the shared policy."""
+    if new_state not in LIFECYCLE_TRANSITIONS[current_state]:
+        raise InvalidLifecycleTransitionError(
+            f"Cannot transition from {current_state.value} to {new_state.value}"
+        )

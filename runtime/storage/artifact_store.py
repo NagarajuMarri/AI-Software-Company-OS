@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from runtime.exceptions import ArtifactNotFoundError, DuplicateArtifactError
 from runtime.models.artifact import Artifact
 
 
@@ -20,6 +21,8 @@ class ArtifactStore:
         Returns:
             The stored artifact.
         """
+        if artifact.id in self._artifacts:
+            raise DuplicateArtifactError(f"Artifact {artifact.id!r} already exists")
         self._artifacts[artifact.id] = artifact
         return artifact
 
@@ -33,10 +36,10 @@ class ArtifactStore:
             The stored artifact.
 
         Raises:
-            KeyError: If the artifact does not exist.
+            ArtifactNotFoundError: If the artifact does not exist.
         """
         if artifact_id not in self._artifacts:
-            raise KeyError(f"Artifact {artifact_id} not found")
+            raise ArtifactNotFoundError(f"Artifact {artifact_id!r} not found")
         return self._artifacts[artifact_id]
 
     def list_artifacts(self) -> List[Artifact]:

@@ -8,5 +8,5 @@ def test_artifact_holds_identity_and_version() -> None:
     assert artifact.lifecycle_state == LifecycleState.CREATED
     assert artifact.version == "1.0"
 
-    artifact.change_state(LifecycleState.APPROVED)
-    assert artifact.lifecycle_state == LifecycleState.APPROVED
+    artifact.change_state(LifecycleState.READY)
+    assert artifact.lifecycle_state == LifecycleState.READY
