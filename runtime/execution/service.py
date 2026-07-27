@@ -1,6 +1,8 @@
 """Deterministic execution service for active work assignments."""
 
-from typing import Mapping
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Mapping
 
 from runtime.agents.registry import AgentRegistry
 from runtime.exceptions import (
@@ -18,6 +20,9 @@ from runtime.orchestration.assignment import AssignmentStatus
 from runtime.orchestration.orchestrator import Orchestrator
 from runtime.validation import validate_required_string
 
+if TYPE_CHECKING:
+    from runtime.events.publisher import EventPublisher
+
 
 class ExecutionService:
     """Execute active assignments synchronously through compatible executors."""
@@ -26,6 +31,7 @@ class ExecutionService:
         self,
         orchestrator: Orchestrator,
         executor_registry: ExecutorRegistry,
+        event_publisher: EventPublisher | None = None,
     ) -> None:
         if not isinstance(orchestrator, Orchestrator):
             raise ValidationError("orchestrator must be an Orchestrator value")
@@ -35,6 +41,7 @@ class ExecutionService:
             )
         self.orchestrator = orchestrator
         self.executor_registry = executor_registry
+        self.event_publisher = event_publisher
         self._executions: dict[str, ExecutionResult] = {}
 
     @property
@@ -90,6 +97,12 @@ class ExecutionService:
             )
             execution.mark_running()
             self._executions[execution.id] = execution
+            self._publish(
+                "EXECUTION_STARTED",
+                execution,
+                {"assignment_id": assignment.id},
+                context,
+            )
         except Exception:
             work_item.lifecycle_state = work_item_state
             package.updated_at = package_updated_at
@@ -116,6 +129,12 @@ class ExecutionService:
                 execution.mark_failed(
                     provider_result.error or "Executor reported failure"
                 )
+                self._publish(
+                    "EXECUTION_FAILED",
+                    execution,
+                    {"error": execution.error},
+                    context,
+                )
                 raise ExecutionFailedError(execution.error)
             if provider_result.status != ExecutionStatus.SUCCEEDED:
                 raise ValidationError(
@@ -129,7 +148,6 @@ class ExecutionService:
             execution.mark_succeeded(
                 provider_result.output or "Execution succeeded"
             )
-            return execution
         except ExecutionFailedError:
             raise
         except Exception as error:
@@ -137,12 +155,31 @@ class ExecutionService:
             package.updated_at = running_package_updated_at
             if execution.status == ExecutionStatus.RUNNING:
                 execution.mark_failed(str(error) or type(error).__name__)
+                self._publish(
+                    "EXECUTION_FAILED",
+                    execution,
+                    {"error": execution.error},
+                    context,
+                )
             raise ExecutionFailedError(execution.error) from error
+        self._publish(
+            "EXECUTION_SUCCEEDED",
+            execution,
+            {"output": execution.output},
+            context,
+        )
+        return execution
 
     def cancel_execution(self, execution_id: str) -> ExecutionResult:
         """Cancel a created/running execution without rewinding work."""
         execution = self.get_execution(execution_id)
         execution.cancel()
+        self._publish(
+            "EXECUTION_CANCELLED",
+            execution,
+            {},
+            None,
+        )
         return execution
 
     def get_execution(self, execution_id: str) -> ExecutionResult:
@@ -188,3 +225,33 @@ class ExecutionService:
             raise ValidationError(
                 "executor result relationships do not match execution context"
             )
+
+    def _publish(
+        self,
+        event_name: str,
+        execution: ExecutionResult,
+        payload: dict[str, object],
+        context: Mapping[str, object] | None,
+    ) -> None:
+        if self.event_publisher is None:
+            return
+        from runtime.events.types import EventType
+
+        correlation_id = (
+            context.get("correlation_id") if context is not None else None
+        )
+        causation_id = (
+            context.get("causation_id") if context is not None else None
+        )
+        self.event_publisher.publish(
+            EventType(event_name),
+            "EXECUTION",
+            execution.id,
+            payload,
+            correlation_id=(
+                correlation_id if isinstance(correlation_id, str) else None
+            ),
+            causation_id=(
+                causation_id if isinstance(causation_id, str) else None
+            ),
+        )

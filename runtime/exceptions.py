@@ -107,3 +107,19 @@ class InvalidRecoveryActionError(RuntimeDomainError):
 
 class ExecutionNotRecoverableError(RuntimeDomainError):
     """Raised when execution state does not permit recovery."""
+
+
+class EventNotFoundError(RuntimeDomainError):
+    """Raised when a runtime event cannot be found."""
+
+
+class DuplicateEventError(RuntimeDomainError):
+    """Raised when a runtime event identifier already exists."""
+
+
+class InvalidEventTypeError(RuntimeDomainError):
+    """Raised when an event type value is invalid."""
+
+
+class EventPublicationError(RuntimeDomainError):
+    """Raised when a runtime event cannot be persisted."""

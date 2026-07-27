@@ -1,9 +1,11 @@
 """Auditable deterministic recovery for failed executions."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Mapping
+from typing import TYPE_CHECKING, Mapping
 
 from runtime.exceptions import (
     DuplicateExecutionError,
@@ -21,6 +23,9 @@ from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
 from runtime.orchestration.assignment import AssignmentStatus, WorkAssignment
 from runtime.validation import validate_required_string
+
+if TYPE_CHECKING:
+    from runtime.events.publisher import EventPublisher
 
 
 class RecoveryAction(str, Enum):
@@ -75,12 +80,17 @@ class ExecutionRecoveryRecord:
 class ExecutionRecoveryService:
     """Recover failed executions while preserving complete history."""
 
-    def __init__(self, execution_service: ExecutionService) -> None:
+    def __init__(
+        self,
+        execution_service: ExecutionService,
+        event_publisher: EventPublisher | None = None,
+    ) -> None:
         if not isinstance(execution_service, ExecutionService):
             raise ValidationError(
                 "execution_service must be an ExecutionService value"
             )
         self.execution_service = execution_service
+        self.event_publisher = event_publisher
         self._records: dict[str, ExecutionRecoveryRecord] = {}
 
     def retry_failed_execution(
@@ -325,4 +335,32 @@ class ExecutionRecoveryService:
             reason=reason,
         )
         self._records[record.id] = record
+        try:
+            self._publish(record)
+        except Exception:
+            self._records.pop(record.id, None)
+            raise
         return record
+
+    def _publish(self, record: ExecutionRecoveryRecord) -> None:
+        if self.event_publisher is None:
+            return
+        from runtime.events.types import EventType
+
+        event_by_action = {
+            RecoveryAction.RETRY: EventType.EXECUTION_RECOVERY_RETRIED,
+            RecoveryAction.RESET_TO_ASSIGNED: EventType.EXECUTION_RECOVERY_RESET,
+            RecoveryAction.CANCEL_ASSIGNMENT: (
+                EventType.EXECUTION_RECOVERY_CANCELLED
+            ),
+        }
+        self.event_publisher.publish(
+            event_by_action[record.action],
+            "RECOVERY",
+            record.id,
+            {
+                "execution_id": record.execution_id,
+                "assignment_id": record.assignment_id,
+                "reason": record.reason,
+            },
+        )
