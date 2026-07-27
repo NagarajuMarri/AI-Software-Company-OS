@@ -20,11 +20,11 @@ class AgentMetadata:
     id: str
     display_name: str
     role: AgentRole
+    description: str
     state: AgentState = AgentState.REGISTERED
     supported_capabilities: list[AgentCapability] = field(default_factory=list)
     max_parallel_tasks: int = 1
     priority: int = 0
-    description: str = ""
 
     def __post_init__(self) -> None:
         validate_required_string(self.id, "AgentMetadata.id")

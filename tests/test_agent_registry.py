@@ -50,6 +50,26 @@ def test_register_and_lookup_agent() -> None:
     assert registry.list_agents() == [agent]
 
 
+def test_agent_metadata_requires_valid_description() -> None:
+    agent = AgentMetadata(
+        id="agent",
+        display_name="Agent",
+        role=AgentRole.BACKEND_ENGINEER,
+        description="Production backend engineer",
+    )
+
+    assert agent.description == "Production backend engineer"
+
+    for invalid_description in ("", " \t"):
+        with pytest.raises(ValidationError):
+            AgentMetadata(
+                id="invalid-agent",
+                display_name="Invalid Agent",
+                role=AgentRole.BACKEND_ENGINEER,
+                description=invalid_description,
+            )
+
+
 def test_duplicate_registration_is_rejected() -> None:
     registry = AgentRegistry()
     original = registry.register_agent(make_agent())
