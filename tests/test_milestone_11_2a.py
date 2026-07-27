@@ -12,7 +12,10 @@ from runtime.exceptions import (
     WorkItemNotFoundError,
 )
 from runtime.models.artifact import Artifact
-from runtime.models.lifecycle import LifecycleState
+from runtime.models.lifecycle import (
+    LifecycleState,
+    validate_lifecycle_transition,
+)
 from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
 from runtime.storage.artifact_store import ArtifactStore
@@ -162,3 +165,47 @@ def test_all_specific_exceptions_share_domain_base() -> None:
     assert issubclass(DuplicateArtifactError, RuntimeDomainError)
     assert issubclass(ArtifactNotFoundError, RuntimeDomainError)
     assert issubclass(InvalidLifecycleTransitionError, RuntimeDomainError)
+
+
+@pytest.mark.parametrize("invalid_state", ["CREATED", 1, None, object()])
+def test_invalid_lifecycle_during_work_item_creation(invalid_state: object) -> None:
+    with pytest.raises(ValidationError, match="LifecycleState enum value"):
+        WorkItem(
+            "wi",
+            "Title",
+            "Description",
+            lifecycle_state=invalid_state,  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.parametrize("invalid_state", ["CREATED", 1, None, object()])
+def test_invalid_lifecycle_during_artifact_creation(invalid_state: object) -> None:
+    with pytest.raises(ValidationError, match="LifecycleState enum value"):
+        Artifact(
+            "art",
+            "Name",
+            "document",
+            "1",
+            lifecycle_state=invalid_state,  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.parametrize("invalid_state", ["READY", 1, None, object()])
+def test_invalid_target_state_passed_to_change_state(invalid_state: object) -> None:
+    item = WorkItem("wi", "Title", "Description")
+
+    with pytest.raises(ValidationError, match="LifecycleState enum value"):
+        item.change_state(invalid_state)  # type: ignore[arg-type]
+
+    assert item.lifecycle_state == LifecycleState.CREATED
+
+
+@pytest.mark.parametrize("invalid_state", ["CREATED", 1, None, object()])
+def test_invalid_current_state_supplied_to_transition_validator(
+    invalid_state: object,
+) -> None:
+    with pytest.raises(ValidationError, match="LifecycleState enum value"):
+        validate_lifecycle_transition(
+            invalid_state,  # type: ignore[arg-type]
+            LifecycleState.READY,
+        )
