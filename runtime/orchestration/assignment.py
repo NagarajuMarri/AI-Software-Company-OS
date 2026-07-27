@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 
+from runtime.agents.role import AgentRole, validate_agent_role
 from runtime.exceptions import (
     InvalidAssignmentStateTransitionError,
     ValidationError,
@@ -78,12 +79,77 @@ class WorkAssignment:
     status: AssignmentStatus = AssignmentStatus.CREATED
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    required_role: AgentRole | None = None
+    required_capabilities: tuple[str, ...] | list[str] = ()
+    selection_reason: str = "No selection metadata supplied"
+    selected_agent_priority: int = 0
+    selected_agent_active_assignment_count: int = 0
+
+    _IMMUTABLE_REQUIREMENT_FIELDS = frozenset(
+        {
+            "required_role",
+            "required_capabilities",
+            "selection_reason",
+            "selected_agent_priority",
+            "selected_agent_active_assignment_count",
+        }
+    )
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if (
+            name in self._IMMUTABLE_REQUIREMENT_FIELDS
+            and name in self.__dict__
+        ):
+            raise AttributeError(f"{name} is an immutable assignment requirement")
+        super().__setattr__(name, value)
 
     def __post_init__(self) -> None:
         validate_required_string(self.id, "WorkAssignment.id")
         validate_required_string(self.package_id, "WorkAssignment.package_id")
         validate_required_string(self.work_item_id, "WorkAssignment.work_item_id")
         validate_required_string(self.agent_id, "WorkAssignment.agent_id")
+        if self.required_role is not None:
+            validate_agent_role(self.required_role)
+        if not isinstance(self.required_capabilities, (list, tuple)):
+            raise ValidationError(
+                "WorkAssignment.required_capabilities must be a list or tuple"
+            )
+        for capability_id in self.required_capabilities:
+            validate_required_string(
+                capability_id,
+                "WorkAssignment.required_capabilities",
+            )
+        if len(self.required_capabilities) != len(
+            set(self.required_capabilities)
+        ):
+            raise ValidationError(
+                "WorkAssignment.required_capabilities must not contain duplicates"
+            )
+        object.__setattr__(
+            self,
+            "required_capabilities",
+            tuple(self.required_capabilities),
+        )
+        validate_required_string(
+            self.selection_reason,
+            "WorkAssignment.selection_reason",
+        )
+        if not isinstance(self.selected_agent_priority, int) or isinstance(
+            self.selected_agent_priority,
+            bool,
+        ):
+            raise ValidationError(
+                "WorkAssignment.selected_agent_priority must be an integer"
+            )
+        if (
+            not isinstance(self.selected_agent_active_assignment_count, int)
+            or isinstance(self.selected_agent_active_assignment_count, bool)
+            or self.selected_agent_active_assignment_count < 0
+        ):
+            raise ValidationError(
+                "WorkAssignment.selected_agent_active_assignment_count "
+                "must be a non-negative integer"
+            )
         validate_assignment_status(self.status)
         validate_utc_timestamp(self.created_at, "WorkAssignment.created_at")
         validate_utc_timestamp(self.updated_at, "WorkAssignment.updated_at")

@@ -95,6 +95,19 @@ class RuntimeEngine:
         """Retrieve a work item from a package by identifier."""
         return self.get_work_package(package_id).get_work_item(work_item_id)
 
+    def recover_work_item_state(
+        self,
+        package_id: str,
+        work_item_id: str,
+        target_state: LifecycleState,
+        reason: str,
+    ) -> None:
+        """Apply the recovery-only RUNNING to ASSIGNED work-item transition."""
+        package = self.get_work_package(package_id)
+        item = package.get_work_item(work_item_id)
+        item.recover_state(target_state, reason)
+        package.mark_updated()
+
     def list_work_packages(self) -> list[WorkPackage]:
         """Return all work packages in insertion order."""
         return list(self._work_packages.values())

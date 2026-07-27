@@ -7,6 +7,7 @@ from runtime.exceptions import (
     ValidationError,
 )
 from runtime.execution.executor import BaseExecutor
+from runtime.orchestration.assignment import WorkAssignment
 from runtime.validation import validate_required_string
 
 
@@ -47,15 +48,22 @@ class ExecutorRegistry:
         """Return executors in registration order."""
         return list(self._executors.values())
 
-    def select_executor(self, agent: AgentMetadata) -> BaseExecutor:
-        """Select the first executor compatible with an assigned agent."""
+    def select_executor(
+        self,
+        agent: AgentMetadata,
+        assignment: WorkAssignment,
+    ) -> BaseExecutor:
+        """Select the first executor matching assignment requirements."""
         if not isinstance(agent, AgentMetadata):
             raise ValidationError("agent must be an AgentMetadata value")
-        required_capabilities = {
-            capability.id for capability in agent.supported_capabilities
-        }
+        if not isinstance(assignment, WorkAssignment):
+            raise ValidationError("assignment must be a WorkAssignment value")
+        required_capabilities = set(assignment.required_capabilities)
         for executor in self._executors.values():
-            if agent.role not in executor.supported_roles:
+            if (
+                assignment.required_role is not None
+                and assignment.required_role not in executor.supported_roles
+            ):
                 continue
             if not required_capabilities.issubset(
                 set(executor.supported_capabilities)
@@ -63,5 +71,5 @@ class ExecutorRegistry:
                 continue
             return executor
         raise ExecutorNotFoundError(
-            f"No compatible executor is registered for agent {agent.id!r}"
+            f"No compatible executor is registered for assignment {assignment.id!r}"
         )
