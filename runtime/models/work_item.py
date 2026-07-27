@@ -8,6 +8,7 @@ from runtime.models.lifecycle import (
     validate_lifecycle_state,
     validate_lifecycle_transition,
 )
+from runtime.exceptions import InvalidLifecycleTransitionError
 from runtime.validation import validate_optional_string, validate_required_string
 
 
@@ -38,4 +39,22 @@ class WorkItem:
             new_state: The target lifecycle state.
         """
         validate_lifecycle_transition(self.lifecycle_state, new_state)
+        self.lifecycle_state = new_state
+
+    def recover_state(
+        self,
+        new_state: LifecycleState,
+        reason: str,
+    ) -> None:
+        """Apply the single explicit backward transition used by recovery."""
+        validate_required_string(reason, "recovery reason")
+        validate_lifecycle_state(new_state)
+        if not (
+            self.lifecycle_state == LifecycleState.RUNNING
+            and new_state == LifecycleState.ASSIGNED
+        ):
+            raise InvalidLifecycleTransitionError(
+                f"Recovery cannot transition from {self.lifecycle_state.value} "
+                f"to {new_state.value}"
+            )
         self.lifecycle_state = new_state

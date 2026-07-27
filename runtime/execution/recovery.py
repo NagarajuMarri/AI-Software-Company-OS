@@ -109,10 +109,11 @@ class ExecutionRecoveryService:
         work_item_state = work_item.lifecycle_state
         package_updated_at = package.updated_at
         try:
-            self.execution_service.orchestrator.runtime_engine.change_work_item_state(
+            self.execution_service.orchestrator.runtime_engine.recover_work_item_state(
                 assignment.package_id,
                 assignment.work_item_id,
                 LifecycleState.ASSIGNED,
+                reason,
             )
             try:
                 result = self.execution_service.execute_assignment(
@@ -140,6 +141,8 @@ class ExecutionRecoveryService:
                 execution.id
                 for execution in self.execution_service.list_executions()
             }:
+                # Compensating rollback after a later atomic step failed.
+                # Normal and recovery transition APIs cannot express rollback.
                 work_item.lifecycle_state = work_item_state
                 package.updated_at = package_updated_at
             raise
@@ -160,10 +163,11 @@ class ExecutionRecoveryService:
         work_item_state = work_item.lifecycle_state
         package_updated_at = package.updated_at
         try:
-            self.execution_service.orchestrator.runtime_engine.change_work_item_state(
+            self.execution_service.orchestrator.runtime_engine.recover_work_item_state(
                 assignment.package_id,
                 assignment.work_item_id,
                 LifecycleState.ASSIGNED,
+                reason,
             )
             return self._store_record(
                 recovery_id,
@@ -172,6 +176,7 @@ class ExecutionRecoveryService:
                 reason,
             )
         except Exception:
+            # Compensating rollback after recovery succeeded but audit storage failed.
             work_item.lifecycle_state = work_item_state
             package.updated_at = package_updated_at
             self._records.pop(recovery_id, None)
@@ -202,10 +207,11 @@ class ExecutionRecoveryService:
             package.updated_at,
         )
         try:
-            self.execution_service.orchestrator.runtime_engine.change_work_item_state(
+            self.execution_service.orchestrator.runtime_engine.recover_work_item_state(
                 assignment.package_id,
                 assignment.work_item_id,
                 LifecycleState.ASSIGNED,
+                reason,
             )
             self.execution_service.orchestrator.cancel_assignment(
                 assignment.id
@@ -217,6 +223,7 @@ class ExecutionRecoveryService:
                 reason,
             )
         except Exception:
+            # Compensating rollback of a multi-object recovery transaction.
             (
                 work_item.lifecycle_state,
                 work_item.assigned_to,

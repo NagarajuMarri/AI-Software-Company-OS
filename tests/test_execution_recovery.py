@@ -14,6 +14,8 @@ from runtime.exceptions import (
     ExecutorNotFoundError,
     RecoveryNotFoundError,
     RuntimeDomainError,
+    InvalidLifecycleTransitionError,
+    ValidationError,
 )
 from runtime.execution.executor import DeterministicExecutor
 from runtime.execution.recovery import (
@@ -27,6 +29,7 @@ from runtime.execution.service import ExecutionService
 from runtime.models.lifecycle import LifecycleState
 from runtime.orchestration.assignment import AssignmentStatus
 from runtime.orchestration.orchestrator import Orchestrator
+from runtime.models.work_item import WorkItem
 
 
 def build_recovery_runtime(
@@ -151,6 +154,99 @@ def test_assignment_requirement_snapshot_is_exact_and_immutable() -> None:
         assignment.required_capabilities = ("extra",)
     with pytest.raises(AttributeError):
         assignment.selection_reason = "changed"
+
+
+def test_normal_work_item_transition_rejects_recovery_transition() -> None:
+    item = WorkItem(
+        "wi",
+        "Work",
+        "Description",
+        lifecycle_state=LifecycleState.RUNNING,
+    )
+
+    with pytest.raises(InvalidLifecycleTransitionError):
+        item.change_state(LifecycleState.ASSIGNED)
+
+
+def test_runtime_normal_transition_rejects_recovery_transition() -> None:
+    engine = RuntimeEngine()
+    engine.create_work_package("wp", "Package", "Description", "owner")
+    engine.add_work_item("wp", "wi", "Work", "Description")
+    engine.change_work_item_state("wp", "wi", LifecycleState.READY)
+    engine.change_work_item_state("wp", "wi", LifecycleState.ASSIGNED)
+    engine.change_work_item_state("wp", "wi", LifecycleState.RUNNING)
+
+    with pytest.raises(InvalidLifecycleTransitionError):
+        engine.change_work_item_state("wp", "wi", LifecycleState.ASSIGNED)
+
+
+def test_explicit_recovery_transition_requires_reason_and_updates_timestamp() -> None:
+    engine = RuntimeEngine()
+    package = engine.create_work_package(
+        "wp",
+        "Package",
+        "Description",
+        "owner",
+    )
+    engine.add_work_item("wp", "wi", "Work", "Description")
+    engine.change_work_item_state("wp", "wi", LifecycleState.READY)
+    engine.change_work_item_state("wp", "wi", LifecycleState.ASSIGNED)
+    engine.change_work_item_state("wp", "wi", LifecycleState.RUNNING)
+    item = engine.get_work_item("wp", "wi")
+    before = package.updated_at
+
+    engine.recover_work_item_state(
+        "wp",
+        "wi",
+        LifecycleState.ASSIGNED,
+        "Retry failed execution",
+    )
+
+    assert item.lifecycle_state == LifecycleState.ASSIGNED
+    assert package.updated_at > before
+
+
+def test_explicit_recovery_requires_non_empty_reason() -> None:
+    engine = RuntimeEngine()
+    engine.create_work_package("wp", "Package", "Description", "owner")
+    engine.add_work_item("wp", "wi", "Work", "Description")
+    engine.change_work_item_state("wp", "wi", LifecycleState.READY)
+    engine.change_work_item_state("wp", "wi", LifecycleState.ASSIGNED)
+    engine.change_work_item_state("wp", "wi", LifecycleState.RUNNING)
+    item = engine.get_work_item("wp", "wi")
+
+    with pytest.raises(ValidationError):
+        engine.recover_work_item_state(
+            "wp",
+            "wi",
+            LifecycleState.ASSIGNED,
+            " ",
+        )
+    assert item.lifecycle_state == LifecycleState.RUNNING
+
+
+@pytest.mark.parametrize(
+    ("current", "target"),
+    [
+        (LifecycleState.REVIEW, LifecycleState.ASSIGNED),
+        (LifecycleState.RUNNING, LifecycleState.READY),
+        (LifecycleState.COMPLETED, LifecycleState.RUNNING),
+    ],
+)
+def test_explicit_recovery_rejects_unrelated_transitions(
+    current: LifecycleState,
+    target: LifecycleState,
+) -> None:
+    item = WorkItem(
+        "wi",
+        "Work",
+        "Description",
+        lifecycle_state=current,
+    )
+
+    with pytest.raises(InvalidLifecycleTransitionError):
+        item.recover_state(target, "Invalid recovery")
+    assert item.lifecycle_state == current
 
 
 def test_executor_uses_assignment_requirements_not_all_agent_capabilities() -> None:
