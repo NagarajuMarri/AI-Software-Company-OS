@@ -321,10 +321,8 @@ def test_no_eligible_agent(
         )
 
 
-@pytest.mark.parametrize("review_state", [LifecycleState.REVIEW, LifecycleState.APPROVED])
-def test_assignment_completion(
+def test_approved_assignment_completion(
     orchestration: tuple[RuntimeEngine, AgentRegistry, Orchestrator],
-    review_state: LifecycleState,
 ) -> None:
     engine, registry, orchestrator = orchestration
     worker = registry.register_agent(agent("worker"))
@@ -332,8 +330,7 @@ def test_assignment_completion(
     assignment = orchestrator.assign_work_item("a", "wp", "wi")
     engine.change_work_item_state("wp", "wi", LifecycleState.RUNNING)
     engine.change_work_item_state("wp", "wi", LifecycleState.REVIEW)
-    if review_state == LifecycleState.APPROVED:
-        engine.change_work_item_state("wp", "wi", LifecycleState.APPROVED)
+    engine.change_work_item_state("wp", "wi", LifecycleState.APPROVED)
 
     completed = orchestrator.complete_assignment(assignment.id)
 
@@ -345,17 +342,110 @@ def test_assignment_completion(
         orchestrator.complete_assignment(assignment.id)
 
 
-def test_completion_requires_review_or_approval(
+@pytest.mark.parametrize(
+    "invalid_state",
+    [
+        LifecycleState.REVIEW,
+        LifecycleState.RUNNING,
+        LifecycleState.ASSIGNED,
+        LifecycleState.READY,
+        LifecycleState.REJECTED,
+        LifecycleState.COMPLETED,
+        LifecycleState.RELEASED,
+    ],
+)
+def test_completion_requires_prior_approval_without_mutation(
     orchestration: tuple[RuntimeEngine, AgentRegistry, Orchestrator],
+    invalid_state: LifecycleState,
 ) -> None:
     engine, registry, orchestrator = orchestration
-    registry.register_agent(agent("worker"))
+    worker = registry.register_agent(agent("worker"))
     add_ready_work_item(engine, "wp", "wi")
     assignment = orchestrator.assign_work_item("a", "wp", "wi")
+    work_item = engine.get_work_item("wp", "wi")
+    work_item.lifecycle_state = invalid_state
+    assignment_status = assignment.status
+    agent_state = worker.state
+    active_count = orchestrator.get_active_assignment_count(worker.id)
 
     with pytest.raises(InvalidAssignmentStateTransitionError):
         orchestrator.complete_assignment(assignment.id)
+
+    assert assignment.status == assignment_status == AssignmentStatus.ACTIVE
+    assert work_item.lifecycle_state == invalid_state
+    assert worker.state == agent_state == AgentState.BUSY
+    assert orchestrator.get_active_assignment_count(worker.id) == active_count == 1
+
+
+def test_failed_assignment_rolls_back_all_mutations(
+    orchestration: tuple[RuntimeEngine, AgentRegistry, Orchestrator],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine, registry, orchestrator = orchestration
+    worker = registry.register_agent(agent("worker"))
+    add_ready_work_item(engine, "wp", "wi")
+    work_item = engine.get_work_item("wp", "wi")
+
+    def fail_state_update(agent_id: str, new_state: AgentState) -> None:
+        raise RuntimeError("injected agent state failure")
+
+    monkeypatch.setattr(registry, "update_agent_state", fail_state_update)
+    with pytest.raises(RuntimeError, match="injected"):
+        orchestrator.assign_work_item("a", "wp", "wi")
+
+    assert work_item.lifecycle_state == LifecycleState.READY
+    assert work_item.assigned_to is None
+    assert worker.state == AgentState.AVAILABLE
+    assert orchestrator.list_assignments() == []
+
+
+def test_failed_completion_rolls_back_all_mutations(
+    orchestration: tuple[RuntimeEngine, AgentRegistry, Orchestrator],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine, registry, orchestrator = orchestration
+    worker = registry.register_agent(agent("worker"))
+    add_ready_work_item(engine, "wp", "wi")
+    assignment = orchestrator.assign_work_item("a", "wp", "wi")
+    engine.change_work_item_state("wp", "wi", LifecycleState.RUNNING)
+    engine.change_work_item_state("wp", "wi", LifecycleState.REVIEW)
+    engine.change_work_item_state("wp", "wi", LifecycleState.APPROVED)
+
+    def fail_status_update(status: AssignmentStatus) -> None:
+        raise RuntimeError("injected assignment status failure")
+
+    monkeypatch.setattr(assignment, "change_status", fail_status_update)
+    with pytest.raises(RuntimeError, match="injected"):
+        orchestrator.complete_assignment(assignment.id)
+
+    assert engine.get_work_item("wp", "wi").lifecycle_state == LifecycleState.APPROVED
     assert assignment.status == AssignmentStatus.ACTIVE
+    assert worker.state == AgentState.BUSY
+    assert orchestrator.get_active_assignment_count(worker.id) == 1
+
+
+def test_failed_cancellation_rolls_back_all_mutations(
+    orchestration: tuple[RuntimeEngine, AgentRegistry, Orchestrator],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine, registry, orchestrator = orchestration
+    worker = registry.register_agent(agent("worker"))
+    add_ready_work_item(engine, "wp", "wi")
+    assignment = orchestrator.assign_work_item("a", "wp", "wi")
+    work_item = engine.get_work_item("wp", "wi")
+
+    def fail_status_update(status: AssignmentStatus) -> None:
+        raise RuntimeError("injected assignment status failure")
+
+    monkeypatch.setattr(assignment, "change_status", fail_status_update)
+    with pytest.raises(RuntimeError, match="injected"):
+        orchestrator.cancel_assignment(assignment.id)
+
+    assert work_item.lifecycle_state == LifecycleState.ASSIGNED
+    assert work_item.assigned_to == worker.id
+    assert assignment.status == AssignmentStatus.ACTIVE
+    assert worker.state == AgentState.BUSY
+    assert orchestrator.get_active_assignment_count(worker.id) == 1
 
 
 def test_assignment_cancellation_returns_work_to_ready(

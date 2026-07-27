@@ -143,18 +143,31 @@ class Orchestrator:
         )
         assignment.change_status(AssignmentStatus.ACTIVE)
 
-        self.runtime_engine.change_work_item_state(
-            package_id,
-            work_item_id,
-            LifecycleState.ASSIGNED,
-        )
-        work_item.assigned_to = result.agent.id
-        if active_after_assignment == result.agent.max_parallel_tasks:
-            self.agent_registry.update_agent_state(
-                result.agent.id,
-                AgentState.BUSY,
+        package = self.runtime_engine.get_work_package(package_id)
+        work_item_state = work_item.lifecycle_state
+        assigned_to = work_item.assigned_to
+        agent_state = result.agent.state
+        package_updated_at = package.updated_at
+        try:
+            self.runtime_engine.change_work_item_state(
+                package_id,
+                work_item_id,
+                LifecycleState.ASSIGNED,
             )
-        self._assignments[assignment.id] = assignment
+            work_item.assigned_to = result.agent.id
+            if active_after_assignment == result.agent.max_parallel_tasks:
+                self.agent_registry.update_agent_state(
+                    result.agent.id,
+                    AgentState.BUSY,
+                )
+            self._assignments[assignment.id] = assignment
+        except Exception:
+            work_item.lifecycle_state = work_item_state
+            work_item.assigned_to = assigned_to
+            result.agent.state = agent_state
+            package.updated_at = package_updated_at
+            self._assignments.pop(assignment.id, None)
+            raise
         return assignment
 
     def complete_assignment(self, assignment_id: str) -> WorkAssignment:
@@ -165,23 +178,33 @@ class Orchestrator:
             assignment.package_id,
             assignment.work_item_id,
         )
-        if work_item.lifecycle_state == LifecycleState.REVIEW:
+        if work_item.lifecycle_state != LifecycleState.APPROVED:
+            raise InvalidAssignmentStateTransitionError(
+                "Assignment completion requires work item APPROVED"
+            )
+
+        package = self.runtime_engine.get_work_package(assignment.package_id)
+        agent = self.agent_registry.get_agent(assignment.agent_id)
+        work_item_state = work_item.lifecycle_state
+        agent_state = agent.state
+        assignment_status = assignment.status
+        assignment_updated_at = assignment.updated_at
+        package_updated_at = package.updated_at
+        try:
             self.runtime_engine.change_work_item_state(
                 assignment.package_id,
                 assignment.work_item_id,
-                LifecycleState.APPROVED,
+                LifecycleState.COMPLETED,
             )
-        elif work_item.lifecycle_state != LifecycleState.APPROVED:
-            raise InvalidAssignmentStateTransitionError(
-                "Assignment completion requires work item REVIEW or APPROVED"
-            )
-        self.runtime_engine.change_work_item_state(
-            assignment.package_id,
-            assignment.work_item_id,
-            LifecycleState.COMPLETED,
-        )
-        assignment.change_status(AssignmentStatus.COMPLETED)
-        self._release_agent_capacity(assignment.agent_id)
+            assignment.change_status(AssignmentStatus.COMPLETED)
+            self._release_agent_capacity(assignment.agent_id)
+        except Exception:
+            work_item.lifecycle_state = work_item_state
+            agent.state = agent_state
+            assignment.status = assignment_status
+            assignment.updated_at = assignment_updated_at
+            package.updated_at = package_updated_at
+            raise
         return assignment
 
     def cancel_assignment(self, assignment_id: str) -> WorkAssignment:
@@ -196,14 +219,31 @@ class Orchestrator:
             raise InvalidAssignmentStateTransitionError(
                 "Cancellation requires the work item to remain ASSIGNED"
             )
-        self.runtime_engine.change_work_item_state(
-            assignment.package_id,
-            assignment.work_item_id,
-            LifecycleState.READY,
-        )
-        work_item.assigned_to = None
-        assignment.change_status(AssignmentStatus.CANCELLED)
-        self._release_agent_capacity(assignment.agent_id)
+        package = self.runtime_engine.get_work_package(assignment.package_id)
+        agent = self.agent_registry.get_agent(assignment.agent_id)
+        work_item_state = work_item.lifecycle_state
+        assigned_to = work_item.assigned_to
+        agent_state = agent.state
+        assignment_status = assignment.status
+        assignment_updated_at = assignment.updated_at
+        package_updated_at = package.updated_at
+        try:
+            self.runtime_engine.change_work_item_state(
+                assignment.package_id,
+                assignment.work_item_id,
+                LifecycleState.READY,
+            )
+            work_item.assigned_to = None
+            assignment.change_status(AssignmentStatus.CANCELLED)
+            self._release_agent_capacity(assignment.agent_id)
+        except Exception:
+            work_item.lifecycle_state = work_item_state
+            work_item.assigned_to = assigned_to
+            agent.state = agent_state
+            assignment.status = assignment_status
+            assignment.updated_at = assignment_updated_at
+            package.updated_at = package_updated_at
+            raise
         return assignment
 
     def get_assignment(self, assignment_id: str) -> WorkAssignment:
