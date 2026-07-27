@@ -1,14 +1,19 @@
 """Runtime foundation package for ASCOS."""
 
 from runtime.exceptions import (
+    AgentCapacityError,
     AgentNotFoundError,
+    AssignmentNotFoundError,
     ArtifactNotFoundError,
     DuplicateAgentError,
+    DuplicateActiveAssignmentError,
     DuplicateArtifactError,
     DuplicateWorkItemError,
     DuplicateWorkPackageError,
     InvalidAgentStateTransitionError,
+    InvalidAssignmentStateTransitionError,
     InvalidLifecycleTransitionError,
+    NoEligibleAgentError,
     RuntimeDomainError,
     ValidationError,
     WorkItemNotFoundError,
@@ -16,14 +21,19 @@ from runtime.exceptions import (
 )
 
 __all__ = [
+    "AgentCapacityError",
     "AgentNotFoundError",
+    "AssignmentNotFoundError",
     "ArtifactNotFoundError",
     "DuplicateAgentError",
+    "DuplicateActiveAssignmentError",
     "DuplicateArtifactError",
     "DuplicateWorkItemError",
     "DuplicateWorkPackageError",
     "InvalidAgentStateTransitionError",
+    "InvalidAssignmentStateTransitionError",
     "InvalidLifecycleTransitionError",
+    "NoEligibleAgentError",
     "RuntimeDomainError",
     "ValidationError",
     "WorkItemNotFoundError",
