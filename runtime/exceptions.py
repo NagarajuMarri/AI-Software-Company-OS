@@ -47,3 +47,23 @@ class AgentNotFoundError(RuntimeDomainError):
 
 class InvalidAgentStateTransitionError(RuntimeDomainError):
     """Raised when an agent state change is not allowed."""
+
+
+class AssignmentNotFoundError(RuntimeDomainError):
+    """Raised when an assignment cannot be found."""
+
+
+class DuplicateActiveAssignmentError(RuntimeDomainError):
+    """Raised when a work item already has an active assignment."""
+
+
+class NoEligibleAgentError(RuntimeDomainError):
+    """Raised when no agent satisfies assignment requirements."""
+
+
+class InvalidAssignmentStateTransitionError(RuntimeDomainError):
+    """Raised when an assignment state change is not allowed."""
+
+
+class AgentCapacityError(RuntimeDomainError):
+    """Raised when matching agents have no remaining task capacity."""
