@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 @dataclass
@@ -19,7 +20,7 @@ class ContextManager:
             A dictionary containing enterprise, project, and work item context.
         """
         return {
-            "enterprise_context": self.enterprise_context,
-            "project_context": self.project_context,
-            "work_item_context": self.work_item_context,
+            "enterprise_context": deepcopy(self.enterprise_context),
+            "project_context": deepcopy(self.project_context),
+            "work_item_context": deepcopy(self.work_item_context),
         }

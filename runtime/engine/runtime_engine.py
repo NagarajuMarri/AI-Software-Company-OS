@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
+from runtime.exceptions import DuplicateWorkPackageError, WorkPackageNotFoundError
 from runtime.models.lifecycle import LifecycleState
 from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
@@ -31,6 +32,8 @@ class RuntimeEngine:
         Returns:
             The created work package.
         """
+        if id in self._work_packages:
+            raise DuplicateWorkPackageError(f"Work package {id!r} already exists")
         package = WorkPackage(id=id, title=title, description=description, owner=owner)
         self._work_packages[id] = package
         return package
@@ -58,7 +61,7 @@ class RuntimeEngine:
             The created work item.
 
         Raises:
-            KeyError: If the specified work package does not exist.
+            WorkPackageNotFoundError: If the specified work package does not exist.
         """
         package = self.get_work_package(package_id)
         item = WorkItem(
@@ -80,14 +83,21 @@ class RuntimeEngine:
             new_state: The target lifecycle state.
 
         Raises:
-            KeyError: If the work package or work item does not exist.
+            WorkPackageNotFoundError: If the work package does not exist.
+            WorkItemNotFoundError: If the work item does not exist.
         """
         package = self.get_work_package(package_id)
-        for item in package.work_items:
-            if item.id == work_item_id:
-                item.change_state(new_state)
-                return
-        raise KeyError(f"Work item {work_item_id} not found")
+        item = package.get_work_item(work_item_id)
+        item.change_state(new_state)
+        package.mark_updated()
+
+    def get_work_item(self, package_id: str, work_item_id: str) -> WorkItem:
+        """Retrieve a work item from a package by identifier."""
+        return self.get_work_package(package_id).get_work_item(work_item_id)
+
+    def list_work_packages(self) -> list[WorkPackage]:
+        """Return all work packages in insertion order."""
+        return list(self._work_packages.values())
 
     def get_work_package(self, package_id: str) -> WorkPackage:
         """Retrieve a work package by identifier.
@@ -99,8 +109,8 @@ class RuntimeEngine:
             The requested work package.
 
         Raises:
-            KeyError: If the work package does not exist.
+            WorkPackageNotFoundError: If the work package does not exist.
         """
         if package_id not in self._work_packages:
-            raise KeyError(f"Work package {package_id} not found")
+            raise WorkPackageNotFoundError(f"Work package {package_id!r} not found")
         return self._work_packages[package_id]
