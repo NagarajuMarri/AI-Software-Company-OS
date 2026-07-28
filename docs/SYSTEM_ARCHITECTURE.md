@@ -1,5 +1,11 @@
 # System Architecture
 
+External execution is split into tool, workspace, Git, GitHub, coding-agent,
+and task-coordination boundaries. Domain services never import subprocess,
+SQLite, GitHub SDK, OpenAI SDK, or operating-system shell details. Coding-agent
+providers are execution infrastructure and are intentionally distinct from
+software-company domain agents.
+
 `DatabasePersistenceProvider` is composed through the provider-neutral
 persistence boundary. It owns SQL, migrations, optimistic versions, and
 optional leases; no database model leaks into domain services. A PostgreSQL

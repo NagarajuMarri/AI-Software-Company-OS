@@ -247,6 +247,13 @@ class RuntimePersistenceService:
             workflow_service._requests = built["requests"]
             workflow_service._workflows = built["workflows"]
             container.event_store._events = built["events"]
+            external = container.external_task_service
+            restored_external = built["external_task_service"]
+            external._tasks = restored_external._tasks
+            external._progress = restored_external._progress
+            external._results = restored_external._results
+            external._decisions = restored_external._decisions
+            external._operations = restored_external._operations
         except Exception as error:
             raise RuntimeRestoreError("Runtime restoration failed") from error
         self.last_restore_missing_executors = (
@@ -277,6 +284,7 @@ class RuntimePersistenceService:
         return {
             "type": "ascos.runtime-state",
             "version": 1,
+            "external_tasks": container.external_task_service.snapshot(),
             "packages": [
                 {
                     "id": package.id,
@@ -657,6 +665,12 @@ class RuntimePersistenceService:
                 requests,
                 workflows,
             )
+            from runtime.tasks.service import ExternalTaskService
+
+            external_task_service = ExternalTaskService(
+                self.container.coding_agent_provider_registry
+            )
+            external_task_service.restore(payload.get("external_tasks", {}))
             return {
                 "packages": packages,
                 "agents": agents,
@@ -667,6 +681,7 @@ class RuntimePersistenceService:
                 "requests": requests,
                 "workflows": workflows,
                 "events": events,
+                "external_task_service": external_task_service,
             }
         except RuntimeRestoreError:
             raise

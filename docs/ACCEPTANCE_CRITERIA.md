@@ -1,5 +1,11 @@
 # Runtime Persistence Acceptance Criteria
 
+Milestone 11.3D requires argument-array command execution without a shell,
+workspace containment, protected Git branches, typed offline GitHub behavior,
+deterministic coding-provider selection, explicit side-effect records,
+reconciliation after interruption, persisted task/review state, credential
+exclusion, and approval that neither completes nor merges automatically.
+
 Milestone 11.3C requires deterministic migrations, atomic checkpoint/event
 commits, stale-writer rejection, durable event ordering, hashed lease
 identities with UTC expiry and fencing, restart without historical

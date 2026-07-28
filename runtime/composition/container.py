@@ -16,6 +16,8 @@ from runtime.execution.service import ExecutionService
 from runtime.orchestration.orchestrator import Orchestrator
 from runtime.storage.artifact_store import ArtifactStore
 from runtime.workflows.service import SoftwareDeliveryWorkflowService
+from runtime.coding_agents.registry import CodingAgentProviderRegistry
+from runtime.tasks.service import ExternalTaskService
 
 if TYPE_CHECKING:
     from runtime.persistence.interfaces import PersistenceProvider
@@ -117,6 +119,11 @@ class ASCOSRuntimeContainer:
                     self.execution_recovery_service,
                     self.event_publisher,
                 )
+            )
+            self.coding_agent_provider_registry = CodingAgentProviderRegistry()
+            self.external_task_service = ExternalTaskService(
+                self.coding_agent_provider_registry,
+                event_publisher=self.event_publisher,
             )
             self.persistence_service = None
             self.runtime_lease = None

@@ -1,5 +1,11 @@
 # Runtime Persistence Operations
 
+External operations that restore in `RECONCILIATION_REQUIRED` need remote-state
+inspection before retry. Operators should correlate the operation ID, task ID,
+provider task reference, branch, and audit records; never copy credentials into
+diagnostics. Kill timed-out processes, clean abandoned caller-owned workspaces,
+and treat provider output and patches as untrusted.
+
 Use SQLite's online backup API or confirmed writer quiescence; copying only the
 main file during WAL writes is unsafe. Restore into a separate path and verify
 schema, digest, state version, and event position. Back up before migrations.
