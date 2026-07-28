@@ -23,3 +23,10 @@ a future provider behind the same contracts.
 
 Milestone 11.3B deliberately adds no database, cloud store, broker, or async
 runtime.
+# Milestone 11.3F
+
+Process worker lifecycle, durable registration and heartbeat, provider health,
+circuit breaking, deterministic routing, and an optional PostgreSQL concurrency
+adapter are implemented. A future milestone may add deployment-specific composition
+and broader real-PostgreSQL soak testing; it must not weaken explicit-start,
+operator-control, idempotency, or fencing guarantees.

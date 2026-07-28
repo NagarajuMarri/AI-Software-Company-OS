@@ -1,0 +1,4 @@
+class PostgreSQLPersistenceError(RuntimeError): pass
+class PostgreSQLConnectionError(PostgreSQLPersistenceError): pass
+class PostgreSQLSchemaError(PostgreSQLPersistenceError): pass
+class PostgreSQLVersionConflictError(PostgreSQLPersistenceError): pass

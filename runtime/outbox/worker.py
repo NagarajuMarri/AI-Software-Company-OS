@@ -18,6 +18,7 @@ class OutboxWorker:
         clock,
         claim_ttl_seconds=30,
         event_publisher=None,
+        result_guard=None,
     ):
         self.worker_id = worker_id
         self.repository = repository
@@ -28,6 +29,7 @@ class OutboxWorker:
         self.clock = clock
         self.claim_ttl_seconds = claim_ttl_seconds
         self.event_publisher = event_publisher
+        self.result_guard = result_guard
         self.stopped = False
         self.dispatch_count = 0
 
@@ -49,6 +51,8 @@ class OutboxWorker:
             self.dispatch_count += 1
             result = handler.dispatch(provider, operation)
             try:
+                if self.result_guard is not None:
+                    self.result_guard(operation, claim)
                 with (
                     self.event_publisher.atomic()
                     if self.event_publisher is not None

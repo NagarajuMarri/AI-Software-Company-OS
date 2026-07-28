@@ -31,3 +31,10 @@ outside domain models, preserving the provider-neutral boundary.
 The file provider is a development and test implementation. A future database
 provider can implement checkpoint, state, event, and persistence-transaction
 contracts while preserving checkpoint schema and integrity validation.
+# Milestone 11.3F runtime boundary
+
+Explicit spawned workers reconstruct dependencies from safe references. Worker
+registration and heartbeat persistence are separate from outbox claim ownership and
+fencing. Provider health and deterministic routing are provider-neutral services.
+PostgreSQL-specific migrations, transactions, and locking remain isolated beneath
+the persistence adapter; SQLite remains the local-development provider.
