@@ -69,6 +69,17 @@ def test_secret_environment_and_nul_are_rejected(tmp_path):
         ))
 
 
+def test_allowed_environment_value_is_redacted_from_output(tmp_path):
+    result = runner(tmp_path).execute(CommandRequest(
+        "python",
+        ("-c", "import os;print(os.environ['SAFE'])"),
+        tmp_path,
+        {"SAFE": "credential-like-value"},
+    ))
+    assert result.stdout.strip() == "[REDACTED]"
+    assert "credential-like-value" not in repr(result)
+
+
 def test_live_cancellation_terminates_child(tmp_path):
     cancellation = threading.Event()
     timer = threading.Timer(.05, cancellation.set)

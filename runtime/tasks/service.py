@@ -90,6 +90,9 @@ class ExternalTaskService:
             provider_task_id = provider.submit_task(request)
             progress = provider.get_progress(provider_task_id)
             result = provider.get_result(provider_task_id)
+            self._validate_provider_progress(task_id, progress)
+            if result.task_id != task_id:
+                raise ValueError("Provider result belongs to another task")
         except Exception:
             with self._atomic():
                 operation.status = ExternalOperationStatus.RECONCILIATION_REQUIRED
@@ -134,6 +137,18 @@ class ExternalTaskService:
         task = self.get_task(task_id)
         if task.status not in {ExternalTaskStatus.FAILED, ExternalTaskStatus.CHANGES_REQUESTED}:
             raise InvalidExternalTaskTransitionError("Task is not retryable")
+        result = self._results.get(task_id)
+        if (
+            task.status == ExternalTaskStatus.FAILED
+            and (
+                result is None
+                or result.status
+                != CodingAgentResultStatus.FAILED_RETRYABLE
+            )
+        ):
+            raise InvalidExternalTaskTransitionError(
+                "Permanent failure cannot be retried"
+            )
         task.retry_count += 1
         self._transition(task, ExternalTaskStatus.QUEUED)
         self._emit(EventType.EXTERNAL_TASK_RETRY_REQUESTED, task, {"retry_count": task.retry_count})
@@ -316,6 +331,12 @@ class ExternalTaskService:
             if self.event_publisher is not None
             else nullcontext()
         )
+
+    @staticmethod
+    def _validate_provider_progress(task_id, progress):
+        for expected, item in enumerate(progress, start=1):
+            if item.task_id != task_id or item.sequence != expected:
+                raise ValueError("Provider progress sequence is invalid")
 
     @staticmethod
     def _serialize_task(item):

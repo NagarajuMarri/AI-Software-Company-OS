@@ -33,3 +33,21 @@ def test_retryable_and_permanent_results_are_structured():
     second = provider.submit_task(request())
     assert provider.get_result(first).failure_code == "FAILED_RETRYABLE"
     assert provider.get_result(second).failure_code == "FAILED_PERMANENT"
+
+
+def test_invalid_progress_sequence_is_rejected():
+    import pytest
+    from dataclasses import replace
+
+    registry = CodingAgentProviderRegistry()
+    provider = DeterministicCodingAgentProvider()
+    original = provider.get_progress
+
+    def invalid(identifier):
+        values = original(identifier)
+        return (replace(values[0], sequence=2),)
+
+    provider.get_progress = invalid
+    registry.register_provider(provider)
+    with pytest.raises(ValueError, match="sequence"):
+        CodingAgentService(registry).execute(request(), {"python"})

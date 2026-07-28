@@ -65,3 +65,18 @@ def test_invalid_lifecycle_jump_is_rejected():
     task = create(container.external_task_service)
     with pytest.raises(InvalidExternalTaskTransitionError):
         container.external_task_service.complete_task(task.task_id)
+
+
+def test_permanent_failure_cannot_be_retried():
+    container = create_runtime_container()
+    container.coding_agent_provider_registry.register_provider(
+        DeterministicCodingAgentProvider(
+            outcomes=(CodingAgentResultStatus.FAILED_PERMANENT,)
+        )
+    )
+    service = container.external_task_service
+    task = create(service)
+    service.queue_task(task.task_id)
+    service.execute_task(task.task_id, request())
+    with pytest.raises(InvalidExternalTaskTransitionError):
+        service.retry_task(task.task_id)

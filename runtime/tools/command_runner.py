@@ -85,8 +85,13 @@ class LocalCommandRunner:
         except FileNotFoundError as error:
             raise InvalidCommandError("Allowed executable is unavailable") from error
         completed = datetime.now(timezone.utc)
-        stdout, out_cut = self._bounded(stdout)
-        stderr, err_cut = self._bounded(stderr)
+        redactions = tuple(
+            value
+            for value in (*self.base_environment.values(), *environment.values())
+            if value
+        )
+        stdout, out_cut = self._bounded(stdout, redactions)
+        stderr, err_cut = self._bounded(stderr, redactions)
         return CommandResult(
             request.executable,
             request.arguments,
@@ -121,9 +126,15 @@ class LocalCommandRunner:
         ):
             raise WorkspaceSecurityError("Working directory escapes workspace")
 
-    def _bounded(self, value: bytes) -> tuple[str, bool]:
+    def _bounded(
+        self,
+        value: bytes,
+        redactions: tuple[str, ...] = (),
+    ) -> tuple[str, bool]:
         truncated = len(value) > self.max_output_bytes
-        return (
-            value[: self.max_output_bytes].decode("utf-8", errors="replace"),
-            truncated,
+        decoded = value[: self.max_output_bytes].decode(
+            "utf-8", errors="replace"
         )
+        for secret in sorted(set(redactions), key=len, reverse=True):
+            decoded = decoded.replace(secret, "[REDACTED]")
+        return decoded, truncated
