@@ -1,5 +1,9 @@
 """In-memory registry of ASCOS agents."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from runtime.agents.capability import AgentCapability
 from runtime.agents.metadata import AgentMetadata
 from runtime.agents.role import AgentRole, validate_agent_role
@@ -7,12 +11,16 @@ from runtime.agents.state import AgentState
 from runtime.exceptions import AgentNotFoundError, DuplicateAgentError, ValidationError
 from runtime.validation import validate_required_string
 
+if TYPE_CHECKING:
+    from runtime.events.publisher import EventPublisher
+
 
 class AgentRegistry:
     """Register, discover, and update agent metadata."""
 
-    def __init__(self) -> None:
+    def __init__(self, event_publisher: EventPublisher | None = None) -> None:
         self._agents: dict[str, AgentMetadata] = {}
+        self.event_publisher = event_publisher
 
     def register_agent(self, agent: AgentMetadata) -> AgentMetadata:
         """Register a new agent without overwriting an existing identifier."""
@@ -21,6 +29,11 @@ class AgentRegistry:
         if agent.id in self._agents:
             raise DuplicateAgentError(f"Agent {agent.id!r} is already registered")
         self._agents[agent.id] = agent
+        self._publish(
+            "AGENT_REGISTERED",
+            agent.id,
+            {"role": agent.role.value, "state": agent.state.value},
+        )
         return agent
 
     def remove_agent(self, agent_id: str) -> AgentMetadata:
@@ -69,5 +82,31 @@ class AgentRegistry:
     ) -> AgentMetadata:
         """Update and return a registered agent's operational state."""
         agent = self.get_agent(agent_id)
+        previous_state = agent.state
         agent.change_state(new_state)
+        self._publish(
+            "AGENT_STATE_CHANGED",
+            agent.id,
+            {
+                "previous_state": previous_state.value,
+                "new_state": new_state.value,
+            },
+        )
         return agent
+
+    def _publish(
+        self,
+        event_name: str,
+        aggregate_id: str,
+        payload: dict[str, object],
+    ) -> None:
+        if self.event_publisher is None:
+            return
+        from runtime.events.types import EventType
+
+        self.event_publisher.publish(
+            EventType(event_name),
+            "AGENT",
+            aggregate_id,
+            payload,
+        )

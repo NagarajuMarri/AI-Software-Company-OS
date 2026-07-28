@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 from runtime.exceptions import DuplicateWorkPackageError, WorkPackageNotFoundError
 from runtime.models.lifecycle import LifecycleState
 from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
 
+if TYPE_CHECKING:
+    from runtime.events.publisher import EventPublisher
+
 
 class RuntimeEngine:
     """In-memory runtime engine for creating and managing work packages."""
 
-    def __init__(self) -> None:
+    def __init__(self, event_publisher: EventPublisher | None = None) -> None:
         self._work_packages: Dict[str, WorkPackage] = {}
+        self.event_publisher = event_publisher
 
     def create_work_package(
         self,
@@ -36,6 +40,12 @@ class RuntimeEngine:
             raise DuplicateWorkPackageError(f"Work package {id!r} already exists")
         package = WorkPackage(id=id, title=title, description=description, owner=owner)
         self._work_packages[id] = package
+        self._publish(
+            "WORK_PACKAGE_CREATED",
+            "WORK_PACKAGE",
+            package.id,
+            {"title": package.title, "owner": package.owner},
+        )
         return package
 
     def add_work_item(
@@ -72,6 +82,12 @@ class RuntimeEngine:
             assigned_to=assigned_to,
         )
         package.add_work_item(item)
+        self._publish(
+            "WORK_ITEM_CREATED",
+            "WORK_ITEM",
+            f"{package_id}:{item.id}",
+            {"package_id": package_id, "work_item_id": item.id},
+        )
         return item
 
     def change_work_item_state(self, package_id: str, work_item_id: str, new_state: LifecycleState) -> None:
@@ -88,8 +104,20 @@ class RuntimeEngine:
         """
         package = self.get_work_package(package_id)
         item = package.get_work_item(work_item_id)
+        previous_state = item.lifecycle_state
         item.change_state(new_state)
         package.mark_updated()
+        self._publish(
+            "WORK_ITEM_STATE_CHANGED",
+            "WORK_ITEM",
+            f"{package_id}:{work_item_id}",
+            {
+                "package_id": package_id,
+                "work_item_id": work_item_id,
+                "previous_state": previous_state.value,
+                "new_state": new_state.value,
+            },
+        )
 
     def get_work_item(self, package_id: str, work_item_id: str) -> WorkItem:
         """Retrieve a work item from a package by identifier."""
@@ -105,8 +133,22 @@ class RuntimeEngine:
         """Apply the recovery-only RUNNING to ASSIGNED work-item transition."""
         package = self.get_work_package(package_id)
         item = package.get_work_item(work_item_id)
+        previous_state = item.lifecycle_state
         item.recover_state(target_state, reason)
         package.mark_updated()
+        self._publish(
+            "WORK_ITEM_STATE_CHANGED",
+            "WORK_ITEM",
+            f"{package_id}:{work_item_id}",
+            {
+                "package_id": package_id,
+                "work_item_id": work_item_id,
+                "previous_state": previous_state.value,
+                "new_state": target_state.value,
+                "recovery": True,
+                "reason": reason,
+            },
+        )
 
     def list_work_packages(self) -> list[WorkPackage]:
         """Return all work packages in insertion order."""
@@ -127,3 +169,21 @@ class RuntimeEngine:
         if package_id not in self._work_packages:
             raise WorkPackageNotFoundError(f"Work package {package_id!r} not found")
         return self._work_packages[package_id]
+
+    def _publish(
+        self,
+        event_name: str,
+        aggregate_type: str,
+        aggregate_id: str,
+        payload: dict[str, object],
+    ) -> None:
+        if self.event_publisher is None:
+            return
+        from runtime.events.types import EventType
+
+        self.event_publisher.publish(
+            EventType(event_name),
+            aggregate_type,
+            aggregate_id,
+            payload,
+        )

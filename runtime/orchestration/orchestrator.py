@@ -1,5 +1,9 @@
 """Deterministic coordinator for runtime work and registered agents."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from runtime.agents.metadata import AgentMetadata
 from runtime.agents.registry import AgentRegistry
 from runtime.agents.role import AgentRole
@@ -22,6 +26,9 @@ from runtime.orchestration.selection import (
 )
 from runtime.validation import validate_required_string
 
+if TYPE_CHECKING:
+    from runtime.events.publisher import EventPublisher
+
 
 class Orchestrator:
     """Coordinate deterministic assignment without execution or queues."""
@@ -30,6 +37,7 @@ class Orchestrator:
         self,
         runtime_engine: RuntimeEngine,
         agent_registry: AgentRegistry,
+        event_publisher: EventPublisher | None = None,
     ) -> None:
         if not isinstance(runtime_engine, RuntimeEngine):
             raise ValidationError("runtime_engine must be a RuntimeEngine value")
@@ -37,6 +45,7 @@ class Orchestrator:
             raise ValidationError("agent_registry must be an AgentRegistry value")
         self.runtime_engine = runtime_engine
         self.agent_registry = agent_registry
+        self.event_publisher = event_publisher
         self._assignments: dict[str, WorkAssignment] = {}
 
     def select_agent(
@@ -175,6 +184,15 @@ class Orchestrator:
             package.updated_at = package_updated_at
             self._assignments.pop(assignment.id, None)
             raise
+        self._publish(
+            "ASSIGNMENT_CREATED",
+            assignment,
+            {
+                "package_id": package_id,
+                "work_item_id": work_item_id,
+                "agent_id": assignment.agent_id,
+            },
+        )
         return assignment
 
     def complete_assignment(self, assignment_id: str) -> WorkAssignment:
@@ -212,6 +230,11 @@ class Orchestrator:
             assignment.updated_at = assignment_updated_at
             package.updated_at = package_updated_at
             raise
+        self._publish(
+            "ASSIGNMENT_COMPLETED",
+            assignment,
+            {"work_item_id": assignment.work_item_id},
+        )
         return assignment
 
     def cancel_assignment(self, assignment_id: str) -> WorkAssignment:
@@ -251,6 +274,11 @@ class Orchestrator:
             assignment.updated_at = assignment_updated_at
             package.updated_at = package_updated_at
             raise
+        self._publish(
+            "ASSIGNMENT_CANCELLED",
+            assignment,
+            {"work_item_id": assignment.work_item_id},
+        )
         return assignment
 
     def get_assignment(self, assignment_id: str) -> WorkAssignment:
@@ -324,3 +352,20 @@ class Orchestrator:
                 agent_id,
                 AgentState.AVAILABLE,
             )
+
+    def _publish(
+        self,
+        event_name: str,
+        assignment: WorkAssignment,
+        payload: dict[str, object],
+    ) -> None:
+        if self.event_publisher is None:
+            return
+        from runtime.events.types import EventType
+
+        self.event_publisher.publish(
+            EventType(event_name),
+            "ASSIGNMENT",
+            assignment.id,
+            payload,
+        )
