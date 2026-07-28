@@ -1,5 +1,14 @@
 # Runtime Roadmap
 
+# Milestone 12.0
+
+The project registry establishes stable managed-product identity, repository
+routing and lifecycle metadata, duplicate protection, registration events,
+composition-root access, and optional atomic JSON persistence.
+`spoken-english-ai` is demonstrated as the first managed product without
+coupling ASCOS to or modifying its repository. Project-scoped execution,
+lifecycle transition services, and database persistence remain future work.
+
 Milestone 11.3E adds durable outbox repositories, fenced worker claims,
 idempotent dispatch/application, deterministic retry, dead-letter controls,
 reconciliation, crash recovery, supervisor health, and safe metrics. A future
