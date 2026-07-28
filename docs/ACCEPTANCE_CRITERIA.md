@@ -1,5 +1,11 @@
 # Runtime Persistence Acceptance Criteria
 
+Milestone 11.3E requires atomic intent/event creation, deterministic exclusive
+claims, hashed claim tokens, stale-fencing rejection, at-least-once dispatch,
+idempotent local result application, bounded retry, dead-letter/operator audit,
+uncertain-outcome reconciliation, restart safety, provider-neutral persistence,
+and no automatic approval, merge, or deployment.
+
 Milestone 11.3D requires argument-array command execution without a shell,
 workspace containment, protected Git branches, typed offline GitHub behavior,
 deterministic coding-provider selection, explicit side-effect records,

@@ -1,5 +1,10 @@
 # Runtime Persistence Operations
 
+Monitor outbox depth, oldest pending age, expired claims, reconciliation count,
+and dead letters. Retry and abandonment require an authenticated operator
+identity and reason. Reconcile uncertain dispatch before retrying it; never
+assume a timeout means the provider did nothing.
+
 External operations that restore in `RECONCILIATION_REQUIRED` need remote-state
 inspection before retry. Operators should correlate the operation ID, task ID,
 provider task reference, branch, and audit records; never copy credentials into

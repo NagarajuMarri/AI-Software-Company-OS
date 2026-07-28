@@ -1,0 +1,5 @@
+class OperationHandlerError(RuntimeError): pass
+class DuplicateOperationHandlerError(OperationHandlerError): pass
+class UnknownOperationHandlerError(OperationHandlerError): pass
+class UnsupportedPayloadVersionError(OperationHandlerError): pass
+class ForgedProviderResultError(OperationHandlerError): pass

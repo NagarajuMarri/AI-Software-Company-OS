@@ -1,0 +1,12 @@
+class OutboxError(RuntimeError): pass
+class OutboxValidationError(OutboxError): pass
+class OutboxOperationNotFoundError(OutboxError): pass
+class DuplicateOutboxOperationError(OutboxError): pass
+class IdempotencyConflictError(OutboxError): pass
+class InvalidOutboxTransitionError(OutboxError): pass
+class OutboxClaimError(OutboxError): pass
+class OutboxClaimExpiredError(OutboxClaimError): pass
+class StaleOutboxFencingError(OutboxClaimError): pass
+class OutboxHandlerError(OutboxError): pass
+class OutboxProviderPausedError(OutboxError): pass
+class OutboxAuthorizationError(OutboxError): pass

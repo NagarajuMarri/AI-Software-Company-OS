@@ -1,5 +1,10 @@
 # Runtime Roadmap
 
+Milestone 11.3E adds durable outbox repositories, fenced worker claims,
+idempotent dispatch/application, deterministic retry, dead-letter controls,
+reconciliation, crash recovery, supervisor health, and safe metrics. A future
+milestone may add real worker processes and PostgreSQL locking verification.
+
 Milestone 11.3D establishes safe local execution, workspace and Git isolation,
 offline GitHub contracts, coding-agent provider selection, durable external
 task tracking, reconciliation, and explicit human approval. Worker processes,
