@@ -23,9 +23,13 @@ def migrate(connection: sqlite3.Connection) -> None:
             f"No migration adapter exists for database schema {version}"
         )
     try:
-        connection.executescript(SCHEMA_SQL)
-        connection.execute(f"PRAGMA user_version={DATABASE_SCHEMA_VERSION}")
-        connection.commit()
+        connection.executescript(
+            "BEGIN IMMEDIATE;\n"
+            f"{SCHEMA_SQL}\n"
+            f"PRAGMA user_version={DATABASE_SCHEMA_VERSION};\n"
+            "COMMIT;"
+        )
     except sqlite3.DatabaseError:
-        connection.rollback()
+        if connection.in_transaction:
+            connection.rollback()
         raise

@@ -6,6 +6,7 @@ from runtime.persistence.database import DatabasePersistenceProvider
 from runtime.persistence.database.migrations import migrate
 from runtime.persistence.database.schema import DATABASE_SCHEMA_VERSION
 from runtime.persistence.models import RuntimeCheckpoint
+from runtime.persistence.exceptions import PersistenceIntegrityError
 
 
 def checkpoint(runtime_id="runtime", checkpoint_id="cp", events=()):
@@ -57,3 +58,15 @@ def test_unknown_newer_schema_is_rejected(tmp_path):
         connection.execute("PRAGMA user_version=999")
     with pytest.raises(Exception, match="schema"):
         DatabasePersistenceProvider(path)
+
+
+def test_relational_checkpoint_metadata_is_cross_validated(tmp_path):
+    path = tmp_path / "runtime.sqlite3"
+    provider = DatabasePersistenceProvider(path)
+    provider.commit_checkpoint(checkpoint(), expected_state_version=0)
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "UPDATE runtime_checkpoints SET last_event_position=1"
+        )
+    with pytest.raises(PersistenceIntegrityError, match="metadata"):
+        provider.load_checkpoint("cp")

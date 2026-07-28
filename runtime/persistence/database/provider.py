@@ -317,24 +317,31 @@ class DatabasePersistenceProvider:
     def load_checkpoint(self, checkpoint_id: str) -> RuntimeCheckpoint:
         with self._connect() as connection:
             rows = connection.execute(
-                "SELECT canonical_payload FROM runtime_checkpoints "
+                "SELECT checkpoint_id,runtime_id,checkpoint_schema_version,"
+                "state_version,created_at,reason,last_event_position,"
+                "state_digest,canonical_payload FROM runtime_checkpoints "
                 "WHERE checkpoint_id=?",
                 (checkpoint_id,),
             ).fetchall()
-        if len(rows) != 1:
-            from runtime.persistence.exceptions import CheckpointNotFoundError
+            if len(rows) != 1:
+                from runtime.persistence.exceptions import CheckpointNotFoundError
 
-            raise CheckpointNotFoundError(checkpoint_id)
-        return self._decode_checkpoint(rows[0][0])
+                raise CheckpointNotFoundError(checkpoint_id)
+            return self._validate_stored_checkpoint(connection, rows[0])
 
     def list_checkpoints(self, runtime_id: str) -> list[RuntimeCheckpoint]:
         with self._connect() as connection:
             rows = connection.execute(
-                "SELECT canonical_payload FROM runtime_checkpoints "
+                "SELECT checkpoint_id,runtime_id,checkpoint_schema_version,"
+                "state_version,created_at,reason,last_event_position,"
+                "state_digest,canonical_payload FROM runtime_checkpoints "
                 "WHERE runtime_id=? ORDER BY state_version, checkpoint_id",
                 (runtime_id,),
             ).fetchall()
-        return [self._decode_checkpoint(row[0]) for row in rows]
+            return [
+                self._validate_stored_checkpoint(connection, row)
+                for row in rows
+            ]
 
     def select_latest_checkpoint(
         self,
@@ -344,25 +351,27 @@ class DatabasePersistenceProvider:
     ) -> CheckpointSelection:
         with self._connect() as connection:
             rows = connection.execute(
-                "SELECT checkpoint_id, canonical_payload "
+                "SELECT checkpoint_id,runtime_id,checkpoint_schema_version,"
+                "state_version,created_at,reason,last_event_position,"
+                "state_digest,canonical_payload "
                 "FROM runtime_checkpoints WHERE runtime_id=? "
                 "ORDER BY state_version DESC",
                 (runtime_id,),
             ).fetchall()
-        skipped = []
-        for checkpoint_id, payload in rows:
-            try:
-                selection = CheckpointSelection(
-                    self._decode_checkpoint(payload),
-                    recovery_mode,
-                    tuple(skipped),
-                )
-                self.last_checkpoint_selection = selection
-                return selection
-            except Exception:
-                if not recovery_mode:
-                    raise
-                skipped.append(checkpoint_id)
+            skipped = []
+            for row in rows:
+                try:
+                    selection = CheckpointSelection(
+                        self._validate_stored_checkpoint(connection, row),
+                        recovery_mode,
+                        tuple(skipped),
+                    )
+                    self.last_checkpoint_selection = selection
+                    return selection
+                except Exception:
+                    if not recovery_mode:
+                        raise
+                    skipped.append(row[0])
         from runtime.persistence.exceptions import CheckpointNotFoundError
 
         raise CheckpointNotFoundError(runtime_id)
@@ -382,6 +391,51 @@ class DatabasePersistenceProvider:
     def _decode_checkpoint(value: str) -> RuntimeCheckpoint:
         document = json.loads(value)
         return FilePersistenceProvider._from_document(document)
+
+    def _validate_stored_checkpoint(
+        self,
+        connection: sqlite3.Connection,
+        row,
+    ) -> RuntimeCheckpoint:
+        checkpoint = self._decode_checkpoint(row[8])
+        if (
+            checkpoint.id != row[0]
+            or checkpoint.runtime_id != row[1]
+            or checkpoint.schema_version != row[2]
+            or checkpoint.created_at.isoformat() != row[4]
+            or checkpoint.reason != row[5]
+            or checkpoint.last_event_position != row[6]
+            or checkpoint.state_digest != row[7]
+        ):
+            from runtime.persistence.exceptions import PersistenceIntegrityError
+
+            raise PersistenceIntegrityError(
+                "Relational checkpoint metadata does not match payload"
+            )
+        version_row = connection.execute(
+            "SELECT checkpoint_id FROM runtime_state_versions "
+            "WHERE runtime_id=? AND state_version=?",
+            (checkpoint.runtime_id, row[3]),
+        ).fetchone()
+        event_rows = connection.execute(
+            "SELECT event_id FROM runtime_events WHERE runtime_id=? "
+            "AND global_position<=? ORDER BY global_position",
+            (checkpoint.runtime_id, checkpoint.last_event_position),
+        ).fetchall()
+        payload_event_ids = [
+            event["id"] for event in checkpoint.payload["events"]
+        ]
+        if (
+            version_row is None
+            or version_row[0] != checkpoint.id
+            or [item[0] for item in event_rows] != payload_event_ids
+        ):
+            from runtime.persistence.exceptions import PersistenceIntegrityError
+
+            raise PersistenceIntegrityError(
+                "Checkpoint version or event position is inconsistent"
+            )
+        return checkpoint
 
     def get_event(self, event_id: str) -> RuntimeEvent:
         with self._connect() as connection:
