@@ -80,6 +80,7 @@ class SoftwareDeliveryWorkflowService:
         self.event_publisher = event_publisher
         self._workflows: dict[str, SoftwareDeliveryWorkflow] = {}
         self._requests: dict[str, SoftwareDeliveryRequest] = {}
+        self._persistence_callback = None
         if event_publisher is not None:
             event_publisher.register_snapshot_provider(self._snapshot_targets)
 
@@ -533,6 +534,19 @@ class SoftwareDeliveryWorkflowService:
         for workflow in self._workflows.values():
             targets.extend([workflow, workflow.execution_ids])
         return targets
+
+    def configure_persistence_callback(self, callback: object) -> None:
+        if callback is not None and not callable(callback):
+            raise ValidationError("persistence callback must be callable")
+        self._persistence_callback = callback
+
+    def _after_atomic_operation(
+        self,
+        operation: str,
+        result: object,
+    ) -> None:
+        if self._persistence_callback is not None:
+            self._persistence_callback(operation, result)
 
     @staticmethod
     def _require_assignment_id(
