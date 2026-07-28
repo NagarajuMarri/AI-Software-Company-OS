@@ -20,6 +20,17 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/EXTERNAL_TOOL_EXECUTION.md](docs/EXTERNAL_TOOL_EXECUTION.md) — safe
+  commands and isolated workspaces.
+- [docs/GIT_INTEGRATION.md](docs/GIT_INTEGRATION.md) and
+  [docs/GITHUB_INTEGRATION.md](docs/GITHUB_INTEGRATION.md) — provider-neutral
+  repository boundaries.
+- [docs/CODING_AGENT_PROVIDERS.md](docs/CODING_AGENT_PROVIDERS.md) — external
+  coding-provider contracts and deterministic simulation.
+- [docs/EXTERNAL_TASK_LIFECYCLE.md](docs/EXTERNAL_TASK_LIFECYCLE.md) and
+  [docs/HUMAN_APPROVAL.md](docs/HUMAN_APPROVAL.md) — side effects, review, and
+  explicit decisions.
+
 - [docs/DATABASE_PERSISTENCE.md](docs/DATABASE_PERSISTENCE.md) — relational
   schema, atomic commits, migrations, and deployment boundaries.
 - [docs/CONCURRENCY_CONTROL.md](docs/CONCURRENCY_CONTROL.md) — optimistic
