@@ -22,16 +22,42 @@ class ReconciliationWorker:
         self._emit("OUTBOX_RECONCILIATION_STARTED", operation)
         provider = self.providers.get(operation.provider_id)
         result = provider.reconcile(operation.idempotency_key)
-        if result is None:
+        from runtime.operations.handlers import (
+            ProviderDispatchResult,
+            ProviderReconciliationStatus,
+        )
+        if isinstance(result, ProviderDispatchResult):
+            dispatch_result = result
+            status = ProviderReconciliationStatus.SUCCEEDED
+        else:
+            status = result.status
+            dispatch_result = result.dispatch_result
+        if status == ProviderReconciliationStatus.NOT_EXECUTED:
+            operation.reconciliation_state = ReconciliationState.RESOLVED
+            self.repository.release_claim(claim)
+            return operation
+        if status == ProviderReconciliationStatus.IN_PROGRESS:
+            return self.repository.mark_reconciliation_required(
+                claim, "PROVIDER_IN_PROGRESS"
+            )
+        if status in {
+            ProviderReconciliationStatus.FAILED,
+            ProviderReconciliationStatus.UNVERIFIABLE,
+        }:
             operation.reconciliation_state = ReconciliationState.UNVERIFIABLE
             result = self.repository.mark_dead_letter(
-                claim, "Provider outcome unverifiable"
+                claim,
+                (
+                    "Provider confirmed failure"
+                    if status == ProviderReconciliationStatus.FAILED
+                    else "Provider outcome unverifiable"
+                ),
             )
             self._emit("OUTBOX_RECONCILIATION_FAILED", operation)
             return result
-        self.result_application.apply(operation, result)
+        self.result_application.apply(operation, dispatch_result)
         completed = self.repository.mark_succeeded(
-            claim, result.result_reference
+            claim, dispatch_result.result_reference
         )
         self._emit("OUTBOX_RECONCILIATION_SUCCEEDED", operation)
         return completed

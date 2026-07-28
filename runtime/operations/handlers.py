@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from runtime.operations.exceptions import (
     ForgedProviderResultError, UnsupportedPayloadVersionError,
@@ -11,6 +12,21 @@ class ProviderDispatchResult:
     provider_id: str
     result_reference: str
     result_payload: dict
+
+
+class ProviderReconciliationStatus(str, Enum):
+    NOT_EXECUTED = "NOT_EXECUTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    UNVERIFIABLE = "UNVERIFIABLE"
+
+
+@dataclass(frozen=True)
+class ProviderReconciliationResult:
+    status: ProviderReconciliationStatus
+    dispatch_result: ProviderDispatchResult | None = None
+    failure_code: str | None = None
 
 
 class DeterministicOperationHandler:

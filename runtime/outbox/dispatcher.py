@@ -18,6 +18,7 @@ class DeterministicDispatchProvider:
         self._outcomes = list(outcomes)
         self.calls = []
         self._results = {}
+        self._reconciliation = {}
 
     def supports(self, capability):
         return capability == "dispatch"
@@ -40,4 +41,18 @@ class DeterministicDispatchProvider:
         return result
 
     def reconcile(self, idempotency_key):
-        return self._results.get(idempotency_key)
+        from runtime.operations.handlers import (
+            ProviderReconciliationResult,
+            ProviderReconciliationStatus,
+        )
+        if idempotency_key in self._reconciliation:
+            return self._reconciliation[idempotency_key]
+        result = self._results.get(idempotency_key)
+        return ProviderReconciliationResult(
+            ProviderReconciliationStatus.SUCCEEDED
+            if result else ProviderReconciliationStatus.NOT_EXECUTED,
+            result,
+        )
+
+    def set_reconciliation_result(self, idempotency_key, result):
+        self._reconciliation[idempotency_key] = result
