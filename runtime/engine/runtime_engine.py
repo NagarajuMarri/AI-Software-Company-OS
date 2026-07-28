@@ -6,6 +6,7 @@ from runtime.exceptions import DuplicateWorkPackageError, WorkPackageNotFoundErr
 from runtime.models.lifecycle import LifecycleState
 from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
+from runtime.transactions import atomic_domain_operation
 
 if TYPE_CHECKING:
     from runtime.events.publisher import EventPublisher
@@ -17,7 +18,10 @@ class RuntimeEngine:
     def __init__(self, event_publisher: EventPublisher | None = None) -> None:
         self._work_packages: Dict[str, WorkPackage] = {}
         self.event_publisher = event_publisher
+        if event_publisher is not None:
+            event_publisher.register_snapshot_provider(self._snapshot_targets)
 
+    @atomic_domain_operation
     def create_work_package(
         self,
         id: str,
@@ -48,6 +52,7 @@ class RuntimeEngine:
         )
         return package
 
+    @atomic_domain_operation
     def add_work_item(
         self,
         package_id: str,
@@ -90,6 +95,7 @@ class RuntimeEngine:
         )
         return item
 
+    @atomic_domain_operation
     def change_work_item_state(self, package_id: str, work_item_id: str, new_state: LifecycleState) -> None:
         """Change the lifecycle state of an existing work item.
 
@@ -123,6 +129,7 @@ class RuntimeEngine:
         """Retrieve a work item from a package by identifier."""
         return self.get_work_package(package_id).get_work_item(work_item_id)
 
+    @atomic_domain_operation
     def recover_work_item_state(
         self,
         package_id: str,
@@ -187,3 +194,12 @@ class RuntimeEngine:
             aggregate_id,
             payload,
         )
+
+    def _snapshot_targets(self) -> list[object]:
+        targets: list[object] = [self._work_packages]
+        for package in self._work_packages.values():
+            targets.extend(
+                [package, package.work_items, package.artifacts]
+            )
+            targets.extend(package.work_items)
+        return targets

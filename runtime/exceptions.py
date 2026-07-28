@@ -123,3 +123,23 @@ class InvalidEventTypeError(RuntimeDomainError):
 
 class EventPublicationError(RuntimeDomainError):
     """Raised when a runtime event cannot be persisted."""
+
+
+class TransactionAlreadyCompletedError(RuntimeDomainError):
+    """Raised when a completed transaction is reused."""
+
+
+class NestedTransactionError(RuntimeDomainError):
+    """Raised when an explicit transaction is nested."""
+
+
+class TransactionCommitError(EventPublicationError):
+    """Raised when an atomic transaction cannot commit."""
+
+
+class TransactionRollbackError(RuntimeDomainError):
+    """Raised when transaction state cannot be restored."""
+
+
+class RuntimeCompositionError(RuntimeDomainError):
+    """Raised when runtime container configuration is invalid."""

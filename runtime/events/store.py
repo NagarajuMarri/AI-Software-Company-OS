@@ -14,21 +14,58 @@ class EventStore:
         self._events: dict[str, RuntimeEvent] = {}
 
     def add_event(self, event: RuntimeEvent) -> RuntimeEvent:
+        self.add_events([event])
+        return event
+
+    def add_events(self, events: list[RuntimeEvent]) -> list[RuntimeEvent]:
+        dispatching = getattr(self, "_dispatching_event_batch", False)
+        if (
+            type(self).add_event is not EventStore.add_event
+            and not dispatching
+        ):
+            before = dict(self._events)
+            self._dispatching_event_batch = True
+            try:
+                for event in events:
+                    self.add_event(event)
+            except Exception:
+                self._events.clear()
+                self._events.update(before)
+                raise
+            finally:
+                self._dispatching_event_batch = False
+            return list(events)
+        pending_ids = set(self._events)
+        next_sequences: dict[tuple[str, str], int] = {}
+        for event in events:
+            self._validate_pending_event(event, pending_ids, next_sequences)
+            pending_ids.add(event.id)
+            key = (event.aggregate_type, event.aggregate_id)
+            next_sequences[key] = event.sequence_number + 1
+        for event in events:
+            self._events[event.id] = event
+        return list(events)
+
+    def _validate_pending_event(
+        self,
+        event: RuntimeEvent,
+        pending_ids: set[str],
+        next_sequences: dict[tuple[str, str], int],
+    ) -> None:
         if not isinstance(event, RuntimeEvent):
             raise ValidationError("event must be a RuntimeEvent value")
-        if event.id in self._events:
+        if event.id in pending_ids:
             raise DuplicateEventError(f"Event {event.id!r} already exists")
-        expected = self.next_sequence_number(
-            event.aggregate_type,
-            event.aggregate_id,
+        key = (event.aggregate_type, event.aggregate_id)
+        expected = next_sequences.get(
+            key,
+            self.next_sequence_number(event.aggregate_type, event.aggregate_id),
         )
         if event.sequence_number != expected:
             raise ValidationError(
                 f"Event sequence must be {expected} for aggregate "
                 f"{event.aggregate_type}:{event.aggregate_id}"
             )
-        self._events[event.id] = event
-        return event
 
     def get_event(self, event_id: str) -> RuntimeEvent:
         validate_required_string(event_id, "event_id")
