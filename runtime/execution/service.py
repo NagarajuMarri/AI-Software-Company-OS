@@ -75,9 +75,12 @@ class ExecutionService:
             assignment.package_id,
             assignment.work_item_id,
         )
-        if work_item.lifecycle_state != LifecycleState.ASSIGNED:
+        if work_item.lifecycle_state not in {
+            LifecycleState.ASSIGNED,
+            LifecycleState.REJECTED,
+        }:
             raise InvalidExecutionStateTransitionError(
-                "Execution requires work item ASSIGNED"
+                "Execution requires work item ASSIGNED or REJECTED"
             )
         agent = self.agent_registry.get_agent(assignment.agent_id)
         executor = self.executor_registry.select_executor(agent, assignment)

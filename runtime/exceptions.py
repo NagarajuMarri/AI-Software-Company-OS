@@ -143,3 +143,27 @@ class TransactionRollbackError(RuntimeDomainError):
 
 class RuntimeCompositionError(RuntimeDomainError):
     """Raised when runtime container configuration is invalid."""
+
+
+class WorkflowNotFoundError(RuntimeDomainError):
+    """Raised when a software delivery workflow cannot be found."""
+
+
+class DuplicateWorkflowError(RuntimeDomainError):
+    """Raised when a workflow or request identifier already exists."""
+
+
+class InvalidWorkflowTransitionError(RuntimeDomainError):
+    """Raised when a workflow stage transition is not permitted."""
+
+
+class WorkflowExecutionError(ExecutionFailedError):
+    """Raised after a failed workflow execution has been recorded."""
+
+
+class WorkflowApprovalError(RuntimeDomainError):
+    """Raised when explicit approval requirements are not satisfied."""
+
+
+class WorkflowReleaseError(RuntimeDomainError):
+    """Raised when release requirements are not satisfied."""

@@ -11,6 +11,7 @@ from runtime.execution.recovery import ExecutionRecoveryService
 from runtime.execution.registry import ExecutorRegistry
 from runtime.execution.service import ExecutionService
 from runtime.orchestration.orchestrator import Orchestrator
+from runtime.workflows.service import SoftwareDeliveryWorkflowService
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,17 @@ class ASCOSRuntimeContainer:
             self.execution_recovery_service = ExecutionRecoveryService(
                 self.execution_service,
                 self.event_publisher,
+            )
+            self.software_delivery_workflow_service = (
+                SoftwareDeliveryWorkflowService(
+                    self.runtime_engine,
+                    self.agent_registry,
+                    self.orchestrator,
+                    self.executor_registry,
+                    self.execution_service,
+                    self.execution_recovery_service,
+                    self.event_publisher,
+                )
             )
         except RuntimeCompositionError:
             raise
