@@ -138,3 +138,12 @@ def test_operator_identity_and_reason_required(actor, reason):
         ProviderHealthService(repo, clock=lambda: NOW).disable(
             "a", "coding", actor=actor, reason=reason
         )
+
+
+def test_sqlite_health_rejects_concurrent_update(tmp_path):
+    path = tmp_path / "health.db"
+    first = SQLiteProviderHealthRepository(path)
+    second = SQLiteProviderHealthRepository(path)
+    first.add(state("a"))
+    with pytest.raises(ProviderHealthVersionConflictError):
+        second.add(state("b"))

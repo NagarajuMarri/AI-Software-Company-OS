@@ -76,3 +76,12 @@ def test_durable_worker_registry_round_trip(tmp_path, kind):
     repo = cls(path, clock=lambda: NOW)
     repo.register(registration())
     assert cls(path, clock=lambda: NOW).get("worker-1").status == WorkerStatus.STARTING
+
+
+def test_sqlite_registry_rejects_concurrent_update(tmp_path):
+    path = tmp_path / "workers.db"
+    first = SQLiteWorkerRegistry(path, clock=lambda: NOW)
+    second = SQLiteWorkerRegistry(path, clock=lambda: NOW)
+    first.register(registration("first"))
+    with pytest.raises(WorkerVersionConflictError):
+        second.register(registration("second"))

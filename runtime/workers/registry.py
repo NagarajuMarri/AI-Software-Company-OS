@@ -179,15 +179,33 @@ class SQLiteWorkerRegistry(FileWorkerRegistry):
             connection.commit()
         finally:
             connection.close()
+        self._persisted_state = state[0] if state else None
         if state: self.restore(json.loads(state[0]))
     def _changed(self):
+        encoded = json.dumps(self.snapshot(), sort_keys=True)
         connection = sqlite3.connect(self.database_path)
         try:
-            connection.execute(
-                "INSERT OR REPLACE INTO worker_registry_state VALUES(1,?)",
-                (json.dumps(self.snapshot(), sort_keys=True),),
-            )
+            if self._persisted_state is None:
+                try:
+                    connection.execute(
+                        "INSERT INTO worker_registry_state VALUES(1,?)", (encoded,)
+                    )
+                except sqlite3.IntegrityError as error:
+                    raise WorkerVersionConflictError(
+                        "Concurrent worker registry update"
+                    ) from error
+            else:
+                cursor = connection.execute(
+                    "UPDATE worker_registry_state SET canonical_state=? "
+                    "WHERE singleton=1 AND canonical_state=?",
+                    (encoded, self._persisted_state),
+                )
+                if cursor.rowcount != 1:
+                    raise WorkerVersionConflictError(
+                        "Concurrent worker registry update"
+                    )
             connection.commit()
+            self._persisted_state = encoded
         finally: connection.close()
 
 

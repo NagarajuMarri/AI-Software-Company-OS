@@ -1,6 +1,7 @@
 import json
 import os
 import sqlite3
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
@@ -18,25 +19,25 @@ class InMemoryProviderHealthRepository:
         key = (state.provider_id, state.capability)
         if key in self._states:
             raise ProviderHealthVersionConflictError("Provider health already exists")
-        self._states[key] = state
+        self._states[key] = deepcopy(state)
         self._changed()
-        return state
+        return deepcopy(state)
 
     def get(self, provider_id, capability):
-        try: return self._states[(provider_id, capability)]
+        try: return deepcopy(self._states[(provider_id, capability)])
         except KeyError as error:
             raise ProviderHealthNotFoundError("Provider health not found") from error
 
-    def list(self): return tuple(self._states[key] for key in sorted(self._states))
+    def list(self): return tuple(deepcopy(self._states[key]) for key in sorted(self._states))
 
     def save(self, state, *, expected_version):
         current = self.get(state.provider_id, state.capability)
         if current.version != expected_version:
             raise ProviderHealthVersionConflictError("Provider health version conflict")
         state.version = expected_version + 1
-        self._states[(state.provider_id, state.capability)] = state
+        self._states[(state.provider_id, state.capability)] = deepcopy(state)
         self._changed()
-        return state
+        return deepcopy(state)
 
     def snapshot(self):
         return [_encode(item) for item in self.list()]
@@ -82,16 +83,34 @@ class SQLiteProviderHealthRepository(FileProviderHealthRepository):
             ).fetchone()
             if row and row[0] > 1: raise ValueError("Provider health schema is newer")
         finally: connection.close()
+        self._persisted_state = row[1] if row else None
         if row: self.restore(json.loads(row[1]))
 
     def _changed(self):
+        encoded = json.dumps(self.snapshot(), sort_keys=True)
         connection = sqlite3.connect(self.database_path)
         try:
-            connection.execute(
-                "INSERT OR REPLACE INTO provider_health_state VALUES(1,1,?)",
-                (json.dumps(self.snapshot(), sort_keys=True),),
-            )
+            if self._persisted_state is None:
+                try:
+                    connection.execute(
+                        "INSERT INTO provider_health_state VALUES(1,1,?)", (encoded,)
+                    )
+                except sqlite3.IntegrityError as error:
+                    raise ProviderHealthVersionConflictError(
+                        "Concurrent provider health update"
+                    ) from error
+            else:
+                cursor = connection.execute(
+                    "UPDATE provider_health_state SET canonical_state=? "
+                    "WHERE singleton=1 AND canonical_state=?",
+                    (encoded, self._persisted_state),
+                )
+                if cursor.rowcount != 1:
+                    raise ProviderHealthVersionConflictError(
+                        "Concurrent provider health update"
+                    )
             connection.commit()
+            self._persisted_state = encoded
         finally: connection.close()
 
 

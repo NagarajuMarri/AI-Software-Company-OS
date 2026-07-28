@@ -9,6 +9,24 @@ from runtime.workers.models import WorkerRegistration, WorkerStatus
 from runtime.workers.shutdown import ShutdownController
 
 
+class StaleWorkerResultError(RuntimeError):
+    pass
+
+
+def validate_child_result(value):
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"schema", "processed", "instance_id"}
+        or value.get("schema") != 1
+        or not isinstance(value.get("processed"), int)
+        or not 0 <= value["processed"] <= 10_000
+        or not isinstance(value.get("instance_id"), str)
+        or not 1 <= len(value["instance_id"]) <= 160
+    ):
+        raise ValueError("Invalid worker child result")
+    return value
+
+
 class ProcessOutboxWorker:
     def __init__(
         self, configuration, worker, registry, *, clock,
@@ -23,6 +41,18 @@ class ProcessOutboxWorker:
         self.node_reference = node_reference
         self.instance_id = f"{configuration.worker_id_prefix}-{uuid4().hex}"
         self.processed = 0
+
+    def _guard_result(self, operation, claim):
+        registration = self.registry.get(self.instance_id)
+        if (
+            registration.status in {
+                WorkerStatus.STALE, WorkerStatus.FAILED,
+                WorkerStatus.STOPPED, WorkerStatus.UNHEALTHY,
+            }
+            or registration.heartbeat_expires_at <= self.clock()
+            or claim.owner_id != self.instance_id
+        ):
+            raise StaleWorkerResultError("Worker result authority expired")
 
     def start(self):
         now = self.clock()
@@ -42,6 +72,15 @@ class ProcessOutboxWorker:
             ),
         )
         self.registry.register(registration)
+        if hasattr(self.worker, "worker_id"):
+            self.worker.worker_id = self.instance_id
+        if hasattr(self.worker, "result_guard"):
+            previous_guard = self.worker.result_guard
+            def guarded(operation, claim):
+                if previous_guard is not None:
+                    previous_guard(operation, claim)
+                self._guard_result(operation, claim)
+            self.worker.result_guard = guarded
         self.registry.update_status(self.instance_id, WorkerStatus.IDLE)
         return registration
 
@@ -93,4 +132,6 @@ def process_entrypoint(configuration, composition_name, result_queue):
         raise ValueError("Invalid composition reference")
     runtime = get_composition_factory(composition_name)(configuration)
     processed = runtime.run()
-    result_queue.put({"schema": 1, "processed": processed, "instance_id": runtime.instance_id})
+    result_queue.put(validate_child_result({
+        "schema": 1, "processed": processed, "instance_id": runtime.instance_id,
+    }))

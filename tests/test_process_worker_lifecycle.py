@@ -1,8 +1,12 @@
 from datetime import datetime, timezone
 import pickle
+from types import SimpleNamespace
+import pytest
 
 from runtime.workers.models import WorkerConfiguration, WorkerStatus
-from runtime.workers.process_worker import ProcessOutboxWorker
+from runtime.workers.process_worker import (
+    ProcessOutboxWorker, StaleWorkerResultError, validate_child_result,
+)
 from runtime.workers.registry import InMemoryWorkerRegistry
 from runtime.workers.shutdown import ShutdownController
 
@@ -102,3 +106,28 @@ def test_shutdown_controller_is_explicit():
     assert not shutdown.requested
     shutdown.request()
     assert shutdown.requested
+
+
+@pytest.mark.parametrize("forged", [
+    None,
+    {"schema": 2, "processed": 1, "instance_id": "worker"},
+    {"schema": 1, "processed": -1, "instance_id": "worker"},
+    {"schema": 1, "processed": 1, "instance_id": "worker", "secret": "x"},
+])
+def test_forged_child_result_is_rejected(forged):
+    with pytest.raises(ValueError): validate_child_result(forged)
+
+
+def test_valid_child_result_is_accepted():
+    result = {"schema": 1, "processed": 2, "instance_id": "worker-1"}
+    assert validate_child_result(result) == result
+
+
+def test_stale_worker_result_is_rejected():
+    item, repo = runtime([])
+    item.start()
+    repo.update_status(item.instance_id, WorkerStatus.STALE)
+    with pytest.raises(StaleWorkerResultError):
+        item._guard_result(
+            object(), SimpleNamespace(owner_id=item.instance_id)
+        )

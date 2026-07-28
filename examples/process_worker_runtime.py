@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from runtime.workers import WorkerConfiguration
-from runtime.workers.lifecycle import start_process
+from runtime.workers.lifecycle import receive_child_result, start_process
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
         raise RuntimeError("Worker process exceeded bounded runtime")
     if process.exitcode:
         raise RuntimeError("Worker process failed")
-    outcome = results.get(timeout=2)
+    outcome = receive_child_result(results, timeout=2)
     print(f"processed={outcome['processed']} child_exit={process.exitcode}")
 
 
