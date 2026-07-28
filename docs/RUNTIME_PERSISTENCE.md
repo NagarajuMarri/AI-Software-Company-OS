@@ -1,5 +1,11 @@
 # Runtime Persistence
 
+The optional SQLite provider stores checkpoints and their event suffix in one
+transaction. State versions advance once per durable checkpoint; optional
+leases add expiry and fencing. In-memory and file providers remain supported,
+but the file provider does not claim multi-process safety. See
+[DATABASE_PERSISTENCE.md](DATABASE_PERSISTENCE.md).
+
 ASCOS persistence is an optional layer around the default deterministic
 in-memory runtime. Domain services depend on provider-neutral contracts; they
 do not read JSON files or depend on a database.

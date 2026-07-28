@@ -1,5 +1,11 @@
 # Runtime Persistence Operations
 
+Use SQLite's online backup API or confirmed writer quiescence; copying only the
+main file during WAL writes is unsafe. Restore into a separate path and verify
+schema, digest, state version, and event position. Back up before migrations.
+On conflicts reload and reconsider; use bounded backoff for busy errors. Break
+only expired leases.
+
 ## Save and restore
 
 Configure a caller-owned storage directory and stable `runtime_id`. Save an

@@ -20,6 +20,12 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/DATABASE_PERSISTENCE.md](docs/DATABASE_PERSISTENCE.md) — relational
+  schema, atomic commits, migrations, and deployment boundaries.
+- [docs/CONCURRENCY_CONTROL.md](docs/CONCURRENCY_CONTROL.md) — optimistic
+  versioning and deterministic conflict handling.
+- [docs/RUNTIME_LEASES.md](docs/RUNTIME_LEASES.md) — writer leases and fencing.
+
 - [docs/RUNTIME_PERSISTENCE.md](docs/RUNTIME_PERSISTENCE.md) — checkpoint
   architecture, integrity, restoration, and file-provider limitations.
 - [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) — runtime

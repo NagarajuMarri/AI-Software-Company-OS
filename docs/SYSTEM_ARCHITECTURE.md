@@ -1,5 +1,10 @@
 # System Architecture
 
+`DatabasePersistenceProvider` is composed through the provider-neutral
+persistence boundary. It owns SQL, migrations, optimistic versions, and
+optional leases; no database model leaks into domain services. A PostgreSQL
+provider can therefore preserve domain contracts.
+
 `ASCOSRuntimeContainer` is the composition root. Its default configuration is
 fully in-memory. Optional persistence adds `RuntimePersistenceService` and a
 caller-supplied `PersistenceProvider`; no singleton or hard-coded path exists.

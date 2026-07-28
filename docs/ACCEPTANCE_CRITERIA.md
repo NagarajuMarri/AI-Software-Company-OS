@@ -1,5 +1,10 @@
 # Runtime Persistence Acceptance Criteria
 
+Milestone 11.3C requires deterministic migrations, atomic checkpoint/event
+commits, stale-writer rejection, durable event ordering, hashed lease
+identities with UTC expiry and fencing, restart without historical
+re-emission, legacy-provider compatibility, and executable examples.
+
 A persistence implementation is acceptable when:
 
 - canonical serialization is deterministic and rejects unsupported values;
