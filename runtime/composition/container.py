@@ -30,6 +30,8 @@ class RuntimeContainerConfiguration:
     persistence_provider: PersistenceProvider | None = None
     runtime_id: str = "default-runtime"
     automatic_checkpoint_policy: bool = False
+    writer_owner_id: str | None = None
+    lease_ttl_seconds: int = 30
 
     def __post_init__(self) -> None:
         if not isinstance(self.eventing_enabled, bool):
@@ -45,6 +47,20 @@ class RuntimeContainerConfiguration:
         if not isinstance(self.automatic_checkpoint_policy, bool):
             raise RuntimeCompositionError(
                 "automatic_checkpoint_policy must be boolean"
+            )
+        if self.writer_owner_id is not None and (
+            not isinstance(self.writer_owner_id, str) or not self.writer_owner_id
+        ):
+            raise RuntimeCompositionError(
+                "writer_owner_id must be a non-empty string"
+            )
+        if (
+            not isinstance(self.lease_ttl_seconds, int)
+            or isinstance(self.lease_ttl_seconds, bool)
+            or self.lease_ttl_seconds < 1
+        ):
+            raise RuntimeCompositionError(
+                "lease_ttl_seconds must be a positive integer"
             )
         if self.persistence_enabled and self.persistence_provider is None:
             raise RuntimeCompositionError(
@@ -103,11 +119,25 @@ class ASCOSRuntimeContainer:
                 )
             )
             self.persistence_service = None
+            self.runtime_lease = None
             if configuration.persistence_enabled:
                 from runtime.persistence.service import (
                     RuntimePersistenceService,
                 )
 
+                if configuration.writer_owner_id is not None:
+                    lease_repository = getattr(
+                        configuration.persistence_provider, "leases", None
+                    )
+                    if lease_repository is None:
+                        raise RuntimeCompositionError(
+                            "writer_owner_id requires a lease-capable provider"
+                        )
+                    self.runtime_lease = lease_repository.acquire_lease(
+                        configuration.runtime_id,
+                        configuration.writer_owner_id,
+                        ttl_seconds=configuration.lease_ttl_seconds,
+                    )
                 self.persistence_service = RuntimePersistenceService(
                     configuration.persistence_provider,
                     configuration.runtime_id,
@@ -115,6 +145,7 @@ class ASCOSRuntimeContainer:
                     automatic_checkpoint_policy=(
                         configuration.automatic_checkpoint_policy
                     ),
+                    runtime_lease=self.runtime_lease,
                 )
                 self.software_delivery_workflow_service.configure_persistence_callback(
                     self.persistence_service.after_atomic_operation

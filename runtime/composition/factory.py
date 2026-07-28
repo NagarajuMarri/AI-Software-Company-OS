@@ -13,6 +13,8 @@ def create_runtime_container(
     persistence_provider: object | None = None,
     runtime_id: str = "default-runtime",
     automatic_checkpoint_policy: bool = False,
+    writer_owner_id: str | None = None,
+    lease_ttl_seconds: int = 30,
 ) -> ASCOSRuntimeContainer:
     """Create a new container with no global singleton state."""
 
@@ -23,5 +25,7 @@ def create_runtime_container(
             persistence_provider=persistence_provider,
             runtime_id=runtime_id,
             automatic_checkpoint_policy=automatic_checkpoint_policy,
+            writer_owner_id=writer_owner_id,
+            lease_ttl_seconds=lease_ttl_seconds,
         )
     )

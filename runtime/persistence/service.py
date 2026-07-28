@@ -71,6 +71,7 @@ class RuntimePersistenceService:
         container: ASCOSRuntimeContainer,
         *,
         automatic_checkpoint_policy: bool = False,
+        runtime_lease=None,
     ) -> None:
         if not isinstance(provider, PersistenceProvider):
             raise PersistenceConfigurationError(
@@ -86,6 +87,7 @@ class RuntimePersistenceService:
         self.runtime_id = runtime_id
         self.container = container
         self.automatic_checkpoint_policy = automatic_checkpoint_policy
+        self.runtime_lease = runtime_lease
         self._automatic_counter = len(
             provider.list_checkpoints(runtime_id)
         )
@@ -152,7 +154,17 @@ class RuntimePersistenceService:
             payload,
         )
         try:
-            self.provider.save_checkpoint(checkpoint)
+            if self.runtime_lease is not None:
+                self.provider.commit_checkpoint(
+                    checkpoint,
+                    expected_state_version=self.provider.get_state_version(
+                        self.runtime_id
+                    ),
+                    lease=self.runtime_lease,
+                    operation_id=resolved_id,
+                )
+            else:
+                self.provider.save_checkpoint(checkpoint)
         except Exception:
             self.last_commit_result = PersistenceCommitResult(
                 self.runtime_id,
