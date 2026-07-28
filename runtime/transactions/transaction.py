@@ -38,6 +38,9 @@ def atomic_domain_operation(method):
                 # A recorded FAILED execution is a committed terminal outcome.
                 domain_failure = error
                 result = None
+        after_operation = getattr(self, "_after_atomic_operation", None)
+        if after_operation is not None:
+            after_operation(method.__name__, result)
         if domain_failure is not None:
             raise domain_failure
         return result

@@ -20,6 +20,13 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/RUNTIME_PERSISTENCE.md](docs/RUNTIME_PERSISTENCE.md) — checkpoint
+  architecture, integrity, restoration, and file-provider limitations.
+- [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) — runtime
+  composition and provider boundaries.
+- [docs/OPERATIONS.md](docs/OPERATIONS.md) — checkpoint, backup, restore, and
+  corruption-response procedures.
+
 - [docs/engineering-assessment.md](docs/engineering-assessment.md) — engineering baseline and risk assessment.
 - [docs/company-design.md](docs/company-design.md) — approved organizational source-of-truth for ASCOS.
 - [docs/engineering-capability-model.md](docs/engineering-capability-model.md) — internal capability model for the Engineering Office.
