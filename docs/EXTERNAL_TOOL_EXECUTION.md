@@ -1,5 +1,9 @@
 # External Tool Execution
 
+External tool intent can be scheduled through the durable outbox. Workers hold
+short-lived fenced claims; command/provider execution remains outside the
+transaction that created intent.
+
 ASCOS exposes provider-neutral command and workspace contracts. The local
 runner accepts an allow-listed executable plus a validated argument tuple,
 never a shell string. It enforces workspace containment, environment

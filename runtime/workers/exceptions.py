@@ -1,0 +1,1 @@
+class WorkerError(RuntimeError): pass

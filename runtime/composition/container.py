@@ -18,6 +18,13 @@ from runtime.storage.artifact_store import ArtifactStore
 from runtime.workflows.service import SoftwareDeliveryWorkflowService
 from runtime.coding_agents.registry import CodingAgentProviderRegistry
 from runtime.tasks.service import ExternalTaskService
+from runtime.outbox.repository import InMemoryOutboxRepository
+from runtime.outbox.service import OutboxService
+from runtime.outbox.dispatcher import ProviderRegistry
+from runtime.operations import (
+    IdempotencyStore, ResultApplicationService,
+)
+from runtime.operations.registry import default_handler_registry
 
 if TYPE_CHECKING:
     from runtime.persistence.interfaces import PersistenceProvider
@@ -125,6 +132,21 @@ class ASCOSRuntimeContainer:
                 self.coding_agent_provider_registry,
                 event_publisher=self.event_publisher,
             )
+            self.outbox_repository = InMemoryOutboxRepository()
+            self.outbox_service = OutboxService(
+                self.outbox_repository, self.event_publisher
+            )
+            self.operation_handler_registry = default_handler_registry()
+            self.dispatch_provider_registry = ProviderRegistry()
+            self.idempotency_store = IdempotencyStore()
+            self.result_application_service = ResultApplicationService(
+                self.idempotency_store,
+                event_publisher=self.event_publisher,
+            )
+            if self.event_publisher is not None:
+                self.event_publisher.register_snapshot_provider(
+                    self.result_application_service.snapshot_targets
+                )
             self.persistence_service = None
             self.runtime_lease = None
             if configuration.persistence_enabled:

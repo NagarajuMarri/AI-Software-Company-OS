@@ -1,5 +1,10 @@
 # System Architecture
 
+The outbox separates durable intent, claim/dispatch, provider execution, local
+result application, reconciliation, and operator control. Provider calls occur
+outside rollbackable local transactions. Workers are explicit runtime objects,
+not automatically started services.
+
 External execution is split into tool, workspace, Git, GitHub, coding-agent,
 and task-coordination boundaries. Domain services never import subprocess,
 SQLite, GitHub SDK, OpenAI SDK, or operating-system shell details. Coding-agent

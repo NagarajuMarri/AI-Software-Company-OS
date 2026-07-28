@@ -254,6 +254,14 @@ class RuntimePersistenceService:
             external._results = restored_external._results
             external._decisions = restored_external._decisions
             external._operations = restored_external._operations
+            outbox = built["outbox_repository"]
+            container.outbox_repository._operations = outbox._operations
+            container.outbox_repository._attempts = outbox._attempts
+            container.outbox_repository._idempotency = outbox._idempotency
+            container.outbox_repository._provider_pauses = outbox._provider_pauses
+            container.result_application_service.restore(
+                built["result_application"]
+            )
         except Exception as error:
             raise RuntimeRestoreError("Runtime restoration failed") from error
         self.last_restore_missing_executors = (
@@ -285,6 +293,11 @@ class RuntimePersistenceService:
             "type": "ascos.runtime-state",
             "version": 1,
             "external_tasks": container.external_task_service.snapshot(),
+            "outbox": __import__(
+                "runtime.outbox.providers.serde",
+                fromlist=["encode_state"],
+            ).encode_state(container.outbox_repository.export_state()),
+            "outbox_results": container.result_application_service.snapshot(),
             "packages": [
                 {
                     "id": package.id,
@@ -671,6 +684,20 @@ class RuntimePersistenceService:
                 self.container.coding_agent_provider_registry
             )
             external_task_service.restore(payload.get("external_tasks", {}))
+            from runtime.outbox.providers.serde import decode_state
+            from runtime.outbox.repository import InMemoryOutboxRepository
+
+            outbox_repository = InMemoryOutboxRepository()
+            outbox_repository.import_state(
+                decode_state(payload.get("outbox", {
+                    "schema_version": 1,
+                    "operations": {},
+                    "attempts": {},
+                    "idempotency": {},
+                    "provider_pauses": {},
+                    "audit": [],
+                }))
+            )
             return {
                 "packages": packages,
                 "agents": agents,
@@ -682,6 +709,8 @@ class RuntimePersistenceService:
                 "workflows": workflows,
                 "events": events,
                 "external_task_service": external_task_service,
+                "outbox_repository": outbox_repository,
+                "result_application": payload.get("outbox_results", {}),
             }
         except RuntimeRestoreError:
             raise

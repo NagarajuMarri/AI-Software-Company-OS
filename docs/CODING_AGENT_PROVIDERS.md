@@ -1,5 +1,9 @@
 # Coding-Agent Providers
 
+Coding-agent submission and cancellation may be dispatched through the outbox.
+Stable task/operation identity supports reconciliation after timeout or worker
+crash; no live provider client or key is persisted.
+
 Coding-agent providers are execution adapters, separate from the domain
 `AgentRegistry`. The registry selects available providers deterministically by
 priority and requested capability. Requests and results are typed and contain
