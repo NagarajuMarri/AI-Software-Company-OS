@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from types import MappingProxyType
+from enum import Enum
 from typing import Mapping
 
 from runtime.events.types import EventType, validate_event_type
@@ -20,7 +21,15 @@ def _freeze(value: object) -> object:
         return tuple(_freeze(item) for item in value)
     if isinstance(value, set):
         return frozenset(_freeze(item) for item in value)
-    return value
+    if value is None or isinstance(
+        value,
+        (str, int, float, bool, bytes, datetime, Enum),
+    ):
+        return value
+    raise ValidationError(
+        "RuntimeEvent.payload values must be mappings, lists, tuples, sets, "
+        "or immutable scalar values"
+    )
 
 
 @dataclass(frozen=True)

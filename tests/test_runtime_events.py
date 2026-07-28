@@ -117,6 +117,40 @@ def test_payload_is_recursively_immutable_and_defensively_copied() -> None:
         event.payload["nested"]["new"] = "value"
 
 
+def test_payload_rejects_unsupported_mutable_custom_values() -> None:
+    class MutableValue:
+        pass
+
+    _, events = publisher()
+
+    with pytest.raises(ValidationError, match="payload values"):
+        events.publish(
+            EventType.WORK_PACKAGE_CREATED,
+            "WORK_PACKAGE",
+            "wp",
+            {"unsupported": MutableValue()},
+        )
+
+
+def test_generated_event_ids_are_unambiguous_with_separators() -> None:
+    _, events = publisher()
+
+    first = events.publish(
+        EventType.WORK_PACKAGE_CREATED,
+        "A:B",
+        "C",
+        {},
+    )
+    second = events.publish(
+        EventType.WORK_PACKAGE_CREATED,
+        "A",
+        "B:C",
+        {},
+    )
+
+    assert first.id != second.id
+
+
 def test_sequence_numbers_are_monotonic_per_aggregate() -> None:
     store, events = publisher()
     first = events.publish(
@@ -378,3 +412,92 @@ def test_event_publication_failure_is_not_silent() -> None:
             "wp",
             {},
         )
+
+
+@pytest.mark.parametrize(
+    "integration",
+    ["runtime", "agents", "orchestrator", "execution", "recovery"],
+)
+def test_integrations_propagate_event_publication_failures(
+    integration: str,
+) -> None:
+    events = EventPublisher(BrokenStore())
+    engine = RuntimeEngine(events)
+    agents = AgentRegistry(events)
+
+    if integration == "runtime":
+        with pytest.raises(EventPublicationError):
+            engine.create_work_package("wp", "Package", "Description", "owner")
+        return
+    if integration == "agents":
+        with pytest.raises(EventPublicationError):
+            agents.register_agent(
+                AgentMetadata(
+                    "agent",
+                    "Agent",
+                    AgentRole.BACKEND_ENGINEER,
+                    "Agent",
+                )
+            )
+        return
+
+    plain_engine = RuntimeEngine()
+    plain_agents = AgentRegistry()
+    orchestrator = Orchestrator(plain_engine, plain_agents, events)
+    capability = AgentCapability("python", "Python", "Python", "1")
+    plain_agents.register_agent(
+        AgentMetadata(
+            "agent",
+            "Agent",
+            AgentRole.BACKEND_ENGINEER,
+            "Agent",
+            state=AgentState.AVAILABLE,
+            supported_capabilities=[capability],
+        )
+    )
+    plain_engine.create_work_package("wp", "Package", "Description", "owner")
+    plain_engine.add_work_item("wp", "wi", "Work", "Description")
+    plain_engine.change_work_item_state("wp", "wi", LifecycleState.READY)
+
+    if integration == "orchestrator":
+        with pytest.raises(EventPublicationError):
+            orchestrator.assign_work_item(
+                "assignment",
+                "wp",
+                "wi",
+                AgentRole.BACKEND_ENGINEER,
+                ["python"],
+            )
+        return
+
+    plain_orchestrator = Orchestrator(plain_engine, plain_agents)
+    plain_orchestrator.assign_work_item(
+        "assignment",
+        "wp",
+        "wi",
+        AgentRole.BACKEND_ENGINEER,
+        ["python"],
+    )
+    executors = ExecutorRegistry()
+    executors.register_executor(
+        DeterministicExecutor(
+            "executor",
+            [AgentRole.BACKEND_ENGINEER],
+            ["python"],
+            should_fail=integration == "recovery",
+            failure_message="expected failure",
+        )
+    )
+    executions = ExecutionService(plain_orchestrator, executors, events)
+
+    if integration == "execution":
+        with pytest.raises(EventPublicationError):
+            executions.execute_assignment("execution", "assignment")
+        return
+
+    plain_executions = ExecutionService(plain_orchestrator, executors)
+    with pytest.raises(ExecutionFailedError):
+        plain_executions.execute_assignment("failed", "assignment")
+    recovery = ExecutionRecoveryService(plain_executions, events)
+    with pytest.raises(EventPublicationError):
+        recovery.reset_failed_execution("recovery", "failed", "Reset")

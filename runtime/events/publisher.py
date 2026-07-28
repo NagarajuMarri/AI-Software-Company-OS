@@ -40,7 +40,9 @@ class EventPublisher:
             aggregate_id,
         )
         resolved_event_id = event_id or (
-            f"{aggregate_type}:{aggregate_id}:{sequence}:{event_type.value}"
+            f"{len(aggregate_type)}:{aggregate_type}"
+            f"{len(aggregate_id)}:{aggregate_id}"
+            f"{sequence}:{len(event_type.value)}:{event_type.value}"
         )
         event = RuntimeEvent(
             id=resolved_event_id,
