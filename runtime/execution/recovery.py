@@ -23,6 +23,7 @@ from runtime.models.work_item import WorkItem
 from runtime.models.work_package import WorkPackage
 from runtime.orchestration.assignment import AssignmentStatus, WorkAssignment
 from runtime.validation import validate_required_string
+from runtime.transactions import atomic_domain_operation
 
 if TYPE_CHECKING:
     from runtime.events.publisher import EventPublisher
@@ -92,7 +93,10 @@ class ExecutionRecoveryService:
         self.execution_service = execution_service
         self.event_publisher = event_publisher
         self._records: dict[str, ExecutionRecoveryRecord] = {}
+        if event_publisher is not None:
+            event_publisher.register_snapshot_provider(self._snapshot_targets)
 
+    @atomic_domain_operation
     def retry_failed_execution(
         self,
         recovery_id: str,
@@ -157,6 +161,7 @@ class ExecutionRecoveryService:
                 package.updated_at = package_updated_at
             raise
 
+    @atomic_domain_operation
     def reset_failed_execution(
         self,
         recovery_id: str,
@@ -192,6 +197,7 @@ class ExecutionRecoveryService:
             self._records.pop(recovery_id, None)
             raise
 
+    @atomic_domain_operation
     def cancel_failed_assignment(
         self,
         recovery_id: str,
@@ -364,3 +370,6 @@ class ExecutionRecoveryService:
                 "reason": record.reason,
             },
         )
+
+    def _snapshot_targets(self) -> list[object]:
+        return [self._records, *self._records.values()]

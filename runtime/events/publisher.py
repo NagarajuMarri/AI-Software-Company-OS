@@ -11,6 +11,7 @@ from runtime.exceptions import (
     ValidationError,
 )
 from runtime.validation import validate_optional_string, validate_required_string
+from runtime.transactions.transaction import TransactionCoordinator
 
 
 class EventPublisher:
@@ -18,6 +19,18 @@ class EventPublisher:
         if not isinstance(event_store, EventStore):
             raise ValidationError("event_store must be an EventStore value")
         self.event_store = event_store
+        self.transactions = TransactionCoordinator(event_store)
+
+    def register_snapshot_provider(self, provider: object) -> None:
+        if not callable(provider):
+            raise ValidationError("snapshot provider must be callable")
+        self.transactions.register_snapshot_provider(provider)
+
+    def transaction(self):
+        return self.transactions.transaction()
+
+    def atomic(self):
+        return self.transactions.atomic()
 
     def publish(
         self,
@@ -35,10 +48,20 @@ class EventPublisher:
         validate_required_string(aggregate_id, "aggregate_id")
         validate_optional_string(correlation_id, "correlation_id")
         validate_optional_string(causation_id, "causation_id")
+        transaction = self.transactions.current
+        staged_for_aggregate = (
+            sum(
+                event.aggregate_type == aggregate_type
+                and event.aggregate_id == aggregate_id
+                for event in transaction.staged_events
+            )
+            if transaction is not None
+            else 0
+        )
         sequence = self.event_store.next_sequence_number(
             aggregate_type,
             aggregate_id,
-        )
+        ) + staged_for_aggregate
         resolved_event_id = event_id or (
             f"{len(aggregate_type)}:{aggregate_type}"
             f"{len(aggregate_id)}:{aggregate_id}"
@@ -55,6 +78,8 @@ class EventPublisher:
             causation_id=causation_id,
         )
         try:
+            if transaction is not None:
+                return transaction.stage(event)
             return self.event_store.add_event(event)
         except DuplicateEventError:
             raise

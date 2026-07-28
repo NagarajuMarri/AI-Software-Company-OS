@@ -25,6 +25,7 @@ from runtime.orchestration.selection import (
     validate_required_capabilities,
 )
 from runtime.validation import validate_required_string
+from runtime.transactions import atomic_domain_operation
 
 if TYPE_CHECKING:
     from runtime.events.publisher import EventPublisher
@@ -47,6 +48,8 @@ class Orchestrator:
         self.agent_registry = agent_registry
         self.event_publisher = event_publisher
         self._assignments: dict[str, WorkAssignment] = {}
+        if event_publisher is not None:
+            event_publisher.register_snapshot_provider(self._snapshot_targets)
 
     def select_agent(
         self,
@@ -108,6 +111,7 @@ class Orchestrator:
             ),
         )
 
+    @atomic_domain_operation
     def assign_work_item(
         self,
         assignment_id: str,
@@ -195,6 +199,7 @@ class Orchestrator:
         )
         return assignment
 
+    @atomic_domain_operation
     def complete_assignment(self, assignment_id: str) -> WorkAssignment:
         """Complete active work after review/approval and release capacity."""
         assignment = self.get_assignment(assignment_id)
@@ -237,6 +242,7 @@ class Orchestrator:
         )
         return assignment
 
+    @atomic_domain_operation
     def cancel_assignment(self, assignment_id: str) -> WorkAssignment:
         """Cancel active pre-execution work and return it to READY."""
         assignment = self.get_assignment(assignment_id)
@@ -369,3 +375,6 @@ class Orchestrator:
             assignment.id,
             payload,
         )
+
+    def _snapshot_targets(self) -> list[object]:
+        return [self._assignments, *self._assignments.values()]

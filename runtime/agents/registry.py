@@ -10,6 +10,7 @@ from runtime.agents.role import AgentRole, validate_agent_role
 from runtime.agents.state import AgentState
 from runtime.exceptions import AgentNotFoundError, DuplicateAgentError, ValidationError
 from runtime.validation import validate_required_string
+from runtime.transactions import atomic_domain_operation
 
 if TYPE_CHECKING:
     from runtime.events.publisher import EventPublisher
@@ -21,7 +22,10 @@ class AgentRegistry:
     def __init__(self, event_publisher: EventPublisher | None = None) -> None:
         self._agents: dict[str, AgentMetadata] = {}
         self.event_publisher = event_publisher
+        if event_publisher is not None:
+            event_publisher.register_snapshot_provider(self._snapshot_targets)
 
+    @atomic_domain_operation
     def register_agent(self, agent: AgentMetadata) -> AgentMetadata:
         """Register a new agent without overwriting an existing identifier."""
         if not isinstance(agent, AgentMetadata):
@@ -75,6 +79,7 @@ class AgentRegistry:
             if agent.supports_capability(capability_id)
         ]
 
+    @atomic_domain_operation
     def update_agent_state(
         self,
         agent_id: str,
@@ -110,3 +115,6 @@ class AgentRegistry:
             aggregate_id,
             payload,
         )
+
+    def _snapshot_targets(self) -> list[object]:
+        return [self._agents, *self._agents.values()]

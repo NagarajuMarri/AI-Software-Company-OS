@@ -19,6 +19,7 @@ from runtime.models.lifecycle import LifecycleState
 from runtime.orchestration.assignment import AssignmentStatus
 from runtime.orchestration.orchestrator import Orchestrator
 from runtime.validation import validate_required_string
+from runtime.transactions import atomic_domain_operation
 
 if TYPE_CHECKING:
     from runtime.events.publisher import EventPublisher
@@ -43,12 +44,15 @@ class ExecutionService:
         self.executor_registry = executor_registry
         self.event_publisher = event_publisher
         self._executions: dict[str, ExecutionResult] = {}
+        if event_publisher is not None:
+            event_publisher.register_snapshot_provider(self._snapshot_targets)
 
     @property
     def agent_registry(self) -> AgentRegistry:
         """Expose the orchestrator's shared agent registry."""
         return self.orchestrator.agent_registry
 
+    @atomic_domain_operation
     def execute_assignment(
         self,
         execution_id: str,
@@ -170,6 +174,7 @@ class ExecutionService:
         )
         return execution
 
+    @atomic_domain_operation
     def cancel_execution(self, execution_id: str) -> ExecutionResult:
         """Cancel a created/running execution without rewinding work."""
         execution = self.get_execution(execution_id)
@@ -255,3 +260,6 @@ class ExecutionService:
                 causation_id if isinstance(causation_id, str) else None
             ),
         )
+
+    def _snapshot_targets(self) -> list[object]:
+        return [self._executions, *self._executions.values()]
