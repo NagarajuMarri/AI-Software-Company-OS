@@ -60,6 +60,36 @@ class ExecutionService:
         context: Mapping[str, object] | None = None,
     ) -> ExecutionResult:
         """Execute an active assignment and record a terminal result."""
+        return self._execute(
+            execution_id,
+            assignment_id,
+            context,
+            required_state=LifecycleState.ASSIGNED,
+        )
+
+    @atomic_domain_operation
+    def execute_correction(
+        self,
+        execution_id: str,
+        assignment_id: str,
+        context: Mapping[str, object] | None = None,
+    ) -> ExecutionResult:
+        """Execute explicitly authorised correction work after rejection."""
+        return self._execute(
+            execution_id,
+            assignment_id,
+            context,
+            required_state=LifecycleState.REJECTED,
+        )
+
+    def _execute(
+        self,
+        execution_id: str,
+        assignment_id: str,
+        context: Mapping[str, object] | None,
+        *,
+        required_state: LifecycleState,
+    ) -> ExecutionResult:
         validate_required_string(execution_id, "execution_id")
         validate_required_string(assignment_id, "assignment_id")
         if execution_id in self._executions:
@@ -75,9 +105,9 @@ class ExecutionService:
             assignment.package_id,
             assignment.work_item_id,
         )
-        if work_item.lifecycle_state != LifecycleState.ASSIGNED:
+        if work_item.lifecycle_state != required_state:
             raise InvalidExecutionStateTransitionError(
-                "Execution requires work item ASSIGNED"
+                f"Execution requires work item {required_state.value}"
             )
         agent = self.agent_registry.get_agent(assignment.agent_id)
         executor = self.executor_registry.select_executor(agent, assignment)
