@@ -114,7 +114,7 @@ class SoftwareDeliveryWorkflow:
     request_id: str
     work_package_id: str
     work_item_id: str
-    assignment_id: str
+    assignment_id: str | None = None
     execution_ids: list[str] = field(default_factory=list)
     current_stage: WorkflowStage = WorkflowStage.INTAKE
     created_at: datetime = field(
@@ -124,6 +124,8 @@ class SoftwareDeliveryWorkflow:
         default_factory=lambda: datetime.now(timezone.utc)
     )
     failure_reason: str | None = None
+    rejection_reason: str | None = None
+    approved_at: datetime | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -131,12 +133,15 @@ class SoftwareDeliveryWorkflow:
             "request_id",
             "work_package_id",
             "work_item_id",
-            "assignment_id",
         ):
             validate_required_string(
                 getattr(self, name),
                 f"SoftwareDeliveryWorkflow.{name}",
             )
+        validate_optional_string(
+            self.assignment_id,
+            "SoftwareDeliveryWorkflow.assignment_id",
+        )
         if not isinstance(self.current_stage, WorkflowStage):
             raise ValidationError(
                 "SoftwareDeliveryWorkflow.current_stage must be a WorkflowStage"
@@ -151,6 +156,15 @@ class SoftwareDeliveryWorkflow:
             self.failure_reason,
             "SoftwareDeliveryWorkflow.failure_reason",
         )
+        validate_optional_string(
+            self.rejection_reason,
+            "SoftwareDeliveryWorkflow.rejection_reason",
+        )
+        if self.approved_at is not None:
+            _validate_utc(
+                self.approved_at,
+                "SoftwareDeliveryWorkflow.approved_at",
+            )
         _validate_utc(self.created_at, "SoftwareDeliveryWorkflow.created_at")
         _validate_utc(self.updated_at, "SoftwareDeliveryWorkflow.updated_at")
 

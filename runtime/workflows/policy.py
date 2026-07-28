@@ -54,7 +54,6 @@ ALLOWED_STAGE_TRANSITIONS = {
 CANCELLABLE_STAGES = frozenset(
     {
         WorkflowStage.INTAKE,
-        WorkflowStage.PLANNING,
         WorkflowStage.READY,
         WorkflowStage.ASSIGNED,
         WorkflowStage.FAILED,

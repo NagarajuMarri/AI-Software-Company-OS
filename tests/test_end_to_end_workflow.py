@@ -12,6 +12,7 @@ from runtime.composition import create_runtime_container
 from runtime.events.types import EventType
 from runtime.exceptions import (
     DuplicateWorkflowError,
+    InvalidExecutionStateTransitionError,
     InvalidWorkflowTransitionError,
     TransactionCommitError,
     WorkflowApprovalError,
@@ -142,6 +143,8 @@ def test_happy_path_complete_workflow_and_event_ordering() -> None:
         EventType.SOFTWARE_WORK_COMPLETED,
         EventType.SOFTWARE_WORK_RELEASED,
     ]
+    with pytest.raises(InvalidWorkflowTransitionError):
+        service.cancel_workflow(workflow.id)
 
 
 def test_container_integration_and_deterministic_agent_selection() -> None:
@@ -176,6 +179,12 @@ def test_workflow_event_correlation_and_causation() -> None:
     ]
     assert workflow_events[0].causation_id is None
     assert all(event.causation_id for event in workflow_events[1:])
+    positions = {event.id: index for index, event in enumerate(events)}
+    assert all(
+        event.causation_id is None
+        or positions[event.causation_id] < positions[event.id]
+        for event in events
+    )
 
 
 def test_approval_is_explicit_and_release_requires_completion() -> None:
@@ -204,20 +213,41 @@ def test_rejection_enters_correction_and_can_be_reexecuted() -> None:
     service = container.software_delivery_workflow_service
     workflow = reviewed_workflow(container)
 
-    service.reject_work(workflow.id)
+    assignment = container.orchestrator.get_assignment(
+        workflow.assignment_id
+    )
+    service.reject_work(workflow.id, "Acceptance criterion not met")
     assert workflow.current_stage == WorkflowStage.EXECUTING
+    assert workflow.rejection_reason == "Acceptance criterion not met"
+    assert workflow.approved_at is None
     item = container.runtime_engine.get_work_item(
         workflow.work_package_id,
         workflow.work_item_id,
     )
     assert item.lifecycle_state == LifecycleState.REJECTED
 
+    with pytest.raises(InvalidExecutionStateTransitionError):
+        container.execution_service.execute_assignment(
+            "unauthorised-correction",
+            assignment.id,
+        )
     service.execute_work(workflow.id, "corrected-execution")
     assert workflow.current_stage == WorkflowStage.REVIEW
+    assert workflow.approved_at is None
+    assert assignment.status == AssignmentStatus.ACTIVE
+    assert (
+        container.agent_registry.get_agent(assignment.agent_id).state
+        == AgentState.BUSY
+    )
     assert workflow.execution_ids == [
         "delivery:execution:1",
         "corrected-execution",
     ]
+    assert len(
+        container.execution_service.list_executions_for_assignment(
+            assignment.id
+        )
+    ) == 2
 
 
 def test_failed_execution_is_recorded_and_recoverable() -> None:
@@ -335,14 +365,17 @@ def test_cancel_recovery_cancels_assignment_and_releases_agent() -> None:
     )
 
 
-@pytest.mark.parametrize("stage", ["intake", "assigned", "failed"])
+@pytest.mark.parametrize("stage", ["intake", "ready", "assigned", "failed"])
 def test_cancellation_paths_release_capacity(stage: str) -> None:
     container = configured_container(should_fail=stage == "failed")
     service = container.software_delivery_workflow_service
     if stage == "intake":
         workflow = service.submit_request(request())
     else:
-        workflow = assigned_workflow(container)
+        workflow = service.submit_request(request())
+        service.plan_request(workflow.id)
+        if stage != "ready":
+            service.assign_work(workflow.id)
         if stage == "failed":
             with pytest.raises(WorkflowExecutionError):
                 service.execute_work(workflow.id)
@@ -350,11 +383,56 @@ def test_cancellation_paths_release_capacity(stage: str) -> None:
     service.cancel_workflow(workflow.id, "No longer required")
 
     assert workflow.current_stage == WorkflowStage.CANCELLED
-    if stage != "intake":
+    cancellation_events = [
+        event
+        for event in service.get_workflow_events(workflow.id)
+        if event.event_type == EventType.SOFTWARE_WORKFLOW_CANCELLED
+    ]
+    assert len(cancellation_events) == 1
+    with pytest.raises(InvalidWorkflowTransitionError):
+        service.cancel_workflow(workflow.id, "Repeated")
+    if stage in {"assigned", "failed"}:
         assert (
             container.agent_registry.get_agent("agent-0").state
             == AgentState.AVAILABLE
         )
+
+
+def test_assignment_identity_is_absent_until_assignment_succeeds() -> None:
+    container = configured_container()
+    service = container.software_delivery_workflow_service
+    workflow = service.submit_request(request())
+
+    assert workflow.assignment_id is None
+    service.plan_request(workflow.id)
+    service.assign_work(workflow.id)
+    assert workflow.assignment_id == "delivery:assignment"
+
+
+def test_executing_stage_is_visible_during_executor_invocation() -> None:
+    container = configured_container()
+    service = container.software_delivery_workflow_service
+    workflow = assigned_workflow(container)
+    original = container.executor_registry.remove_executor("executor")
+
+    class ObservingExecutor(DeterministicExecutor):
+        def execute(self, context):
+            assert (
+                service.get_workflow(workflow.id).current_stage
+                == WorkflowStage.EXECUTING
+            )
+            return super().execute(context)
+
+    container.executor_registry.register_executor(
+        ObservingExecutor(
+            original.executor_id,
+            original.supported_roles,
+            original.supported_capabilities,
+        )
+    )
+
+    service.execute_work(workflow.id)
+    assert workflow.current_stage == WorkflowStage.REVIEW
 
 
 def test_duplicate_and_invalid_transitions_store_no_events() -> None:
@@ -396,6 +474,50 @@ def test_atomic_event_failure_rolls_back_workflow_and_runtime() -> None:
     assert item.lifecycle_state == LifecycleState.REVIEW
     assert package.updated_at == before_updated_at
     assert container.event_store.list_events() == before_events
+
+
+def test_execution_commit_failure_restores_all_joined_state() -> None:
+    container = configured_container()
+    service = container.software_delivery_workflow_service
+    workflow = assigned_workflow(container)
+    item = container.runtime_engine.get_work_item(
+        workflow.work_package_id,
+        workflow.work_item_id,
+    )
+    package = container.runtime_engine.get_work_package(
+        workflow.work_package_id
+    )
+    agent = container.agent_registry.get_agent("agent-0")
+    before_updated_at = package.updated_at
+    before_events = list(container.event_store.list_events())
+
+    def fail_events(events):
+        raise RuntimeError("storage failed")
+
+    container.event_store.add_events = fail_events
+    with pytest.raises(TransactionCommitError):
+        service.execute_work(workflow.id)
+
+    assert workflow.current_stage == WorkflowStage.ASSIGNED
+    assert workflow.execution_ids == []
+    assert item.lifecycle_state == LifecycleState.ASSIGNED
+    assert package.updated_at == before_updated_at
+    assert agent.state == AgentState.BUSY
+    assert container.execution_service.list_executions() == []
+    assert container.event_store.list_events() == before_events
+
+
+def test_completed_workflow_rejects_cancellation() -> None:
+    container = configured_container()
+    service = container.software_delivery_workflow_service
+    workflow = reviewed_workflow(container)
+    service.approve_work(workflow.id)
+    service.complete_work(workflow.id)
+
+    with pytest.raises(InvalidWorkflowTransitionError):
+        service.cancel_workflow(workflow.id)
+
+    assert workflow.current_stage == WorkflowStage.COMPLETED
 
 
 def test_eventing_disabled_workflow_is_functional() -> None:

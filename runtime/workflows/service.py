@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Literal
 
 from runtime.agents.registry import AgentRegistry
@@ -104,7 +105,6 @@ class SoftwareDeliveryWorkflowService:
             request_id=request.id,
             work_package_id=f"{resolved_id}:package",
             work_item_id=f"{resolved_id}:work-item",
-            assignment_id=f"{resolved_id}:assignment",
         )
         self._workflows[workflow.id] = workflow
         self._requests[request.id] = request
@@ -169,13 +169,15 @@ class SoftwareDeliveryWorkflowService:
         workflow = self.get_workflow(workflow_id)
         require_stage(workflow.current_stage, WorkflowStage.READY)
         request = self._requests[workflow.request_id]
+        assignment_id = f"{workflow.id}:assignment"
         assignment = self.orchestrator.assign_work_item(
-            workflow.assignment_id,
+            assignment_id,
             workflow.work_package_id,
             workflow.work_item_id,
             request.required_role,
             list(request.required_capabilities),
         )
+        workflow.assignment_id = assignment.id
         workflow.move_to(WorkflowStage.ASSIGNED)
         self._publish(
             workflow,
@@ -209,10 +211,20 @@ class SoftwareDeliveryWorkflowService:
             EventType.SOFTWARE_EXECUTION_STARTED,
             {"execution_id": resolved_id},
         )
+        assignment_id = self._require_assignment_id(workflow)
+        execution_method = (
+            self.execution_service.execute_correction
+            if self.runtime_engine.get_work_item(
+                workflow.work_package_id,
+                workflow.work_item_id,
+            ).lifecycle_state
+            == LifecycleState.REJECTED
+            else self.execution_service.execute_assignment
+        )
         try:
-            execution = self.execution_service.execute_assignment(
+            execution = execution_method(
                 resolved_id,
-                workflow.assignment_id,
+                assignment_id,
                 {
                     "correlation_id": self._correlation_id(workflow),
                     "causation_id": self._last_event_id(workflow),
@@ -272,12 +284,19 @@ class SoftwareDeliveryWorkflowService:
             workflow.work_item_id,
             LifecycleState.APPROVED,
         )
+        workflow.rejection_reason = None
+        workflow.approved_at = datetime.now(timezone.utc)
         workflow.move_to(WorkflowStage.APPROVAL)
         self._publish(workflow, EventType.SOFTWARE_WORK_APPROVED, {})
         return workflow
 
     @atomic_domain_operation
-    def reject_work(self, workflow_id: str) -> SoftwareDeliveryWorkflow:
+    def reject_work(
+        self,
+        workflow_id: str,
+        reason: str,
+    ) -> SoftwareDeliveryWorkflow:
+        validate_required_string(reason, "reason")
         workflow = self.get_workflow(workflow_id)
         require_stage(workflow.current_stage, WorkflowStage.REVIEW)
         self.runtime_engine.change_work_item_state(
@@ -285,8 +304,14 @@ class SoftwareDeliveryWorkflowService:
             workflow.work_item_id,
             LifecycleState.REJECTED,
         )
+        workflow.approved_at = None
+        workflow.rejection_reason = reason
         workflow.move_to(WorkflowStage.EXECUTING)
-        self._publish(workflow, EventType.SOFTWARE_WORK_REJECTED, {})
+        self._publish(
+            workflow,
+            EventType.SOFTWARE_WORK_REJECTED,
+            {"reason": reason},
+        )
         return workflow
 
     @atomic_domain_operation
@@ -301,7 +326,9 @@ class SoftwareDeliveryWorkflowService:
             raise WorkflowApprovalError(
                 "Completion requires work item state APPROVED"
             )
-        self.orchestrator.complete_assignment(workflow.assignment_id)
+        self.orchestrator.complete_assignment(
+            self._require_assignment_id(workflow)
+        )
         workflow.move_to(WorkflowStage.COMPLETED)
         self._publish(workflow, EventType.SOFTWARE_WORK_COMPLETED, {})
         return workflow
@@ -337,7 +364,9 @@ class SoftwareDeliveryWorkflowService:
         workflow = self.get_workflow(workflow_id)
         require_cancellable(workflow.current_stage)
         if workflow.current_stage == WorkflowStage.ASSIGNED:
-            self.orchestrator.cancel_assignment(workflow.assignment_id)
+            self.orchestrator.cancel_assignment(
+                self._require_assignment_id(workflow)
+            )
         elif workflow.current_stage == WorkflowStage.FAILED:
             self.execution_recovery_service.cancel_failed_assignment(
                 f"{workflow.id}:cancellation",
@@ -504,3 +533,13 @@ class SoftwareDeliveryWorkflowService:
         for workflow in self._workflows.values():
             targets.extend([workflow, workflow.execution_ids])
         return targets
+
+    @staticmethod
+    def _require_assignment_id(
+        workflow: SoftwareDeliveryWorkflow,
+    ) -> str:
+        if workflow.assignment_id is None:
+            raise InvalidWorkflowTransitionError(
+                "Workflow does not have a persisted assignment"
+            )
+        return workflow.assignment_id
