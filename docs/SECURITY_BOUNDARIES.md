@@ -15,3 +15,10 @@ required before approval; protected branches deny writes by default. Operators
 must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
+# Process and PostgreSQL boundaries
+
+Serializable worker configuration accepts connection references, never raw database
+URLs or provider credentials. Spawned children reconstruct live clients and
+connections locally. Operational state excludes environment variables, raw provider
+responses, secrets, and unbounded exception text. Connection failures are mapped to
+redacted provider-neutral errors.

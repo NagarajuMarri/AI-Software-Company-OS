@@ -30,3 +30,10 @@ A persistence implementation is acceptable when:
 - persistence-disabled construction remains compatible;
 - failures are surfaced and never falsely reported as durable;
 - approval and assignment completion remain explicit.
+# Milestone 11.3F acceptance
+
+The worker runtime must start only explicitly, use unique instance identities,
+heartbeat through durable registries, stop gracefully, and preserve outbox fencing.
+Provider routing must reject disabled, open, and saturated providers deterministically.
+PostgreSQL claiming must use atomic `FOR UPDATE SKIP LOCKED`; real integration results
+may only be claimed when the optional test database is configured.

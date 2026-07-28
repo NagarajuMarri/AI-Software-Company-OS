@@ -50,3 +50,10 @@ Strict latest restore is the default and stops on a corrupt newest checkpoint.
 Recovery mode may fall back, but operators must inspect the reported skipped
 files. Symlink and permission guarantees vary by operating system; keep the
 storage directory private and controlled by the runtime account.
+# Process-worker operations
+
+Workers are started explicitly with bounded operation, idle, and runtime limits.
+Operators can inspect registrations, request shutdown, and scan stale heartbeats.
+Provider disable, enable, and circuit reset require an operator identity and reason.
+PostgreSQL integration verification is optional and must be reported as skipped when
+no secure test database reference is configured.
