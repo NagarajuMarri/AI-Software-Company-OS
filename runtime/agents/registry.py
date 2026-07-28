@@ -117,4 +117,7 @@ class AgentRegistry:
         )
 
     def _snapshot_targets(self) -> list[object]:
-        return [self._agents, *self._agents.values()]
+        targets: list[object] = [self._agents]
+        for agent in self._agents.values():
+            targets.extend([agent, agent.supported_capabilities])
+        return targets

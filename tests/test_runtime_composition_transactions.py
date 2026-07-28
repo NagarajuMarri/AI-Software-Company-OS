@@ -8,6 +8,7 @@ from runtime.agents.state import AgentState
 from runtime.composition import create_runtime_container
 from runtime.engine.runtime_engine import RuntimeEngine
 from runtime.events.publisher import EventPublisher
+from runtime.events.event import RuntimeEvent
 from runtime.events.store import EventStore
 from runtime.events.types import EventType
 from runtime.exceptions import (
@@ -204,7 +205,11 @@ def test_assignment_storage_failure_leaves_no_partial_assignment() -> None:
     container.runtime_engine.change_work_item_state(
         "wp", "wi", LifecycleState.READY
     )
+    item = container.runtime_engine.get_work_item("wp", "wi")
+    registered_agent = container.agent_registry.get_agent("agent")
+    package = container.runtime_engine.get_work_package("wp")
     before_events = list(container.event_store.list_events())
+    before_updated_at = package.updated_at
     fail_storage(container)
 
     with pytest.raises(TransactionCommitError):
@@ -216,11 +221,14 @@ def test_assignment_storage_failure_leaves_no_partial_assignment() -> None:
             ["python"],
         )
 
-    item = container.runtime_engine.get_work_item("wp", "wi")
+    assert container.runtime_engine.get_work_item("wp", "wi") is item
+    assert container.agent_registry.get_agent("agent") is registered_agent
     assert item.lifecycle_state == LifecycleState.READY
     assert item.assigned_to is None
+    assert package.updated_at == before_updated_at
     assert container.orchestrator.list_assignments() == []
-    assert container.agent_registry.get_agent("agent").state == AgentState.AVAILABLE
+    assert registered_agent.state == AgentState.AVAILABLE
+    assert container.orchestrator.get_active_assignment_count("agent") == 0
     assert container.event_store.list_events() == before_events
 
 
@@ -263,3 +271,39 @@ def test_recovery_storage_failure_leaves_no_partial_recovery() -> None:
     )
     assert container.orchestrator.get_assignment("assignment").status.value == "ACTIVE"
     assert container.event_store.list_events() == before_events
+
+
+def test_event_store_subclass_batch_failure_is_all_or_nothing() -> None:
+    class FailsOnSecondEventStore(EventStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.calls = 0
+
+        def add_event(self, event: RuntimeEvent) -> RuntimeEvent:
+            self.calls += 1
+            if self.calls == 2:
+                raise RuntimeError("second write failed")
+            return super().add_event(event)
+
+    store = FailsOnSecondEventStore()
+    first = RuntimeEvent(
+        "first",
+        EventType.WORK_PACKAGE_CREATED,
+        "WORK_PACKAGE",
+        "wp",
+        1,
+        {},
+    )
+    second = RuntimeEvent(
+        "second",
+        EventType.WORK_ITEM_CREATED,
+        "WORK_ITEM",
+        "wp:wi",
+        1,
+        {},
+    )
+
+    with pytest.raises(RuntimeError, match="second write failed"):
+        store.add_events([first, second])
+
+    assert store.list_events() == []

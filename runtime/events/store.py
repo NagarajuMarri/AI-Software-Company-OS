@@ -18,9 +18,22 @@ class EventStore:
         return event
 
     def add_events(self, events: list[RuntimeEvent]) -> list[RuntimeEvent]:
-        if type(self).add_event is not EventStore.add_event:
-            for event in events:
-                self.add_event(event)
+        dispatching = getattr(self, "_dispatching_event_batch", False)
+        if (
+            type(self).add_event is not EventStore.add_event
+            and not dispatching
+        ):
+            before = dict(self._events)
+            self._dispatching_event_batch = True
+            try:
+                for event in events:
+                    self.add_event(event)
+            except Exception:
+                self._events.clear()
+                self._events.update(before)
+                raise
+            finally:
+                self._dispatching_event_batch = False
             return list(events)
         pending_ids = set(self._events)
         next_sequences: dict[tuple[str, str], int] = {}

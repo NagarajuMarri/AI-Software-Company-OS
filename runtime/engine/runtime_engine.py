@@ -198,6 +198,8 @@ class RuntimeEngine:
     def _snapshot_targets(self) -> list[object]:
         targets: list[object] = [self._work_packages]
         for package in self._work_packages.values():
-            targets.extend([package, package.work_items])
+            targets.extend(
+                [package, package.work_items, package.artifacts]
+            )
             targets.extend(package.work_items)
         return targets
