@@ -14,7 +14,7 @@ from runtime.persistence.exceptions import (
     PersistenceConfigurationError,
     PersistenceIntegrityError,
 )
-from runtime.persistence.models import RuntimeCheckpoint
+from runtime.persistence.models import CheckpointSelection, RuntimeCheckpoint
 from runtime.persistence.serializer import CanonicalSerializer
 
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
@@ -74,6 +74,10 @@ class FilePersistenceProvider:
                 os.fsync(stream.fileno())
             os.replace(temp_path, path)
             try:
+                os.chmod(path, 0o600)
+            except OSError:
+                pass
+            try:
                 directory_fd = os.open(self.storage_directory, os.O_RDONLY)
                 try:
                     os.fsync(directory_fd)
@@ -117,25 +121,52 @@ class FilePersistenceProvider:
             key=lambda item: (item.created_at, item.id),
         )
 
-    def load_latest_checkpoint(self, runtime_id: str) -> RuntimeCheckpoint:
+    def select_latest_checkpoint(
+        self,
+        runtime_id: str,
+        *,
+        recovery_mode: bool = False,
+    ) -> CheckpointSelection:
         self._validate_id(runtime_id, "runtime_id")
-        found = False
-        valid = []
-        for path in self.storage_directory.glob(
-            f"{runtime_id}--*.checkpoint.json"
-        ):
-            found = True
+        paths = sorted(
+            self.storage_directory.glob(
+                f"{runtime_id}--*.checkpoint.json"
+            ),
+            key=lambda item: (item.stat().st_mtime_ns, item.name),
+            reverse=True,
+        )
+        skipped = []
+        for path in paths:
             try:
-                valid.append(self._read(path))
-            except (CheckpointCorruptedError, PersistenceIntegrityError):
+                return CheckpointSelection(
+                    self._read(path),
+                    recovery_mode,
+                    tuple(skipped),
+                )
+            except (
+                CheckpointCorruptedError,
+                PersistenceIntegrityError,
+            ):
+                if not recovery_mode:
+                    raise
+                skipped.append(path.name)
                 continue
-        if valid:
-            return max(valid, key=lambda item: (item.created_at, item.id))
-        if found:
+        if paths:
             raise CheckpointCorruptedError("No valid checkpoint is available")
         raise CheckpointNotFoundError(
             f"No checkpoints exist for runtime {runtime_id!r}"
         )
+
+    def load_latest_checkpoint(
+        self,
+        runtime_id: str,
+        *,
+        recovery_mode: bool = False,
+    ) -> RuntimeCheckpoint:
+        return self.select_latest_checkpoint(
+            runtime_id,
+            recovery_mode=recovery_mode,
+        ).checkpoint
 
     def _read(self, path: Path) -> RuntimeCheckpoint:
         try:

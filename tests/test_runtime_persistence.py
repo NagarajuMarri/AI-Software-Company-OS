@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+import json
+import os
 from pathlib import Path
 
 import pytest
@@ -101,6 +103,27 @@ def test_checkpoint_immutability_and_digest() -> None:
 
     with pytest.raises(TypeError):
         checkpoint.payload["x"] = 1
+    caller = {
+        "mapping": {"value": 1},
+        "list": [{"value": 2}],
+        "set": {"a", "b"},
+        "bytes": bytearray(b"abc"),
+        "enums": [WorkflowStage.REVIEW],
+    }
+    nested = RuntimeCheckpoint.create(
+        "nested", "runtime", "nested", 0, caller
+    )
+    caller["mapping"]["value"] = 99
+    caller["list"][0]["value"] = 99
+    caller["set"].add("c")
+    caller["bytes"][0] = 0
+    caller["enums"].append(WorkflowStage.RELEASED)
+    assert nested.payload["mapping"]["value"] == 1
+    assert nested.payload["list"][0]["value"] == 2
+    assert nested.payload["set"] == frozenset({"a", "b"})
+    assert nested.payload["bytes"] == b"abc"
+    with pytest.raises(TypeError):
+        nested.payload["list"][0]["value"] = 3
     with pytest.raises(PersistenceIntegrityError):
         RuntimeCheckpoint(
             checkpoint.id,
@@ -130,6 +153,8 @@ def test_file_provider_duplicate_path_and_corruption(tmp_path: Path) -> None:
     checkpoint = RuntimeCheckpoint.create("one", "runtime", "test", 0, {})
     provider.save_checkpoint(checkpoint)
     assert not list(tmp_path.glob("*.tmp"))
+    if os.name != "nt":
+        assert (tmp_path / "runtime--one.checkpoint.json").stat().st_mode & 0o077 == 0
     with pytest.raises(DuplicateCheckpointError):
         provider.save_checkpoint(checkpoint)
     with pytest.raises(PersistenceConfigurationError):
@@ -139,7 +164,21 @@ def test_file_provider_duplicate_path_and_corruption(tmp_path: Path) -> None:
     corrupt.write_text("{", encoding="utf-8")
     with pytest.raises(CheckpointCorruptedError):
         provider.load_checkpoint("two")
-    assert provider.load_latest_checkpoint("runtime").id == "one"
+    with pytest.raises(CheckpointCorruptedError):
+        provider.load_latest_checkpoint("runtime")
+    selection = provider.select_latest_checkpoint(
+        "runtime",
+        recovery_mode=True,
+    )
+    assert selection.checkpoint.id == "one"
+    assert selection.skipped_corruptions == (corrupt.name,)
+
+    document_path = tmp_path / "runtime--one.checkpoint.json"
+    document = json.loads(document_path.read_text(encoding="utf-8"))
+    document["runtime_id"] = "tampered"
+    document_path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(PersistenceIntegrityError):
+        provider.load_checkpoint("one")
 
 
 def test_full_runtime_round_trip_and_event_continuity(tmp_path: Path) -> None:
@@ -178,6 +217,9 @@ def test_full_runtime_round_trip_and_event_continuity(tmp_path: Path) -> None:
     )
     assert len(restored.event_store.list_events()) == event_count
     assert restored.agent_registry.get_agent("agent").state == AgentState.BUSY
+    assert restored.persistence_service.last_restore_missing_executors == (
+        workflow.assignment_id,
+    )
     restored.software_delivery_workflow_service.approve_work(workflow.id)
     new_events = restored.event_store.list_events()
     assert len(new_events) > event_count
@@ -214,10 +256,15 @@ def test_invalid_reference_is_rejected_without_partial_restore(tmp_path: Path) -
         persistence_provider=FilePersistenceProvider(tmp_path / "fresh"),
         runtime_id="test-runtime",
     )
+    sentinel = fresh.runtime_engine.create_work_package(
+        "sentinel", "Sentinel", "Existing live state", "owner"
+    )
+    original_events = list(fresh.event_store.list_events())
 
     with pytest.raises(RuntimeRestoreError):
         fresh.persistence_service.restore_runtime(checkpoint)
-    assert fresh.runtime_engine.list_work_packages() == []
+    assert fresh.runtime_engine.get_work_package("sentinel") is sentinel
+    assert fresh.event_store.list_events() == original_events
 
 
 def test_recovery_records_survive_round_trip(tmp_path: Path) -> None:
@@ -285,6 +332,10 @@ def test_automatic_checkpoint_policy_and_failure(tmp_path: Path) -> None:
         )
     )
     assert provider.list_checkpoints("test-runtime")
+    count = len(provider.list_checkpoints("test-runtime"))
+    with pytest.raises(Exception):
+        service.assign_work(workflow.id)
+    assert len(provider.list_checkpoints("test-runtime")) == count
 
     class BrokenProvider(FilePersistenceProvider):
         def save_checkpoint(self, checkpoint):
@@ -309,6 +360,12 @@ def test_automatic_checkpoint_policy_and_failure(tmp_path: Path) -> None:
             )
         )
     assert broken.runtime_engine.get_work_package("committed:package")
+    assert (
+        broken.persistence_service.last_commit_result.durability_status.value
+        == "COMMITTED_NOT_CHECKPOINTED"
+    )
+    assert broken.persistence_service.last_commit_result.committed
+    assert not broken.persistence_service.last_commit_result.durable
     assert workflow.current_stage == WorkflowStage.INTAKE
 
 

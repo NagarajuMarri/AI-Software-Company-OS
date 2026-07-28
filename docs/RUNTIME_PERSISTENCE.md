@@ -19,8 +19,10 @@ values. Pickle and dynamic type imports are prohibited.
 
 ## Integrity and restoration
 
-The digest covers the canonical payload. Loading rejects malformed JSON,
-unknown schemas, digest mismatches, unsafe identifiers, invalid event
+The digest covers the canonical payload and all restoration-critical metadata:
+checkpoint ID, runtime ID, schema version, UTC creation time, reason, and last
+event position. Loading rejects malformed JSON, unknown schemas, digest
+mismatches, unsafe identifiers, invalid event
 sequences, and broken aggregate references. Restoration builds and validates a
 temporary object graph before replacing any live collections. Historical
 events are inserted directly and are never republished.
@@ -35,10 +37,23 @@ available, then atomically renames it. A checkpoint is visible only after the
 rename. The provider is intentionally single-process; concurrent writers
 require a future locking provider.
 
+Latest-checkpoint loading is strict by default: corruption of the newest file
+stops restoration. Explicit recovery mode may select an older valid checkpoint;
+the returned `CheckpointSelection` records every skipped corrupt filename.
+
 Automatic checkpoints run after the in-memory domain transaction commits. If
 the checkpoint fails, ASCOS raises `PersistenceCommitError`: domain state is
 committed but explicitly not reported as durable. The failure is never
 ignored.
 
+`PersistenceCommitResult` distinguishes durable commits, committed but
+uncheckpointed state, rollback, conflict, and failure without parsing exception
+text. Restoration separately reports active assignments lacking a compatible
+executor; executors are behavior and are never reconstructed from data.
+
 Future database or cloud providers must implement the same persistence
 contracts and validation rules without changing domain services.
+
+Schema version 1 has an explicit validation boundary. Future older versions
+require a migration adapter before construction; newer or unknown versions and
+unknown type discriminators are rejected rather than interpreted.

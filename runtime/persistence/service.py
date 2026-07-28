@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from runtime.agents.capability import AgentCapability
@@ -31,6 +31,11 @@ from runtime.persistence.exceptions import (
 )
 from runtime.persistence.interfaces import PersistenceProvider
 from runtime.persistence.models import RuntimeCheckpoint
+from runtime.persistence.models import (
+    CheckpointSelection,
+    DurabilityStatus,
+    PersistenceCommitResult,
+)
 from runtime.persistence.serializer import CanonicalSerializer
 from runtime.workflows.models import (
     SoftwareDeliveryRequest,
@@ -81,7 +86,22 @@ class RuntimePersistenceService:
         self.runtime_id = runtime_id
         self.container = container
         self.automatic_checkpoint_policy = automatic_checkpoint_policy
-        self._automatic_counter = 0
+        self._automatic_counter = len(
+            provider.list_checkpoints(runtime_id)
+        )
+        self.last_commit_result = PersistenceCommitResult(
+            runtime_id,
+            "initial",
+            self._automatic_counter,
+            None,
+            0,
+            False,
+            False,
+            DurabilityStatus.NOT_ATTEMPTED,
+            None,
+        )
+        self.last_checkpoint_selection: CheckpointSelection | None = None
+        self.last_restore_missing_executors: tuple[str, ...] = ()
 
     def after_atomic_operation(self, operation: str, result: object) -> None:
         if (
@@ -98,6 +118,17 @@ class RuntimePersistenceService:
                 ),
             )
         except Exception as error:
+            self.last_commit_result = PersistenceCommitResult(
+                self.runtime_id,
+                operation,
+                self._automatic_counter,
+                None,
+                len(self.container.event_store.list_events()),
+                True,
+                False,
+                DurabilityStatus.COMMITTED_NOT_CHECKPOINTED,
+                datetime.now(timezone.utc),
+            )
             raise PersistenceCommitError(
                 "Domain committed but automatic checkpoint failed"
             ) from error
@@ -123,7 +154,29 @@ class RuntimePersistenceService:
         try:
             self.provider.save_checkpoint(checkpoint)
         except Exception:
+            self.last_commit_result = PersistenceCommitResult(
+                self.runtime_id,
+                resolved_id,
+                len(self.list_checkpoints()),
+                None,
+                position,
+                True,
+                False,
+                DurabilityStatus.COMMITTED_NOT_CHECKPOINTED,
+                datetime.now(timezone.utc),
+            )
             raise
+        self.last_commit_result = PersistenceCommitResult(
+            self.runtime_id,
+            resolved_id,
+            len(self.list_checkpoints()),
+            resolved_id,
+            position,
+            True,
+            True,
+            DurabilityStatus.COMMITTED_DURABLE,
+            datetime.now(timezone.utc),
+        )
         return checkpoint
 
     def load_checkpoint(self, checkpoint_id: str) -> RuntimeCheckpoint:
@@ -131,8 +184,24 @@ class RuntimePersistenceService:
         self.validate_checkpoint(checkpoint)
         return checkpoint
 
-    def load_latest_checkpoint(self) -> RuntimeCheckpoint:
-        checkpoint = self.provider.load_latest_checkpoint(self.runtime_id)
+    def load_latest_checkpoint(
+        self,
+        *,
+        recovery_mode: bool = False,
+    ) -> RuntimeCheckpoint:
+        if hasattr(self.provider, "select_latest_checkpoint"):
+            selection = self.provider.select_latest_checkpoint(
+                self.runtime_id,
+                recovery_mode=recovery_mode,
+            )
+            self.last_checkpoint_selection = selection
+            checkpoint = selection.checkpoint
+        else:
+            checkpoint = self.provider.load_latest_checkpoint(self.runtime_id)
+            self.last_checkpoint_selection = CheckpointSelection(
+                checkpoint,
+                recovery_mode,
+            )
         self.validate_checkpoint(checkpoint)
         return checkpoint
 
@@ -142,6 +211,10 @@ class RuntimePersistenceService:
     def validate_checkpoint(self, checkpoint: RuntimeCheckpoint) -> None:
         if checkpoint.runtime_id != self.runtime_id:
             raise RuntimeRestoreError("Checkpoint runtime_id does not match")
+        if checkpoint.last_event_position != len(checkpoint.payload["events"]):
+            raise RuntimeRestoreError(
+                "Checkpoint event position does not match event stream"
+            )
         self._build_state(dict(checkpoint.payload))
 
     def restore_runtime(
@@ -164,7 +237,27 @@ class RuntimePersistenceService:
             container.event_store._events = built["events"]
         except Exception as error:
             raise RuntimeRestoreError("Runtime restoration failed") from error
+        self.last_restore_missing_executors = (
+            self.validate_executor_readiness()
+        )
         return container
+
+    def validate_executor_readiness(self) -> tuple[str, ...]:
+        missing = []
+        for assignment in self.container.orchestrator.list_assignments():
+            if assignment.status != AssignmentStatus.ACTIVE:
+                continue
+            agent = self.container.agent_registry.get_agent(
+                assignment.agent_id
+            )
+            try:
+                self.container.executor_registry.select_executor(
+                    agent,
+                    assignment,
+                )
+            except Exception:
+                missing.append(assignment.id)
+        return tuple(missing)
 
     def _capture(self) -> dict:
         container = self.container

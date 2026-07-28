@@ -23,7 +23,13 @@ Never edit checkpoint payloads manually.
 
 ## Limitations
 
-The file provider assumes one writer process. It supplies atomic replacement
+The file provider assumes one writer process. It supplies atomic replacement,
+restrictive `0600` permissions where supported,
 and best-effort fsync but no distributed lock, encryption, retention, or remote
 replication. Production deployments should use a future transactional provider
 and an explicit backup/recovery plan.
+
+Strict latest restore is the default and stops on a corrupt newest checkpoint.
+Recovery mode may fall back, but operators must inspect the reported skipped
+files. Symlink and permission guarantees vary by operating system; keep the
+storage directory private and controlled by the runtime account.

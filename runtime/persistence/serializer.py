@@ -46,8 +46,8 @@ class CanonicalSerializer:
                 "enum": type(value).__name__,
                 "value": value.value,
             }
-        if isinstance(value, bytes):
-            return {"$type": "bytes", "value": value.hex()}
+        if isinstance(value, (bytes, bytearray)):
+            return {"$type": "bytes", "value": bytes(value).hex()}
         if isinstance(value, Mapping):
             return {
                 "$type": "mapping",
