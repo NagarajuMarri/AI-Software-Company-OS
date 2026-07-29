@@ -1,5 +1,13 @@
 # System Architecture
 
+## Managed product planning
+
+The planning bridge sits between the Project Registry, persisted Project
+Knowledge Engine snapshots, and AI Project Manager. Its provider contract
+produces proposals only. Validation and human approval precede idempotent
+materialisation into inactive manager milestones; runtime orchestration remains
+a separate, future boundary. See `docs/MANAGED_PRODUCT_PLANNING.md`.
+
 The `ProjectRegistry` is the managed-product identity boundary. It records
 repository routing and lifecycle metadata but performs no repository I/O.
 Product-specific code remains outside ASCOS. Milestone 12.0 composes one

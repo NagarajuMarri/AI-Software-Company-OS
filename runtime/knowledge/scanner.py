@@ -45,13 +45,13 @@ class RepositoryScanner:
             while parent != root:
                 directories.add(parent.relative_to(root).as_posix())
                 parent = parent.parent
-        files = tuple(sorted(files, key=lambda x: x.path))
+        sorted_files = tuple(sorted(files, key=lambda x: x.path))
         deps = tuple(sorted(
-            (DependencyEdge(item.path, ref.module) for item in files for ref in item.imports),
+            (DependencyEdge(item.path, ref.module) for item in sorted_files for ref in item.imports),
             key=lambda x: (x.source, x.target, x.kind)))
         directory_nodes = tuple(DirectoryNode(path, sum(
-            f.path.startswith(path + "/") for f in files)) for path in sorted(directories))
-        return RepositoryKnowledge(repository_id, str(root), directory_nodes, files, deps)
+            f.path.startswith(path + "/") for f in sorted_files)) for path in sorted(directories))
+        return RepositoryKnowledge(repository_id, str(root), directory_nodes, sorted_files, deps)
 
 
 def _ignore_patterns(root):

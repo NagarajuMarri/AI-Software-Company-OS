@@ -1,5 +1,13 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.3A acceptance
+
+Planning must use registered identity and an explicit current knowledge snapshot,
+produce strictly validated dependency-safe proposals, require separate
+actor-attributed approval, persist only bounded structured state, materialise
+only through `AIProjectManager`, and create no product repository or runtime
+execution side effect.
+
 # Milestone 12.2 acceptance
 
 Knowledge indexing must be deterministic, text-only, ignore common generated
