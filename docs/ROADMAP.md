@@ -1,5 +1,14 @@
 # Runtime Roadmap
 
+# Milestone 12.3B
+
+The Managed Product Execution Bridge adds separately approved execution plans,
+runtime mappings, isolated workspaces, deterministic coding tasks, conservative
+change policy, quality gates, review evidence, explicit completion review, and
+draft-only repository effects. Live coding providers, automatic merge,
+deployment, release, and production workspace infrastructure remain future
+work.
+
 # Milestone 12.3A
 
 The Managed Product Planning Bridge connects registered identity, structural

@@ -1,5 +1,19 @@
 # System Architecture
 
+## Managed product execution
+
+Milestone 12.3B follows completed planning materialisation. It translates an
+exact, separately approved execution plan into traceable runtime work, an
+isolated workspace, deterministic coding tasks, allow-listed quality gates,
+integrity-digested review evidence, separately approved repository effects, and
+a draft pull request. Project tasks, runtime work, domain agents, provider
+tasks, Git/GitHub effects, and human decisions remain separate types and stores.
+
+External effects use restart-safe operation markers and reconciliation rather
+than a cross-system transaction. The default path is offline and deterministic;
+no live provider, merge, deployment, or workflow release is composed. See
+`docs/MANAGED_PRODUCT_EXECUTION.md`.
+
 ## Managed product planning
 
 The planning bridge sits between the Project Registry, persisted Project

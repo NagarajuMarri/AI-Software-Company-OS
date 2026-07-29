@@ -1,5 +1,15 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.3B acceptance
+
+Managed execution requires completed 12.3A materialisation and separate
+version-specific human execution approval. Runtime mappings are deterministic
+and idempotent; workspaces are isolated; coding results and changes are
+policy-validated; commands are bounded argument arrays; required gates and
+review evidence are durable; completion requires separate human review; and
+commit, push, and draft-PR effects remain explicit, restart-safe, protected from
+duplicates, and incapable of automatic merge, deployment, or release.
+
 # Milestone 12.3A acceptance
 
 Planning must use registered identity and an explicit current knowledge snapshot,
