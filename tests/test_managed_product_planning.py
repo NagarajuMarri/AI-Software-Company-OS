@@ -363,3 +363,227 @@ def test_spoken_english_ai_pilot_example(capsys):
     output = capsys.readouterr().out
     assert "milestone: real-voice-ai-provider-implementation" in output
     assert "approval: human-reviewer" in output
+
+
+def approved(setup):
+    service, proposal = generated(setup)
+    proposal = service.approve_proposal(
+        "product", proposal.proposal_id, "reviewer", "Reviewed"
+    )
+    return service, proposal
+
+
+def fail_after_manager_save(setup, monkeypatch):
+    service, proposal = approved(setup)
+    original = service.store.save_materialisation
+    calls = {"count": 0}
+
+    def injected(operation):
+        calls["count"] += 1
+        if calls["count"] == 2:
+            raise PlanningStorageError("injected post-manager failure")
+        return original(operation)
+
+    monkeypatch.setattr(service.store, "save_materialisation", injected)
+    with pytest.raises(PlanningStorageError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+    monkeypatch.setattr(service.store, "save_materialisation", original)
+    return service, proposal
+
+
+def test_materialisation_failure_before_manager_mutation(setup, monkeypatch):
+    service, proposal = approved(setup)
+
+    def fail(_operation):
+        raise PlanningStorageError("injected prepare failure")
+
+    monkeypatch.setattr(service.store, "save_materialisation", fail)
+    with pytest.raises(PlanningStorageError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+    state = service.manager_loader("product").current_state()
+    assert state.milestones == ()
+    assert state.tasks == ()
+
+
+def test_materialisation_failure_during_manager_save(setup, monkeypatch):
+    service, proposal = approved(setup)
+    manager = service.manager_loader("product")
+
+    def fail():
+        raise OSError("injected manager save failure")
+
+    monkeypatch.setattr(manager, "save", fail)
+    monkeypatch.setattr(service, "manager_loader", lambda _project_id: manager)
+    with pytest.raises(OSError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+    durable = AIProjectManager.load(
+        "product", setup[3], setup[5]
+    ).current_state()
+    assert durable.milestones == ()
+    operation = service.store.load_materialisation(
+        "product", f"{proposal.proposal_id}-materialisation"
+    )
+    assert operation.state == MaterialisationState.FAILED
+    assert "injected manager save failure" in operation.failure_details
+
+
+def test_failure_after_manager_save_before_commit_marker(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+    state = service.manager_loader("product").current_state()
+    assert state.milestone(proposal.milestone_id)
+    operation = service.store.load_materialisation(
+        "product", f"{proposal.proposal_id}-materialisation"
+    )
+    assert operation.state == MaterialisationState.PREPARED
+    assert service.get_proposal("product", proposal.proposal_id).materialised_at is None
+
+
+def test_retry_after_manager_committed_partial_state(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+    completed = service.materialise_approved_proposal(
+        "product", proposal.proposal_id
+    )
+    operation = service.store.load_materialisation(
+        "product", f"{proposal.proposal_id}-materialisation"
+    )
+    assert operation.state == MaterialisationState.COMPLETED
+    assert completed.materialised_at is not None
+    assert completed.materialised_at <= operation.updated_at
+
+
+def test_restart_after_manager_committed_partial_state(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+    restarted = ManagedProductPlanningService(
+        service.registry,
+        PlanningStore(setup[0] / "state"),
+        service.knowledge_loader,
+        service.manager_loader,
+        service.provider,
+    )
+    completed = restarted.materialise_approved_proposal(
+        "product", proposal.proposal_id
+    )
+    assert completed.materialised_at is not None
+    state = restarted.manager_loader("product").current_state()
+    assert len(state.milestones) == 1
+    assert len(state.tasks) == len(proposal.tasks)
+
+
+def test_failure_after_manager_commit_before_proposal_completion(
+    setup, monkeypatch
+):
+    service, proposal = approved(setup)
+    original = service.store.save_proposal
+
+    def injected(value):
+        if value.materialised_at is not None:
+            raise PlanningStorageError("injected proposal completion failure")
+        return original(value)
+
+    monkeypatch.setattr(service.store, "save_proposal", injected)
+    with pytest.raises(PlanningStorageError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+    operation = service.store.load_materialisation(
+        "product", f"{proposal.proposal_id}-materialisation"
+    )
+    assert operation.state == MaterialisationState.MANAGER_COMMITTED
+    assert service.get_proposal("product", proposal.proposal_id).materialised_at is None
+    monkeypatch.setattr(service.store, "save_proposal", original)
+    completed = service.materialise_approved_proposal(
+        "product", proposal.proposal_id
+    )
+    assert completed.materialised_at is not None
+
+
+def _persist_manager_state(service, transform):
+    manager = service.manager_loader("product")
+    manager._state = transform(manager.current_state())
+    manager.save()
+
+
+def test_mismatched_existing_milestone_metadata_requires_reconciliation(
+    setup, monkeypatch
+):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+
+    def mutate(state):
+        milestone = state.milestone(proposal.milestone_id)
+        changed = replace(milestone, metadata={"proposal_id": "wrong"})
+        return replace(
+            state,
+            milestones=tuple(
+                changed if item.milestone_id == changed.milestone_id else item
+                for item in state.milestones
+            ),
+        )
+
+    _persist_manager_state(service, mutate)
+    with pytest.raises(MaterialisationReconciliationError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+    operation = service.store.load_materialisation(
+        "product", f"{proposal.proposal_id}-materialisation"
+    )
+    assert operation.state == MaterialisationState.RECONCILIATION_REQUIRED
+
+
+def test_mismatched_task_metadata_requires_reconciliation(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+
+    def mutate(state):
+        task = state.task(proposal.tasks[0].task_id)
+        changed = replace(task, metadata={"quality_gates": ["wrong"]})
+        return replace(
+            state,
+            tasks=tuple(
+                changed if item.task_id == changed.task_id else item
+                for item in state.tasks
+            ),
+        )
+
+    _persist_manager_state(service, mutate)
+    with pytest.raises(MaterialisationReconciliationError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+
+
+def test_mismatched_task_dependencies_require_reconciliation(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+
+    def mutate(state):
+        task = state.task(proposal.tasks[1].task_id)
+        changed = replace(task, dependencies=())
+        return replace(
+            state,
+            tasks=tuple(
+                changed if item.task_id == changed.task_id else item
+                for item in state.tasks
+            ),
+        )
+
+    _persist_manager_state(service, mutate)
+    with pytest.raises(MaterialisationReconciliationError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)
+
+
+def test_recovery_never_duplicates_manager_records(setup, monkeypatch):
+    service, proposal = fail_after_manager_save(setup, monkeypatch)
+    service.materialise_approved_proposal("product", proposal.proposal_id)
+    service.materialise_approved_proposal("product", proposal.proposal_id)
+    state = service.manager_loader("product").current_state()
+    assert len(state.milestones) == 1
+    assert len(state.tasks) == len(proposal.tasks)
+    assert len(state.risks) == len(proposal.risks)
+    assert len(state.decisions) == 1
+
+
+def test_corrupt_materialisation_operation_is_rejected(setup):
+    service, proposal = approved(setup)
+    path = (
+        service.store.root
+        / "product"
+        / "materialisations"
+        / f"{proposal.proposal_id}-materialisation.json"
+    )
+    path.parent.mkdir(parents=True)
+    path.write_text("{broken", encoding="utf-8")
+    with pytest.raises(PlanningStateCorruptError):
+        service.materialise_approved_proposal("product", proposal.proposal_id)

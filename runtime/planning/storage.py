@@ -8,8 +8,24 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-from runtime.planning.errors import *
-from runtime.planning.models import *
+from runtime.planning.errors import (
+    PlanningNotFoundError,
+    PlanningStateCorruptError,
+    PlanningStorageError,
+    PlanningValidationError,
+    UnsupportedPlanningSchemaError,
+)
+from runtime.planning.models import (
+    ChangePriority,
+    ManagedProductChangeRequest,
+    MaterialisationOperation,
+    MaterialisationState,
+    ProposalDecision,
+    ProposalStatus,
+    ProposedProductMilestone,
+    ProposedTask,
+    RiskLevel,
+)
 from runtime.planning.validation import IDENTIFIER
 
 
@@ -49,6 +65,30 @@ class PlanningStore:
                    "file_paths": [x.path for x in context.relevant_files],
                    "symbol_names": [x.qualified_name for x in context.relevant_symbols]}
         self._write(self._path(context.project_id, "contexts", context.request.request_id), payload)
+
+    def save_materialisation(self, operation: MaterialisationOperation) -> None:
+        self._write(
+            self._path(operation.project_id, "materialisations", operation.operation_id),
+            {
+                "schema_version": self.SCHEMA_VERSION,
+                "kind": "materialisation",
+                "operation": _encode(asdict(operation)),
+            },
+        )
+
+    def load_materialisation(
+        self, project_id: str, operation_id: str
+    ) -> MaterialisationOperation:
+        payload = self._read(
+            self._path(project_id, "materialisations", operation_id),
+            "materialisation",
+        )
+        try:
+            return _materialisation(payload["operation"])
+        except Exception as error:
+            raise PlanningStateCorruptError(
+                "Materialisation operation cannot be safely loaded"
+            ) from error
 
     def _path(self, project_id, kind, identifier):
         for value in (project_id, identifier):
@@ -128,3 +168,20 @@ def _proposal(x):
         "generated_at": datetime.fromisoformat(x["generated_at"]),
         "status": ProposalStatus(x["status"]), "decisions": decisions,
         "materialised_at": datetime.fromisoformat(x["materialised_at"]) if x["materialised_at"] else None})
+
+
+def _materialisation(value):
+    return MaterialisationOperation(
+        operation_id=value["operation_id"],
+        project_id=value["project_id"],
+        proposal_id=value["proposal_id"],
+        milestone_id=value["milestone_id"],
+        expected_task_ids=tuple(value["expected_task_ids"]),
+        expected_risk_ids=tuple(value["expected_risk_ids"]),
+        expected_decision_id=value["expected_decision_id"],
+        state=MaterialisationState(value["state"]),
+        created_at=datetime.fromisoformat(value["created_at"]),
+        updated_at=datetime.fromisoformat(value["updated_at"]),
+        failure_details=value.get("failure_details"),
+        schema_version=value["schema_version"],
+    )

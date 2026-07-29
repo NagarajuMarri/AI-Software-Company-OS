@@ -41,3 +41,7 @@ class KnowledgeStaleError(PlanningError):
 
 class ProposalLifecycleError(PlanningError):
     pass
+
+
+class MaterialisationReconciliationError(PlanningConflictError):
+    """Durable manager state does not match the approved planning proposal."""

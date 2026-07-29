@@ -27,10 +27,21 @@ actor-attributed UTC decisions. Providers cannot approve their own output.
 Approved content is frozen. Rejection requires a reason and prevents
 materialisation.
 
-Materialisation preflights identity and ID conflicts, then uses
-`AIProjectManager` to create one inactive milestone and ordered tasks. It
-preserves dependencies, criteria, candidate files, quality gates, risks, and
-approval evidence. It is idempotent and creates no runtime work item, branch,
+Materialisation uses a restart-safe reconciliation protocol rather than claiming
+an unsupported transaction across the independent manager and planning files.
+Before manager mutation, ASCOS durably writes a deterministic operation record.
+The operation advances through `PREPARED`, `MANAGER_COMMITTED`, and `COMPLETED`;
+failed saves may record `FAILED`, while mismatched durable manager state records
+`RECONCILIATION_REQUIRED`.
+
+On retry or restart, the service compares the existing inactive milestone,
+ordered tasks and dependencies, structured metadata, risks, and approval
+decision with the approved proposal. An exact match resumes completion without
+duplicates. Partial or mismatched state raises a typed reconciliation error.
+The proposal receives `materialised_at` only after the expected manager state is
+durable. The operation becomes `COMPLETED` only after that proposal update is
+durable, so full materialisation requires both records. Materialisation still
+uses `AIProjectManager` validation and creates no runtime work item, branch,
 commit, pull request, merge, deployment, or product-repository write.
 
 ## Persistence and CLI
@@ -41,7 +52,13 @@ Schema version 1 records use deterministic UTF-8 JSON and atomic replacement:
 <state-root>/planning/<project-id>/requests/<request-id>.json
 <state-root>/planning/<project-id>/contexts/<request-id>.json
 <state-root>/planning/<project-id>/proposals/<proposal-id>.json
+<state-root>/planning/<project-id>/materialisations/<operation-id>.json
 ```
+
+Materialisation records use schema version 1 and contain the operation,
+project/proposal/milestone identities, expected task and risk IDs, expected
+approval-decision ID, lifecycle state, UTC timestamps, and optional failure
+details.
 
 CLI groups include `planning request create|show|list`,
 `planning context build`, `planning proposal generate|show|list|approve|reject|materialise`,

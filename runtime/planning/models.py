@@ -152,6 +152,15 @@ class ProposalStatus(str, Enum):
     SUPERSEDED = "SUPERSEDED"
 
 
+class MaterialisationState(str, Enum):
+    NOT_STARTED = "NOT_STARTED"
+    PREPARED = "PREPARED"
+    MANAGER_COMMITTED = "MANAGER_COMMITTED"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    RECONCILIATION_REQUIRED = "RECONCILIATION_REQUIRED"
+
+
 @dataclass(frozen=True)
 class ProposalDecision:
     status: ProposalStatus
@@ -185,3 +194,19 @@ class ProposedProductMilestone:
     decisions: tuple[ProposalDecision, ...] = ()
     supersedes: str | None = None
     materialised_at: datetime | None = None
+
+
+@dataclass(frozen=True)
+class MaterialisationOperation:
+    operation_id: str
+    project_id: str
+    proposal_id: str
+    milestone_id: str
+    expected_task_ids: tuple[str, ...]
+    expected_risk_ids: tuple[str, ...]
+    expected_decision_id: str
+    state: MaterialisationState
+    created_at: datetime
+    updated_at: datetime
+    failure_details: str | None = None
+    schema_version: int = 1

@@ -6,7 +6,14 @@ from datetime import datetime, timezone
 from typing import Protocol, runtime_checkable
 
 from runtime.planning.errors import PlanningProviderError
-from runtime.planning.models import *
+from runtime.planning.models import (
+    ManagedProductChangeRequest,
+    ManagedProductPlanningContext,
+    ProposalStatus,
+    ProposedProductMilestone,
+    ProposedTask,
+    RiskLevel,
+)
 
 
 @runtime_checkable

@@ -8,6 +8,12 @@ actor-attributed approval, persist only bounded structured state, materialise
 only through `AIProjectManager`, and create no product repository or runtime
 execution side effect.
 
+Materialisation must durably prepare an operation before manager mutation,
+reconcile exact manager content after interruption, prevent duplicate records,
+record reconciliation-required conflicts, and consider a proposal fully
+materialised only when both manager state and the completed materialisation
+lifecycle are durable.
+
 # Milestone 12.2 acceptance
 
 Knowledge indexing must be deterministic, text-only, ignore common generated
