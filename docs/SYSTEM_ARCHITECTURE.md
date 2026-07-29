@@ -1,5 +1,12 @@
 # System Architecture
 
+The `ProjectRegistry` is the managed-product identity boundary. It records
+repository routing and lifecycle metadata but performs no repository I/O.
+Product-specific code remains outside ASCOS. Milestone 12.0 composes one
+in-memory registry per runtime and offers an atomic file adapter behind the same
+contract. Database persistence and project-scoped workflow routing remain
+separate future capabilities.
+
 The outbox separates durable intent, claim/dispatch, provider execution, local
 result application, reconciliation, and operator control. Provider calls occur
 outside rollbackable local transactions. Workers are explicit runtime objects,

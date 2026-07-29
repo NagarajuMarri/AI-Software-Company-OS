@@ -37,3 +37,11 @@ heartbeat through durable registries, stop gracefully, and preserve outbox fenci
 Provider routing must reject disabled, open, and saturated providers deterministically.
 PostgreSQL claiming must use atomic `FOR UPDATE SKIP LOCKED`; real integration results
 may only be claimed when the optional test database is configured.
+
+# Milestone 12.0 acceptance
+
+Managed projects require stable validated identities, normalized repository
+uniqueness, deterministic lookup and lifecycle filtering, registration events,
+composition-root access, and restart-safe atomic file persistence. The first
+managed product registration must reference Spoken English AI portably and
+must not modify its repository.

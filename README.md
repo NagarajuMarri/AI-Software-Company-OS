@@ -20,6 +20,10 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/PROJECT_REGISTRY.md](docs/PROJECT_REGISTRY.md) — managed-product
+  identity, repository routing metadata, lifecycle policy, and the first
+  product registration boundary.
+
 - [docs/DURABLE_OUTBOX.md](docs/DURABLE_OUTBOX.md) — atomic external intent,
   at-least-once dispatch, and local idempotent effects.
 - [docs/WORKER_ARCHITECTURE.md](docs/WORKER_ARCHITECTURE.md),

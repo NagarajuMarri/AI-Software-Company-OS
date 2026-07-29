@@ -25,6 +25,7 @@ from runtime.operations import (
     IdempotencyStore, ResultApplicationService,
 )
 from runtime.operations.registry import default_handler_registry
+from runtime.projects.registry import InMemoryProjectRegistry
 
 if TYPE_CHECKING:
     from runtime.persistence.interfaces import PersistenceProvider
@@ -100,6 +101,9 @@ class ASCOSRuntimeContainer:
             )
             self.runtime_engine = RuntimeEngine(self.event_publisher)
             self.agent_registry = AgentRegistry(self.event_publisher)
+            self.project_registry = InMemoryProjectRegistry(
+                event_publisher=self.event_publisher
+            )
             self.orchestrator = Orchestrator(
                 self.runtime_engine,
                 self.agent_registry,

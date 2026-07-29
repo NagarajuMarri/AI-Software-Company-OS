@@ -49,6 +49,14 @@ class InvalidAgentStateTransitionError(RuntimeDomainError):
     """Raised when an agent state change is not allowed."""
 
 
+class DuplicateProjectError(RuntimeDomainError):
+    """Raised when a project identity or repository is already registered."""
+
+
+class ProjectNotFoundError(RuntimeDomainError):
+    """Raised when a managed project cannot be found."""
+
+
 class AssignmentNotFoundError(RuntimeDomainError):
     """Raised when an assignment cannot be found."""
 
