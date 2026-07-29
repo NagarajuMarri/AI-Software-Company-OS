@@ -1,5 +1,12 @@
 # Runtime Roadmap
 
+# Milestone 12.2
+
+The Project Knowledge Engine adds deterministic, read-only repository scanning,
+structural symbol and dependency knowledge, statistics, queries, atomic
+ASCOS-controlled persistence, and CLI access. Semantic AI and autonomous coding
+remain future work.
+
 # Milestone 12.1
 
 The AI Project Manager adds deterministic milestone and task state,

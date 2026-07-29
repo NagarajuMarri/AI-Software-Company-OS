@@ -20,6 +20,9 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/PROJECT_KNOWLEDGE_ENGINE.md](docs/PROJECT_KNOWLEDGE_ENGINE.md) —
+  deterministic repository scanning, structural knowledge, and query APIs.
+
 - [docs/AI_PROJECT_MANAGER.md](docs/AI_PROJECT_MANAGER.md) — deterministic
   milestones, tasks, progress, next actions, and ASCOS-controlled state.
 

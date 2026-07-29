@@ -1,5 +1,12 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.2 acceptance
+
+Knowledge indexing must be deterministic, text-only, ignore common generated
+and version-control paths, use Python AST safely, preserve stable query and
+serialization ordering, validate registry identity, persist only under
+ASCOS-controlled storage, and never modify a product repository.
+
 # Milestone 12.1 acceptance
 
 Manager state must reference a registered project, permit only validated and
