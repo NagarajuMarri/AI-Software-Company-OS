@@ -1,5 +1,13 @@
 # Runtime Roadmap
 
+# Milestone 12.1
+
+The AI Project Manager adds deterministic milestone and task state,
+dependency-aware next actions, integer progress, decisions, notes, risks,
+typed transitions, atomic project-isolated JSON persistence, a Python API, and
+CLI operations. It does not add LLM planning, autonomous agents, product
+business logic, or product-repository writes.
+
 # Milestone 12.0
 
 The project registry establishes stable managed-product identity, repository

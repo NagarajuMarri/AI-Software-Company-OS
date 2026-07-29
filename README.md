@@ -20,6 +20,9 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/AI_PROJECT_MANAGER.md](docs/AI_PROJECT_MANAGER.md) — deterministic
+  milestones, tasks, progress, next actions, and ASCOS-controlled state.
+
 - [docs/PROJECT_REGISTRY.md](docs/PROJECT_REGISTRY.md) — managed-product
   identity, repository routing metadata, lifecycle policy, and the first
   product registration boundary.

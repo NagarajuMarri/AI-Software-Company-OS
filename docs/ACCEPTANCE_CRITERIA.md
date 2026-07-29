@@ -1,5 +1,13 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.1 acceptance
+
+Manager state must reference a registered project, permit only validated and
+atomic task/milestone transitions, plan executable tasks deterministically,
+calculate stable integer progress, round-trip all supported records through
+schema-versioned atomic JSON under ASCOS-controlled storage, expose Python and
+CLI operations, and never write to a managed product repository.
+
 Milestone 11.3E requires atomic intent/event creation, deterministic exclusive
 claims, hashed claim tokens, stale-fencing rejection, at-least-once dispatch,
 idempotent local result application, bounded retry, dead-letter/operator audit,
