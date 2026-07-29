@@ -20,6 +20,10 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+- [docs/MANAGED_PRODUCT_PLANNING.md](docs/MANAGED_PRODUCT_PLANNING.md) —
+  reviewed change requests, bounded planning context, proposals, approval, and
+  safe project-manager materialisation.
+
 - [docs/PROJECT_KNOWLEDGE_ENGINE.md](docs/PROJECT_KNOWLEDGE_ENGINE.md) —
   deterministic repository scanning, structural knowledge, and query APIs.
 

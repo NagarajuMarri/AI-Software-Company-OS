@@ -1,5 +1,12 @@
 # Runtime Roadmap
 
+# Milestone 12.3A
+
+The Managed Product Planning Bridge connects registered identity, structural
+knowledge, and deterministic project management through reviewed requests,
+bounded context, provider-neutral proposals, explicit approval, and safe
+materialisation. Runtime execution and live LLM planning remain future work.
+
 # Milestone 12.2
 
 The Project Knowledge Engine adds deterministic, read-only repository scanning,
