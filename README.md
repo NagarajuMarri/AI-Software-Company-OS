@@ -1,5 +1,11 @@
 # AI-Software-Company-OS (ASCOS)
 
+Milestone 12.4 adds a typed durable coding-provider boundary, a fully offline
+deterministic provider, and an optional explicitly authorized OpenAI Responses
+API adapter. It defines the first Spoken English AI managed pilot without
+modifying the live product repository. See
+`docs/CODING_PROVIDER_ARCHITECTURE.md`.
+
 Milestone 12.3B adds controlled managed-product execution. An approved and
 materialised proposal can enter a separately approved execution plan, map to
 runtime work, run in an isolated workspace with deterministic offline coding,

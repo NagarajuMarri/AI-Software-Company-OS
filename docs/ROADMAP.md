@@ -1,5 +1,13 @@
 # Runtime Roadmap
 
+# Milestone 12.4
+
+Add the controlled coding-provider boundary and prepare Personalised Daily
+Speaking Practice Session as the first real Spoken English AI workflow through
+ASCOS. The optional live adapter is deny-by-default; offline tests prove
+durability, context, patch, progress, reconciliation, and security controls
+without modifying the product repository.
+
 # Milestone 12.3B
 
 The Managed Product Execution Bridge adds separately approved execution plans,

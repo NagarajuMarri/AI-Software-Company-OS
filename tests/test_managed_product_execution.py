@@ -6,6 +6,16 @@ from pathlib import Path
 
 import pytest
 
+from runtime.coding_providers import (
+    CodingContextBuilder,
+    CodingProviderRegistry,
+    CodingProviderService,
+    ControlledPatchApplier,
+    DeterministicCodingProvider,
+    FileOperation,
+    FileOperationKind,
+    ProviderOperationStore,
+)
 from runtime.integrations.git import LocalGitProvider
 from runtime.integrations.github import InMemoryGitHubProvider
 from runtime.integrations.github.models import GitHubRepository
@@ -369,6 +379,27 @@ def test_coding_result_requires_exact_submitted_request(execution):
         service.process_coding_result(
             "product", plan.execution_plan_id, forged,
             _result(forged), "default")
+
+
+def test_managed_execution_provider_bridge_uses_observed_workspace(execution):
+    service, plan, task_id, _ = _coding_ready(execution)
+    provider = DeterministicCodingProvider(file_operations=(
+        FileOperation(
+            FileOperationKind.UPDATE, "app.py",
+            "def value():\n    return 2\n"),))
+    service.coding_provider_service = CodingProviderService(
+        CodingProviderRegistry((provider,)),
+        ProviderOperationStore(execution[4] / "provider-state"),
+        CodingContextBuilder(), ControlledPatchApplier(),
+        change_policies=tuple(service.change_policies.values()),
+        git_provider_factory=service.git_provider_factory)
+    operation, provider_request = service.prepare_provider_operation(
+        "product", plan.execution_plan_id, task_id, "deterministic")
+    result = service.accept_provider_result(
+        "product", plan.execution_plan_id, task_id,
+        operation.provider_operation_id, provider_request, "default")
+    assert result.status == "SUCCEEDED"
+    assert result.changed_files == ("app.py",)
 
 
 @pytest.mark.parametrize("status", [

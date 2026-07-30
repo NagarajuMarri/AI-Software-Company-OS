@@ -1,5 +1,14 @@
 # System Architecture
 
+## Live coding-provider boundary
+
+Milestone 12.4 adds a typed registry, durable operations/progress/results,
+bounded context, validated text patches, usage limits, deterministic provider,
+and optional deny-by-default OpenAI Responses API adapter. Submission uses
+durable intent and exact reconciliation, not cross-system atomicity. Accepted
+results come from ASCOS-applied patches and independent Git observation before
+existing gates, evidence, review, and repository controls resume.
+
 ## Managed product execution
 
 Milestone 12.3B follows completed planning materialisation. It translates an
