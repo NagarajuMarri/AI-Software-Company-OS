@@ -5,6 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from dataclasses import asdict, is_dataclass
+from datetime import datetime
+from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
 
 from runtime.managed_execution.errors import ExecutionPolicyError
@@ -104,8 +107,35 @@ def validate_coding_result(
     return result
 
 
-def evidence_digest(evidence_without_digest: dict) -> str:
+def evidence_digest(evidence_without_digest) -> str:
+    if is_dataclass(evidence_without_digest):
+        evidence_without_digest = asdict(evidence_without_digest)  # type: ignore[arg-type]
+    evidence_without_digest = dict(evidence_without_digest)
+    evidence_without_digest.pop("integrity_digest", None)
     encoded = json.dumps(
-        evidence_without_digest, sort_keys=True, separators=(",", ":"), default=str
+        _canonical(evidence_without_digest),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def verify_evidence_digest(evidence: ReviewEvidence) -> ReviewEvidence:
+    if evidence_digest(evidence) != evidence.integrity_digest:
+        raise ExecutionPolicyError("Review evidence integrity digest is invalid")
+    return evidence
+
+
+def _canonical(value):
+    if is_dataclass(value):
+        return _canonical(asdict(value))
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, dict):
+        return {key: _canonical(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_canonical(item) for item in value]
+    return value

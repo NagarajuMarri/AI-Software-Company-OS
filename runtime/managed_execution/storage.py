@@ -18,10 +18,14 @@ from runtime.managed_execution.errors import (
     UnsupportedExecutionSchemaError,
 )
 from runtime.managed_execution.models import (
+    AcceptedCodingResult,
     ExecutionDecision,
     ExecutionMode,
     ExecutionOperationPhase,
     ExecutionPlanStatus,
+    ExternalEffectKind,
+    ExternalEffectRecord,
+    ExternalEffectState,
     GateStatus,
     ManagedExecutionOperation,
     ManagedProductExecutionPlan,
@@ -31,6 +35,7 @@ from runtime.managed_execution.models import (
     ReviewEvidence,
     RuntimeTaskMapping,
     TaskExecution,
+    ValidatedCodingResult,
     WorkspaceLifecycle,
     WorkspaceRecord,
 )
@@ -194,6 +199,9 @@ class ManagedExecutionStore:
             **value,
             "task_ids": tuple(value["task_ids"]),
             "changed_files": tuple(value["changed_files"]),
+            "accepted_coding_result_ids": tuple(
+                value["accepted_coding_result_ids"]),
+            "gate_execution_ids": tuple(value["gate_execution_ids"]),
             "quality_gate_results": gates,
             "acceptance_criteria_mapping": tuple(
                 (item[0], tuple(item[1])) for item in value["acceptance_criteria_mapping"]
@@ -204,6 +212,58 @@ class ManagedExecutionStore:
             "reviewer_required_flags": tuple(value["reviewer_required_flags"]),
             "generated_at": _dt(value["generated_at"]),
         })
+
+    def save_coding_result(self, value: AcceptedCodingResult) -> None:
+        self._save(
+            value.project_id, "coding-results", value.accepted_result_id, value)
+
+    def load_coding_result(
+        self, project_id: str, identifier: str
+    ) -> AcceptedCodingResult:
+        value = self._load(project_id, "coding-results", identifier)
+        result = value["result"]
+        return AcceptedCodingResult(**{
+            **value,
+            "result": ValidatedCodingResult(**{
+                **result,
+                "changed_files": tuple(result["changed_files"]),
+                "executed_gates": tuple(result["executed_gates"]),
+                "artifacts": tuple(result["artifacts"]),
+                "progress_sequences": tuple(result["progress_sequences"]),
+            }),
+            "accepted_at": _dt(value["accepted_at"]),
+        })
+
+    def list_coding_results(
+        self, project_id: str
+    ) -> tuple[AcceptedCodingResult, ...]:
+        return tuple(self.load_coding_result(project_id, path.stem)
+                     for path in self._files(project_id, "coding-results"))
+
+    def save_effect(self, value: ExternalEffectRecord) -> None:
+        self._save(value.project_id, "repository-effects", value.effect_id, value)
+
+    def load_effect(
+        self, project_id: str, identifier: str
+    ) -> ExternalEffectRecord:
+        value = self._load(project_id, "repository-effects", identifier)
+        return ExternalEffectRecord(**{
+            **value,
+            "kind": ExternalEffectKind(value["kind"]),
+            "state": ExternalEffectState(value["state"]),
+            "expected_identity": tuple(
+                tuple(item) for item in value["expected_identity"]),
+            "result_identity": tuple(
+                tuple(item) for item in value["result_identity"]),
+            "created_at": _dt(value["created_at"]),
+            "updated_at": _dt(value["updated_at"]),
+        })
+
+    def list_effects(
+        self, project_id: str
+    ) -> tuple[ExternalEffectRecord, ...]:
+        return tuple(self.load_effect(project_id, path.stem)
+                     for path in self._files(project_id, "repository-effects"))
 
     def _save(self, project_id: str, kind: str, identifier: str, value) -> None:
         path = self._path(project_id, kind, identifier)

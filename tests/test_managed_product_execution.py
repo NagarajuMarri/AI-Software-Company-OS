@@ -11,13 +11,17 @@ from runtime.integrations.github import InMemoryGitHubProvider
 from runtime.integrations.github.models import GitHubRepository
 from runtime.knowledge import KnowledgeStore, ProjectKnowledgeEngine
 from runtime.managed_execution import (
+    AcceptedCodingResult,
     ChangePolicy,
     ExecutionApprovalError,
     ExecutionMode,
     ExecutionOperationPhase,
+    ExecutionPlanStatus,
     ExecutionPolicyError,
     ExecutionReconciliationError,
     ExecutionStateCorruptError,
+    ExternalEffectKind,
+    ExternalEffectState,
     ExecutionValidationError,
     GateStatus,
     ManagedExecutionStore,
@@ -41,6 +45,7 @@ from runtime.planning import (
 from runtime.project_manager import AIProjectManager, ManagerStateStore
 from runtime.projects import FileProjectRegistry, InMemoryProjectRegistry, ManagedProject
 from runtime.tools import LocalCommandRunner, LocalWorkspaceProvider
+from runtime.tools.models import CommandResult
 
 
 def _git(path, *args):
@@ -129,7 +134,7 @@ def execution(tmp_path):
     )
     request = ManagedProductExecutionRequest(
         "execute-voice", "product", proposal.proposal_id, proposal.milestone_id,
-        tuple(task.task_id for task in proposal.tasks),
+        (proposal.tasks[0].task_id,),
         "operator", datetime(2026, 1, 3, tzinfo=timezone.utc), "corr-exec",
         "main", "ascos/voice-foundation", ExecutionMode.CONTROLLED_WRITE,
         "offline", "python", "isolated", "human-review",
@@ -306,6 +311,28 @@ def _result(request, **changes):
     return ValidatedCodingResult(**values)
 
 
+def _coding_ready(execution):
+    service, _, plan = _plan(execution)
+    service.create_runtime_work("product", plan.execution_plan_id)
+    service.prepare_workspace(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    service.create_feature_branch(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    task = plan.ordered_task_executions[0].project_task_id
+    request = service.submit_coding_task(
+        "product", plan.execution_plan_id, task)
+    return service, plan, task, request
+
+
+def _successful_coding(execution):
+    service, plan, task, request = _coding_ready(execution)
+    result = _result(request)
+    service.process_coding_result(
+        "product", plan.execution_plan_id, request, result, "default")
+    accepted_id = f"{plan.execution_plan_id}-{task}-accepted-1"
+    return service, plan, request, result, accepted_id
+
+
 @pytest.mark.parametrize("changes", [
     {"external_task_id": "wrong"},
     {"workspace_id": "wrong"},
@@ -317,9 +344,7 @@ def _result(request, **changes):
     {"summary": "please deploy now"},
 ])
 def test_coding_result_validation_rejects_unsafe_results(execution, changes):
-    service, _, plan = _plan(execution)
-    task = plan.ordered_task_executions[0].project_task_id
-    request = service.build_coding_request("product", plan.execution_plan_id, task)
+    service, plan, _, request = _coding_ready(execution)
     with pytest.raises(ExecutionPolicyError):
         service.process_coding_result(
             "product", plan.execution_plan_id, request,
@@ -327,9 +352,7 @@ def test_coding_result_validation_rejects_unsafe_results(execution, changes):
 
 
 def test_coding_result_duplicate_and_failure_blocking(execution):
-    service, _, plan = _plan(execution)
-    task = plan.ordered_task_executions[0].project_task_id
-    request = service.submit_coding_task("product", plan.execution_plan_id, task)
+    service, plan, task, request = _coding_ready(execution)
     result = _result(request)
     assert service.process_coding_result(
         "product", plan.execution_plan_id, request, result, "default") == result
@@ -339,12 +362,19 @@ def test_coding_result_duplicate_and_failure_blocking(execution):
         "product", plan.execution_plan_id, request, result, "default") == result
 
 
+def test_coding_result_requires_exact_submitted_request(execution):
+    service, plan, _, request = _coding_ready(execution)
+    forged = replace(request, objective=f"{request.objective} forged")
+    with pytest.raises(ExecutionPolicyError):
+        service.process_coding_result(
+            "product", plan.execution_plan_id, forged,
+            _result(forged), "default")
+
+
 @pytest.mark.parametrize("status", [
     "FAILED_RETRYABLE", "FAILED_PERMANENT", "TIMED_OUT", "CANCELLED"])
 def test_provider_failures_block_project_task(execution, status):
-    service, _, plan = _plan(execution)
-    task = plan.ordered_task_executions[0].project_task_id
-    request = service.submit_coding_task("product", plan.execution_plan_id, task)
+    service, plan, task, request = _coding_ready(execution)
     service.process_coding_result(
         "product", plan.execution_plan_id, request,
         _result(request, status=status, changed_files=(), artifacts=(),
@@ -355,8 +385,7 @@ def test_provider_failures_block_project_task(execution, status):
 
 
 def test_quality_gate_pass_and_persistence(execution):
-    service, _, plan = _plan(execution)
-    service.prepare_workspace("product", plan.execution_plan_id, allow_product_write=True)
+    service, plan, _, _, _ = _successful_coding(execution)
     results = service.run_quality_gates("product", plan.execution_plan_id, "offline")
     assert results[0].status == GateStatus.PASSED
     assert service.store.load_gate_results(
@@ -364,14 +393,10 @@ def test_quality_gate_pass_and_persistence(execution):
 
 
 def test_review_evidence_digest_and_explicit_approval(execution):
-    service, _, plan = _plan(execution)
-    service.prepare_workspace("product", plan.execution_plan_id, allow_product_write=True)
+    service, plan, _, _, accepted_id = _successful_coding(execution)
     service.run_quality_gates("product", plan.execution_plan_id, "offline")
-    task = plan.ordered_task_executions[0].project_task_id
-    request = service.build_coding_request("product", plan.execution_plan_id, task)
-    result = _result(request)
     evidence = service.generate_review_evidence(
-        "product", plan.execution_plan_id, result)
+        "product", plan.execution_plan_id, (accepted_id,))
     assert len(evidence.integrity_digest) == 64
     with pytest.raises(ExecutionApprovalError):
         service.approve_review(
@@ -382,13 +407,10 @@ def test_review_evidence_digest_and_explicit_approval(execution):
 
 
 def test_review_rejection_requires_reason(execution):
-    service, _, plan = _plan(execution)
-    service.prepare_workspace("product", plan.execution_plan_id, allow_product_write=True)
+    service, plan, _, _, accepted_id = _successful_coding(execution)
     service.run_quality_gates("product", plan.execution_plan_id, "offline")
-    task = plan.ordered_task_executions[0].project_task_id
-    request = service.build_coding_request("product", plan.execution_plan_id, task)
     service.generate_review_evidence(
-        "product", plan.execution_plan_id, _result(request))
+        "product", plan.execution_plan_id, (accepted_id,))
     with pytest.raises(ExecutionApprovalError):
         service.reject_review("product", plan.execution_plan_id, "human", "")
     decision = service.request_correction(
@@ -404,23 +426,13 @@ def test_commit_requires_review_approval(execution):
 
 
 def _reviewed_write(execution):
-    service, _, plan = _plan(execution)
-    service.create_runtime_work("product", plan.execution_plan_id)
-    workspace = service.prepare_workspace(
-        "product", plan.execution_plan_id, allow_product_write=True)
-    service.create_feature_branch(
-        "product", plan.execution_plan_id, allow_product_write=True)
-    task = plan.ordered_task_executions[0].project_task_id
-    coding_request = service.submit_coding_task(
-        "product", plan.execution_plan_id, task)
+    service, plan, coding_request, result, accepted_id = _successful_coding(execution)
+    workspace = service.store.load_workspace("product", plan.workspace_identity)
     path = Path(workspace.local_path) / "app.py"
     path.write_text("def value():\n    return 2\n", encoding="utf-8")
-    result = _result(coding_request)
-    service.process_coding_result(
-        "product", plan.execution_plan_id, coding_request, result, "default")
     service.run_quality_gates("product", plan.execution_plan_id, "offline")
     service.generate_review_evidence(
-        "product", plan.execution_plan_id, result)
+        "product", plan.execution_plan_id, (accepted_id,))
     service.approve_review(
         "product", plan.execution_plan_id, "human-reviewer")
     return service, plan
@@ -570,3 +582,306 @@ def test_every_quality_gate_status_round_trips(execution, status):
     service.store.save_gate_results("product", "status-roundtrip", values)
     assert service.store.load_gate_results(
         "product", "status-roundtrip") == values
+
+
+def _effect(service, kind):
+    return next(
+        item for item in service.store.list_effects("product")
+        if item.kind == kind)
+
+
+def test_workspace_crash_after_copy_reconciles_without_duplicate(
+    execution, monkeypatch
+):
+    service, _, plan = _plan(execution)
+    original = service.store.save_workspace
+    calls = {"count": 0}
+
+    def fail_once(value):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("injected workspace checkpoint failure")
+        return original(value)
+
+    monkeypatch.setattr(service.store, "save_workspace", fail_once)
+    with pytest.raises(OSError):
+        service.prepare_workspace(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(service.store, "save_workspace", original)
+    record = service.prepare_workspace(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    assert Path(record.local_path).is_dir()
+    assert _effect(
+        service, ExternalEffectKind.WORKSPACE_PREPARATION
+    ).state == ExternalEffectState.COMPLETED
+
+
+def test_branch_crash_after_creation_reconciles_exact_branch(
+    execution, monkeypatch
+):
+    service, _, plan = _plan(execution)
+    service.prepare_workspace(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    git = service._git(plan.workspace_identity)
+    original = git.create_branch
+
+    def create_then_fail(path, branch):
+        original(path, branch)
+        raise OSError("lost branch response")
+
+    monkeypatch.setattr(git, "create_branch", create_then_fail)
+    monkeypatch.setattr(service, "git_provider_factory", lambda _: git)
+    with pytest.raises(OSError):
+        service.create_feature_branch(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(git, "create_branch", original)
+    assert service.create_feature_branch(
+        "product", plan.execution_plan_id,
+        allow_product_write=True) == plan.feature_branch
+    assert _effect(
+        service, ExternalEffectKind.BRANCH_CREATION
+    ).state == ExternalEffectState.COMPLETED
+
+
+def test_commit_crash_after_success_reuses_exact_commit(execution, monkeypatch):
+    service, plan = _reviewed_write(execution)
+    git = service._git(plan.workspace_identity)
+    original = git.commit
+    commits = {"count": 0}
+
+    def commit_then_fail(path, message):
+        commits["count"] += 1
+        original(path, message)
+        raise OSError("lost commit response")
+
+    monkeypatch.setattr(git, "commit", commit_then_fail)
+    monkeypatch.setattr(service, "git_provider_factory", lambda _: git)
+    with pytest.raises(OSError):
+        service.create_commit(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(git, "commit", original)
+    recovered = service.create_commit(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    assert recovered == git.current_commit(
+        service.store.load_workspace(
+            "product", plan.workspace_identity).local_path)
+    assert commits["count"] == 1
+
+
+def test_push_crash_after_success_reuses_exact_remote_ref(execution, monkeypatch):
+    service, plan = _reviewed_write(execution)
+    service.create_commit(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    git = service._git(plan.workspace_identity)
+    original = git.push
+    pushes = {"count": 0}
+
+    def push_then_fail(path, remote, branch):
+        pushes["count"] += 1
+        original(path, remote, branch)
+        raise OSError("lost push response")
+
+    monkeypatch.setattr(git, "push", push_then_fail)
+    monkeypatch.setattr(service, "git_provider_factory", lambda _: git)
+    with pytest.raises(OSError):
+        service.push_branch(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(git, "push", original)
+    assert service.push_branch(
+        "product", plan.execution_plan_id,
+        allow_product_write=True) == "PUSHED"
+    assert pushes["count"] == 1
+
+
+def test_pr_crash_after_success_reuses_exact_draft(execution, monkeypatch):
+    service, plan = _reviewed_write(execution)
+    commit = service.create_commit(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    service.push_branch(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    service.github_provider.create_branch(
+        plan.repository_identity, plan.feature_branch, commit)
+    original = service.github_provider.create_draft_pull_request
+    creates = {"count": 0}
+
+    def create_then_fail(request):
+        creates["count"] += 1
+        original(request)
+        raise OSError("lost PR response")
+
+    monkeypatch.setattr(
+        service.github_provider, "create_draft_pull_request", create_then_fail)
+    with pytest.raises(OSError):
+        service.create_draft_pull_request(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(
+        service.github_provider, "create_draft_pull_request", original)
+    recovered = service.create_draft_pull_request(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    assert recovered.draft is True
+    assert creates["count"] == 1
+
+
+def test_divergent_branch_requires_reconciliation(execution, monkeypatch):
+    service, _, plan = _plan(execution)
+    service.prepare_workspace(
+        "product", plan.execution_plan_id, allow_product_write=True)
+    git = service._git(plan.workspace_identity)
+    original = git.create_branch
+
+    def create_then_fail(path, branch):
+        original(path, branch)
+        raise OSError("lost branch response")
+
+    monkeypatch.setattr(git, "create_branch", create_then_fail)
+    monkeypatch.setattr(service, "git_provider_factory", lambda _: git)
+    with pytest.raises(OSError):
+        service.create_feature_branch(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    monkeypatch.setattr(git, "branch_commit", lambda *_: "divergent")
+    with pytest.raises(ExecutionReconciliationError):
+        service.create_feature_branch(
+            "product", plan.execution_plan_id, allow_product_write=True)
+
+
+def test_unpersisted_or_failed_coding_result_cannot_generate_evidence(execution):
+    service, plan, _, request = _coding_ready(execution)
+    service.store.save_operation(replace(
+        service._operation(plan),
+        phase=ExecutionOperationPhase.QUALITY_GATES_COMPLETED))
+    now = datetime(2026, 1, 5, tzinfo=timezone.utc)
+    gates = (QualityGateResult(
+        f"{plan.execution_plan_id}-gate-1", "offline", GateStatus.PASSED,
+        0, "", "", now, now),)
+    service.store.save_gate_results("product", plan.execution_plan_id, gates)
+    with pytest.raises(Exception):
+        service.generate_review_evidence(
+            "product", plan.execution_plan_id, ("not-persisted",))
+    failed = _result(
+        request, status="FAILED_PERMANENT", changed_files=(), artifacts=(),
+        provider_task_id="failed:1")
+    service.store.save_coding_result(AcceptedCodingResult(
+        "failed-accepted", plan.execution_plan_id, plan.version, "product",
+        plan.ordered_task_executions[0].project_task_id,
+        request.external_task_id, request.workspace_id, request.branch,
+        failed.provider_task_id, failed, now))
+    with pytest.raises(ExecutionPolicyError):
+        service.generate_review_evidence(
+            "product", plan.execution_plan_id, ("failed-accepted",))
+
+
+@pytest.mark.parametrize("stage", ["review", "commit", "push", "pr"])
+def test_evidence_tampering_blocks_every_sensitive_stage(execution, stage):
+    service, plan = _reviewed_write(execution)
+    if stage in {"push", "pr"}:
+        service.create_commit(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    if stage == "pr":
+        service.push_branch(
+            "product", plan.execution_plan_id, allow_product_write=True)
+    evidence = service.store.load_evidence(
+        "product", f"{plan.execution_plan_id}-evidence-1")
+    service.store.save_evidence(replace(
+        evidence, warnings=("tampered",)))
+    with pytest.raises(ExecutionPolicyError):
+        if stage == "review":
+            service.approve_review(
+                "product", plan.execution_plan_id, "reviewer")
+        elif stage == "commit":
+            service.create_commit(
+                "product", plan.execution_plan_id, allow_product_write=True)
+        elif stage == "push":
+            service.push_branch(
+                "product", plan.execution_plan_id, allow_product_write=True)
+        else:
+            service.create_draft_pull_request(
+                "product", plan.execution_plan_id, allow_product_write=True)
+
+
+def test_unallowlisted_gate_executable_is_rejected(execution):
+    service, plan, _, _, _ = _successful_coding(execution)
+    service.gate_profiles["offline"] = QualityGateProfile(
+        "offline", "product",
+        (QualityGate("bad", ("bash", "-c", "echo unsafe"), 30),),
+        ("python",))
+    with pytest.raises(ExecutionPolicyError):
+        service.run_quality_gates("product", plan.execution_plan_id, "offline")
+
+
+def test_gate_environment_redaction_and_output_bounds(execution):
+    service, plan, _, _, _ = _successful_coding(execution)
+
+    class CapturingRunner:
+        request = None
+
+        def execute(self, request, *, cancellation=None):
+            self.request = request
+            now = datetime.now(timezone.utc)
+            output = ("topsecret literal token=raw-secret " * 500)
+            return CommandResult(
+                request.executable, request.arguments, 0, output, output,
+                now, now, 0.0, False)
+
+    runner = CapturingRunner()
+    service.command_runner = runner
+    service.gate_environment = {"SAFE": "topsecret", "UNSAFE": "not-passed"}
+    service.gate_profiles["offline"] = QualityGateProfile(
+        "offline", "product",
+        (QualityGate("safe", ("python", "-c", "print('ok')"), 30),),
+        ("python",), ("SAFE",), redaction_rules=("literal",))
+    result = service.run_quality_gates(
+        "product", plan.execution_plan_id, "offline")[0]
+    assert runner.request.environment == {"SAFE": "topsecret"}
+    assert "topsecret" not in result.stdout
+    assert "literal" not in result.stdout
+    assert "raw-secret" not in result.stdout
+    assert len(result.stdout) <= 4_000
+
+
+@pytest.mark.parametrize("status", [
+    ExecutionPlanStatus.FAILED,
+    ExecutionPlanStatus.CANCELLED,
+    ExecutionPlanStatus.SUCCEEDED,
+    ExecutionPlanStatus.REJECTED,
+    ExecutionPlanStatus.SUPERSEDED,
+    ExecutionPlanStatus.RECONCILIATION_REQUIRED,
+])
+def test_terminal_plan_states_block_ordinary_execution(execution, status):
+    service, _, plan = _plan(execution)
+    service.store.save_plan(replace(plan, status=status))
+    with pytest.raises(ExecutionApprovalError):
+        service.create_runtime_work("product", plan.execution_plan_id)
+
+
+def test_review_correction_cannot_proceed_to_commit(execution):
+    service, plan, _, _, accepted_id = _successful_coding(execution)
+    service.run_quality_gates("product", plan.execution_plan_id, "offline")
+    service.generate_review_evidence(
+        "product", plan.execution_plan_id, (accepted_id,))
+    service.request_correction(
+        "product", plan.execution_plan_id, "reviewer", "Correct it")
+    with pytest.raises(ExecutionApprovalError):
+        service.create_commit(
+            "product", plan.execution_plan_id, allow_product_write=True)
+
+
+def test_partial_runtime_mapping_is_safely_completed(execution):
+    service, request, proposal, _, _ = execution
+    all_request = replace(
+        request, execution_request_id="execute-all",
+        selected_task_ids=tuple(task.task_id for task in proposal.tasks),
+        requested_branch_name="ascos/all")
+    service.create_execution_request(all_request)
+    plan = service.generate_execution_plan(
+        "product", all_request.execution_request_id)
+    plan = service.approve_execution_plan(
+        "product", plan.execution_plan_id, "reviewer")
+    first = plan.ordered_task_executions[0]
+    from runtime.managed_execution import RuntimeTaskMapping
+    service.store.save_mapping("product", RuntimeTaskMapping(
+        first.project_task_id, first.runtime_work_item_id,
+        plan.runtime_work_package_id, plan.execution_request_id,
+        plan.execution_plan_id))
+    mappings = service.create_runtime_work("product", plan.execution_plan_id)
+    assert len(mappings) == len(plan.ordered_task_executions)
+    assert len({mapping.runtime_work_item_id for mapping in mappings}) == len(mappings)

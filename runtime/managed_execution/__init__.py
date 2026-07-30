@@ -16,9 +16,13 @@ from runtime.managed_execution.errors import (
     UnsupportedExecutionSchemaError,
 )
 from runtime.managed_execution.models import (
+    AcceptedCodingResult,
     ChangePolicy,
     EligibilityReason,
     ExecutionDecision,
+    ExternalEffectKind,
+    ExternalEffectRecord,
+    ExternalEffectState,
     ExecutionMode,
     ExecutionOperationPhase,
     ExecutionPlanStatus,
@@ -44,10 +48,14 @@ from runtime.managed_execution.storage import ManagedExecutionStore
 
 __all__ = [
     "ChangePolicy",
+    "AcceptedCodingResult",
     "EligibilityReason",
     "ExecutionApprovalError",
     "ExecutionConflictError",
     "ExecutionDecision",
+    "ExternalEffectKind",
+    "ExternalEffectRecord",
+    "ExternalEffectState",
     "ExecutionMode",
     "ExecutionNotFoundError",
     "ExecutionOperationPhase",

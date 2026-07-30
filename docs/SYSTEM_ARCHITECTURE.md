@@ -9,10 +9,17 @@ integrity-digested review evidence, separately approved repository effects, and
 a draft pull request. Project tasks, runtime work, domain agents, provider
 tasks, Git/GitHub effects, and human decisions remain separate types and stores.
 
-External effects use restart-safe operation markers and reconciliation rather
-than a cross-system transaction. The default path is offline and deterministic;
-no live provider, merge, deployment, or workflow release is composed. See
-`docs/MANAGED_PRODUCT_EXECUTION.md`.
+External effects use schema-versioned prepared/in-progress/completed/uncertain
+records and inspection-based reconciliation rather than a cross-system
+transaction. Workspace trees, runtime mappings, Git refs/commits/remotes, and
+draft PRs are accepted only when their deterministic identities match durable
+intent; divergence becomes operator-visible `RECONCILIATION_REQUIRED`.
+Accepted coding results and canonical evidence digests form the boundary
+between provider output, gates, human completion review, and repository
+effects. The default path is offline and deterministic; no live provider,
+merge, deployment, or workflow release is composed. See
+`docs/MANAGED_PRODUCT_EXECUTION.md` and
+`docs/MANAGED_EXECUTION_RECONCILIATION.md`.
 
 ## Managed product planning
 

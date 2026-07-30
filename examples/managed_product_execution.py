@@ -48,6 +48,9 @@ class OfflineGit:
         self.branch = "main"
         self.reviewed_changes = False
         self.commit_sha = "offline-base"
+        self.parent_sha = None
+        self.message = ""
+        self.pushed_sha = None
 
     def status(self, repository_path):
         changed = ("backend/voice.py",) if self.reviewed_changes else ()
@@ -57,18 +60,43 @@ class OfflineGit:
         self.branch = branch
         self.reviewed_changes = True
 
+    def current_branch(self, repository_path):
+        return self.branch
+
+    def current_commit(self, repository_path):
+        return self.commit_sha
+
+    def branch_commit(self, repository_path, branch):
+        return self.commit_sha if branch == self.branch else None
+
     def add(self, repository_path, paths):
         assert tuple(paths) == ("backend/voice.py",)
 
     def commit(self, repository_path, message):
+        self.parent_sha = self.commit_sha
+        self.message = message
         self.commit_sha = "offline-reviewed-commit"
+        self.reviewed_changes = False
         return GitCommit(self.commit_sha, self.branch)
 
+    def commit_parent(self, repository_path, commit_sha):
+        return self.parent_sha
+
+    def commit_message(self, repository_path, commit_sha):
+        return self.message
+
+    def commit_changed_paths(self, repository_path, commit_sha):
+        return ("backend/voice.py",)
+
     def push(self, repository_path, remote, branch):
+        self.pushed_sha = self.commit_sha
         try:
             self.github.get_branch(self.repository, branch)
         except Exception:
             self.github.create_branch(self.repository, branch, self.commit_sha)
+
+    def remote_branch_commit(self, repository_path, remote, branch):
+        return self.pushed_sha
 
 
 def main():
@@ -183,7 +211,8 @@ def main():
         execution.run_quality_gates(
             project.project_id, plan.execution_plan_id, "voice-gates")
         evidence = execution.generate_review_evidence(
-            project.project_id, plan.execution_plan_id, result,
+            project.project_id, plan.execution_plan_id,
+            (f"{plan.execution_plan_id}-{first_task.task_id}-accepted-1",),
             base_commit="offline-base")
         execution.approve_review(
             project.project_id, plan.execution_plan_id, "human-reviewer")

@@ -10,3 +10,16 @@ Gates run only in the managed workspace through `LocalCommandRunner`, which uses
 gate that did not run is never successful. Profiles are not Python-specific.
 The isolated pilot demonstrates compile, pytest, targeted-boundary, and diff
 validation gates.
+
+Validation occurs before the first gate: the command must be a non-empty
+immutable argument array, its executable must be allow-listed, shell
+interpreters are rejected, and timeout is bounded. The child environment is
+built only from explicitly allowed supplied values; unrestricted process
+environment is not inherited. Profile redactions, allowed environment values,
+and standard token/secret/password/API-key/credential forms are scrubbed, and
+stdout/stderr are bounded before persistence.
+
+`stop-required` records the failed required gate and durable `NOT_RUN` results
+for the remainder; `continue` executes the full ordered profile. Exactly one
+durable result is required per configured gate. A required `FAILED`,
+`NOT_RUN`, `ERROR`, `TIMED_OUT`, or `CANCELLED` result blocks evidence.

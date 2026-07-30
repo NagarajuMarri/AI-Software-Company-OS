@@ -110,6 +110,23 @@ class ReviewDecisionStatus(str, Enum):
     CORRECTION_REQUESTED = "CORRECTION_REQUESTED"
 
 
+class ExternalEffectKind(str, Enum):
+    WORKSPACE_PREPARATION = "WORKSPACE_PREPARATION"
+    BRANCH_CREATION = "BRANCH_CREATION"
+    COMMIT_CREATION = "COMMIT_CREATION"
+    BRANCH_PUSH = "BRANCH_PUSH"
+    DRAFT_PR_CREATION = "DRAFT_PR_CREATION"
+    RUNTIME_MAPPING = "RUNTIME_MAPPING"
+
+
+class ExternalEffectState(str, Enum):
+    PREPARED = "PREPARED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    UNCERTAIN = "UNCERTAIN"
+    RECONCILIATION_REQUIRED = "RECONCILIATION_REQUIRED"
+
+
 @dataclass(frozen=True)
 class ManagedProductExecutionRequest:
     execution_request_id: str
@@ -198,6 +215,7 @@ class ExecutionDecision:
     actor: str
     decided_at: datetime
     reason: str | None = None
+    evidence_digest: str | None = None
 
 
 @dataclass(frozen=True)
@@ -322,6 +340,22 @@ class ValidatedCodingResult:
 
 
 @dataclass(frozen=True)
+class AcceptedCodingResult:
+    accepted_result_id: str
+    execution_plan_id: str
+    plan_version: int
+    project_id: str
+    project_task_id: str
+    external_task_id: str
+    workspace_id: str
+    branch: str
+    provider_operation_id: str
+    result: ValidatedCodingResult
+    accepted_at: datetime
+    schema_version: int = 1
+
+
+@dataclass(frozen=True)
 class WorkspaceRecord:
     workspace_id: str
     project_id: str
@@ -346,6 +380,7 @@ class RuntimeTaskMapping:
 class ReviewEvidence:
     evidence_id: str
     execution_plan_id: str
+    plan_version: int
     project_id: str
     task_ids: tuple[str, ...]
     workspace_id: str
@@ -356,6 +391,8 @@ class ReviewEvidence:
     additions: int
     deletions: int
     provider_result_reference: str
+    accepted_coding_result_ids: tuple[str, ...]
+    gate_execution_ids: tuple[str, ...]
     quality_gate_results: tuple[QualityGateResult, ...]
     acceptance_criteria_mapping: tuple[tuple[str, tuple[str, ...]], ...]
     unresolved_risks: tuple[str, ...]
@@ -364,6 +401,22 @@ class ReviewEvidence:
     reviewer_required_flags: tuple[str, ...]
     generated_at: datetime
     integrity_digest: str
+
+
+@dataclass(frozen=True)
+class ExternalEffectRecord:
+    effect_id: str
+    project_id: str
+    execution_plan_id: str
+    plan_version: int
+    kind: ExternalEffectKind
+    state: ExternalEffectState
+    expected_identity: tuple[tuple[str, str], ...]
+    result_identity: tuple[tuple[str, str], ...] = ()
+    created_at: datetime = field(default_factory=utc_now)
+    updated_at: datetime = field(default_factory=utc_now)
+    failure_details: str | None = None
+    schema_version: int = 1
 
 
 @dataclass(frozen=True)

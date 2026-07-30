@@ -25,11 +25,23 @@ criteria, path and command allow-lists, limits, gates, and artifact
 expectations. Result success is never trusted without identity, path, limit,
 progress, artifact, status, gate, and prohibited-intent validation.
 
-Workspace, branch, commit, push, and draft-PR actions are separate explicit
-operations. Commits require reviewed workspace state and stage only
-evidence-listed paths. Protected branches, force pushes, merges, deployment,
-branch deletion, arbitrary Git configuration, and automatic rebases are not
-supported.
+Workspace, runtime-mapping, branch, commit, push, and draft-PR actions have
+separate durable effect records. Each record moves through `PREPARED`,
+`IN_PROGRESS`, `COMPLETED`, or `UNCERTAIN`; divergence moves both effect and
+execution to `RECONCILIATION_REQUIRED`. Intent contains the deterministic
+workspace/repository, plan version, branch/base SHA, reviewed evidence/path,
+remote ref/commit, or PR marker and content identities needed to inspect the
+external system after restart. Completion is persisted only after exact
+inspection. This protocol does not provide cross-system atomicity.
+
+Only schema-versioned coding results accepted by `process_coding_result()` can
+feed evidence. Evidence binds the plan/version, project, workspace, branch,
+base commit, accepted result IDs, reviewed paths, and exact durable gate
+results under one canonical SHA-256 digest. The digest and those bindings are
+rechecked before review, commit, push, PR creation, and completion. Commits
+stage only evidence-listed paths. Protected branches, force pushes, merges,
+deployment, branch deletion, arbitrary Git configuration, and automatic
+rebases are not supported.
 
 The CLI provides request create/show/list, plan generate/show/approve/reject,
 status, list, and cancellation with explicit registry, planning-state, and
