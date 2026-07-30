@@ -10,7 +10,7 @@ from runtime.coding_providers.models import (
     CodingContextPackage,
     ContextLimits,
 )
-from runtime.managed_execution.policy import safe_relative_path
+from runtime.coding_providers.path_policy import allowed_path, secure_destination
 
 _SECRET_FILES = {".env", ".npmrc", ".pypirc", "credentials", "id_rsa"}
 
@@ -24,13 +24,13 @@ class CodingContextBuilder:
         files = []
         total = 0
         for name in task.candidate_files[:self.limits.maximum_files]:
-            path = safe_relative_path(name)
+            path = name.replace("\\", "/")
             if Path(path).name.casefold() in _SECRET_FILES:
                 continue
-            if any(path.startswith(prefix) for prefix in task.forbidden_paths):
+            if not allowed_path(path, task.allowed_paths, task.forbidden_paths):
                 continue
-            resolved = (root / path).resolve()
-            if root not in resolved.parents or resolved.is_symlink() or not resolved.is_file():
+            resolved = secure_destination(root, path)
+            if not resolved.is_file():
                 continue
             raw = resolved.read_bytes()
             if b"\0" in raw:

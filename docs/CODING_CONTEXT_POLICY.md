@@ -14,3 +14,10 @@ Returned operations accept only relative UTF-8 text paths inside the workspace.
 Traversal, absolute paths, `.git`, protected paths, symlinks, binary content,
 duplicates, overflow, deletion, and mode changes are rejected by default.
 Provider commands are never executed.
+
+Path checks are component-aware and occur before final-path resolution. ASCOS
+walks every existing component with `lstat`, rejecting symbolic links,
+detectable reparse points/junctions, special files, and linked parents. Patch
+content is staged under a managed workspace staging directory and fsynced before
+per-file replacement; each replacement is durably checkpointed. This is
+inspection-based crash recovery, not globally atomic multi-file mutation.

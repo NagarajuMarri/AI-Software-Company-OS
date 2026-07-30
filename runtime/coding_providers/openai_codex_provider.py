@@ -6,6 +6,8 @@ import json
 import os
 import urllib.error
 import urllib.request
+import hashlib
+from dataclasses import asdict
 from datetime import datetime, timezone
 
 from runtime.coding_providers.errors import (
@@ -17,6 +19,7 @@ from runtime.coding_providers.models import (
     FileOperationKind,
     ProviderCapability,
     ProviderProgressEvent,
+    ProviderResponseReceipt,
     ProviderResultStatus,
     ProviderTaskResult,
     ProviderUsage,
@@ -28,12 +31,15 @@ class OpenAICodexProvider:
     provider_id = "openai-codex"
     endpoint = "https://api.openai.com/v1/responses"
 
-    def __init__(self, configuration, *, environment=None, transport=None):
+    def __init__(
+        self, configuration, *, environment=None, transport=None,
+        response_sink=None,
+    ):
         self.configuration = configuration
         self.environment = dict(environment or os.environ)
         self.transport = transport or self._request
+        self.response_sink = response_sink
         self._tasks = {}
-        self._keys = {}
 
     def validate_configuration(self):
         config = self.configuration
@@ -45,6 +51,9 @@ class OpenAICodexProvider:
             raise ProviderConfigurationError("Live provider timeout is invalid")
         if not self.environment.get(config.api_key_environment):
             raise ProviderConfigurationError("Configured API credential is unavailable")
+        if self.response_sink is None:
+            raise ProviderConfigurationError(
+                "A durable response sink is required for live operation")
 
     def capabilities(self):
         return (
@@ -60,8 +69,6 @@ class OpenAICodexProvider:
 
     def submit_task(self, request):
         self.validate_configuration()
-        if request.provider_idempotency_key in self._keys:
-            return self._keys[request.provider_idempotency_key]
         prompt = self._prompt(request)
         if len(prompt.encode()) > self.configuration.maximum_prompt_bytes:
             raise ProviderConfigurationError("Provider prompt exceeds configured limit")
@@ -73,11 +80,19 @@ class OpenAICodexProvider:
             "max_output_tokens": min(
                 32_000, self.configuration.maximum_output_bytes // 2),
             "_ascos_idempotency_key": request.provider_idempotency_key,
+            "_ascos_maximum_output_bytes": min(
+                request.maximum_output_bytes,
+                self.configuration.maximum_output_bytes,
+                128_000),
         }
         try:
             response = self.transport(payload)
             raw = json.dumps(response, separators=(",", ":"))
-            if len(raw.encode()) > self.configuration.maximum_output_bytes:
+            effective_limit = min(
+                request.maximum_output_bytes,
+                self.configuration.maximum_output_bytes,
+                128_000)
+            if len(raw.encode()) > effective_limit:
                 raise ProviderStateError("Provider response exceeds configured limit")
             result = self._parse(request, response)
         except Exception as error:
@@ -85,12 +100,27 @@ class OpenAICodexProvider:
                 self.environment.get(self.configuration.api_key_environment, ""),))
             raise ProviderStateError(f"Live provider request failed: {message}") from error
         identifier = result.provider_task_id
+        structured = json.dumps(
+            asdict(result), sort_keys=True, separators=(",", ":"),
+            default=str).encode("utf-8")
+        receipt = ProviderResponseReceipt(
+            request.provider_operation_id, identifier, request.external_task_id,
+            self.provider_id, request.project_id, request.execution_plan_id,
+            request.plan_version, request.managed_task_id, request.workspace_id,
+            request.branch, request.request_digest, request.context_digest,
+            request.provider_idempotency_key,
+            hashlib.sha256(structured).hexdigest(),
+            datetime.now(timezone.utc), result.usage)
+        try:
+            self.response_sink(receipt, result)
+        except Exception as error:
+            raise ProviderStateError(
+                "Could not durably persist live provider response") from error
         now = datetime.now(timezone.utc)
         progress = (ProviderProgressEvent(
             request.provider_operation_id, 1, "RESULT_AVAILABLE",
             "Structured provider response received", now),)
         self._tasks[identifier] = (request, progress, result)
-        self._keys[request.provider_idempotency_key] = identifier
         return identifier
 
     def get_task_status(self, provider_task_id):
@@ -102,14 +132,17 @@ class OpenAICodexProvider:
     def get_task_result(self, provider_task_id):
         return self._require(provider_task_id)[2]
 
+    def get_task_identity(self, provider_task_id):
+        return self._require(provider_task_id)[0]
+
     def cancel_task(self, provider_task_id):
         raise ProviderStateError("Synchronous Responses tasks cannot be cancelled here")
 
     def reconcile_task(self, idempotency_key, provider_task_id=None):
-        match = self._keys.get(idempotency_key)
-        if provider_task_id is not None and provider_task_id != match:
-            return ()
-        return (match,) if match else ()
+        # The synchronous Responses API does not provide a search-by-idempotency
+        # endpoint. ASCOS reconciles only from a durable local response receipt;
+        # absent that receipt, orchestration requires operator reconciliation.
+        return ()
 
     def _prompt(self, request):
         context = request.context
@@ -149,6 +182,7 @@ class OpenAICodexProvider:
         key = self.environment[self.configuration.api_key_environment]
         payload = dict(payload)
         idempotency_key = payload.pop("_ascos_idempotency_key")
+        maximum_output_bytes = payload.pop("_ascos_maximum_output_bytes")
         headers = {"Authorization": f"Bearer {key}",
                    "Content-Type": "application/json",
                    "Idempotency-Key": idempotency_key}
@@ -161,7 +195,10 @@ class OpenAICodexProvider:
             method="POST")
         with urllib.request.urlopen(
                 request, timeout=self.configuration.request_timeout_seconds) as response:
-            return json.loads(response.read(self.configuration.maximum_output_bytes + 1))
+            raw = response.read(maximum_output_bytes + 1)
+            if len(raw) > maximum_output_bytes:
+                raise ProviderStateError("Raw provider response exceeds approved limit")
+            return json.loads(raw)
 
     def _require(self, identifier):
         try:

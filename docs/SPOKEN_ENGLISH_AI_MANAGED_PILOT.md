@@ -32,3 +32,8 @@ Live readiness may be validated without a call. Chargeable use additionally
 requires enabled configuration, approved model, ASCOS-process credential,
 `--allow-live-provider`, and explicit confirmation. Default tests use temporary
 fixtures and never open the real product checkout.
+
+Pilot provider acceptance is based only on the durable post-application
+manifest observed by ASCOS: exact changed paths and content hashes, Git-derived
+additions/deletions, diff digest, and workspace status. Provider-declared paths
+or counts never become 12.3B evidence directly.

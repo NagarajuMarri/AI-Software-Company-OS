@@ -39,6 +39,27 @@ class ProviderOperationState(str, Enum):
     RECONCILIATION_REQUIRED = "RECONCILIATION_REQUIRED"
 
 
+class PatchEffectState(str, Enum):
+    PREPARED = "PREPARED"
+    STAGING = "STAGING"
+    APPLYING = "APPLYING"
+    APPLIED = "APPLIED"
+    VERIFIED = "VERIFIED"
+    ACCEPTED = "ACCEPTED"
+    FAILED = "FAILED"
+    UNCERTAIN = "UNCERTAIN"
+    RECONCILIATION_REQUIRED = "RECONCILIATION_REQUIRED"
+
+
+class CancellationEffectState(str, Enum):
+    CANCELLATION_PREPARED = "CANCELLATION_PREPARED"
+    CANCELLATION_IN_PROGRESS = "CANCELLATION_IN_PROGRESS"
+    CANCELLATION_CONFIRMED = "CANCELLATION_CONFIRMED"
+    CANCELLATION_UNCERTAIN = "CANCELLATION_UNCERTAIN"
+    CANCELLATION_RECONCILIATION_REQUIRED = (
+        "CANCELLATION_RECONCILIATION_REQUIRED")
+
+
 class ProviderResultStatus(str, Enum):
     SUCCEEDED = "SUCCEEDED"
     FAILED_RETRYABLE = "FAILED_RETRYABLE"
@@ -182,6 +203,7 @@ class ProviderOperation:
     branch: str
     request_digest: str
     context_digest: str
+    maximum_output_bytes: int
     state: ProviderOperationState
     provider_task_id: str | None = None
     progress_cursor: int = 0
@@ -192,4 +214,85 @@ class ProviderOperation:
     failure_classification: str | None = None
     reconciliation_details: str | None = None
     usage: ProviderUsage = field(default_factory=ProviderUsage)
+    schema_version: int = 1
+
+
+@dataclass(frozen=True)
+class ProviderResponseReceipt:
+    provider_operation_id: str
+    provider_task_id: str
+    external_task_id: str
+    provider_id: str
+    project_id: str
+    execution_plan_id: str
+    plan_version: int
+    managed_task_id: str
+    workspace_id: str
+    branch: str
+    request_digest: str
+    context_digest: str
+    idempotency_key: str
+    response_digest: str
+    received_at: datetime
+    usage: ProviderUsage = field(default_factory=ProviderUsage)
+    schema_version: int = 1
+
+
+@dataclass(frozen=True)
+class ObservedFile:
+    path: str
+    content_digest: str
+
+
+@dataclass(frozen=True)
+class PatchManifest:
+    provider_operation_id: str
+    changed_paths: tuple[str, ...]
+    files: tuple[ObservedFile, ...]
+    additions: int
+    deletions: int
+    git_diff_digest: str
+    workspace_status: str
+    manifest_digest: str
+    observed_at: datetime
+
+
+@dataclass(frozen=True)
+class PatchEffect:
+    patch_effect_id: str
+    project_id: str
+    provider_operation_id: str
+    execution_plan_id: str
+    plan_version: int
+    workspace_id: str
+    branch: str
+    request_digest: str
+    context_digest: str
+    provider_result_digest: str
+    file_operations_digest: str
+    expected_changed_paths: tuple[str, ...]
+    pre_application_commit_sha: str
+    pre_application_clean: bool
+    state: PatchEffectState
+    completed_paths: tuple[str, ...] = ()
+    manifest: PatchManifest | None = None
+    created_at: datetime = field(default_factory=utc_now)
+    updated_at: datetime = field(default_factory=utc_now)
+    failure_details: str | None = None
+    schema_version: int = 1
+
+
+@dataclass(frozen=True)
+class CancellationEffect:
+    cancellation_effect_id: str
+    project_id: str
+    provider_operation_id: str
+    provider_id: str
+    provider_task_id: str
+    actor: str
+    reason: str
+    state: CancellationEffectState
+    requested_at: datetime
+    updated_at: datetime
+    details: str | None = None
     schema_version: int = 1

@@ -9,6 +9,13 @@ durable intent and exact reconciliation, not cross-system atomicity. Accepted
 results come from ASCOS-applied patches and independent Git observation before
 existing gates, evidence, review, and repository controls resume.
 
+Live synchronous responses cross a mandatory durable receipt sink before the
+adapter returns. A missing receipt after uncertainty is operator-reconciled, not
+automatically resubmitted. Patch and cancellation effects have independent
+schema-versioned lifecycles. Per-file replacement is atomic where the host
+filesystem supports it, but ASCOS does not claim multi-file or cross-system
+atomicity.
+
 ## Managed product execution
 
 Milestone 12.3B follows completed planning materialisation. It translates an

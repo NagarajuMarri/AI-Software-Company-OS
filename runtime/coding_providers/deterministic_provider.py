@@ -63,6 +63,9 @@ class DeterministicCodingProvider:
     def get_task_result(self, provider_task_id):
         return self._require(provider_task_id)[2]
 
+    def get_task_identity(self, provider_task_id):
+        return self._require(provider_task_id)[0]
+
     def cancel_task(self, provider_task_id):
         request, progress, result = self._require(provider_task_id)
         self._tasks[provider_task_id] = (

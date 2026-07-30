@@ -515,15 +515,13 @@ class ManagedProductExecutionService:
         if operation.state.value != "RESULT_AVAILABLE":
             raise ExecutionPolicyError("Provider result is not successful")
         result = self.coding_provider_service.result(project_id, operation_id)
-        _, observed = self.coding_provider_service.apply_and_accept(
+        _, manifest = self.coding_provider_service.apply_and_accept(
             project_id, operation_id, workspace_path=workspace.local_path,
             task=task, policy_id=policy_id)
-        additions = sum(
-            (item.content or "").count("\n") + 1
-            for item in result.file_operations if item.content is not None)
         validated = ValidatedCodingResult(
             provider_request.external_task_id, plan.workspace_identity,
-            "SUCCEEDED", tuple(sorted(observed.changed_paths)), additions, 0,
+            "SUCCEEDED", tuple(sorted(manifest.changed_paths)),
+            manifest.additions, manifest.deletions,
             (), tuple(dict.fromkeys(
                 (*provider_request.context.evidence, *result.artifacts,
                  *self.build_coding_request(

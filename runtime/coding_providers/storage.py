@@ -12,14 +12,21 @@ from pathlib import Path
 
 from runtime.coding_providers.errors import ProviderStateError
 from runtime.coding_providers.models import (
+    CancellationEffect,
+    CancellationEffectState,
     FileOperation,
     FileOperationKind,
+    ObservedFile,
+    PatchEffect,
+    PatchEffectState,
+    PatchManifest,
     ProviderOperation,
     ProviderOperationState,
     ProviderProgressEvent,
     ProviderResultStatus,
     ProviderTaskResult,
     ProviderUsage,
+    ProviderResponseReceipt,
 )
 
 
@@ -65,6 +72,59 @@ class ProviderOperationStore:
             "unresolved_issues": tuple(value["unresolved_issues"]),
             "progress_sequences": tuple(value["progress_sequences"]),
             "usage": ProviderUsage(**value["usage"]),
+        })
+
+    def save_receipt(self, value):
+        self._save(value.project_id, "response-receipts",
+                   value.provider_operation_id, value)
+
+    def load_receipt(self, project_id, operation_id):
+        value = self._load(project_id, "response-receipts", operation_id)
+        return ProviderResponseReceipt(**{
+            **value,
+            "received_at": datetime.fromisoformat(value["received_at"]),
+            "usage": ProviderUsage(**value["usage"]),
+        })
+
+    def save_patch_effect(self, value):
+        self._save(value.project_id, "patch-effects", value.patch_effect_id, value)
+
+    def load_patch_effect(self, project_id, effect_id):
+        value = self._load(project_id, "patch-effects", effect_id)
+        manifest = value.get("manifest")
+        if manifest is not None:
+            manifest = PatchManifest(**{
+                **manifest,
+                "changed_paths": tuple(manifest["changed_paths"]),
+                "files": tuple(ObservedFile(**item) for item in manifest["files"]),
+                "observed_at": datetime.fromisoformat(manifest["observed_at"]),
+            })
+        return PatchEffect(**{
+            **value,
+            "state": PatchEffectState(value["state"]),
+            "expected_changed_paths": tuple(value["expected_changed_paths"]),
+            "completed_paths": tuple(value["completed_paths"]),
+            "manifest": manifest,
+            "created_at": datetime.fromisoformat(value["created_at"]),
+            "updated_at": datetime.fromisoformat(value["updated_at"]),
+        })
+
+    def list_patch_effects(self, project_id):
+        return tuple(
+            self.load_patch_effect(project_id, path.stem)
+            for path in self._files(project_id, "patch-effects"))
+
+    def save_cancellation(self, value):
+        self._save(value.project_id, "cancellations",
+                   value.cancellation_effect_id, value)
+
+    def load_cancellation(self, project_id, effect_id):
+        value = self._load(project_id, "cancellations", effect_id)
+        return CancellationEffect(**{
+            **value,
+            "state": CancellationEffectState(value["state"]),
+            "requested_at": datetime.fromisoformat(value["requested_at"]),
+            "updated_at": datetime.fromisoformat(value["updated_at"]),
         })
 
     def append_progress(self, project_id, event):

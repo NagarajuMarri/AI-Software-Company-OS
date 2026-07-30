@@ -169,6 +169,20 @@ class LocalGitProvider:
             arguments += (comparison,)
         return self._run(self._repo(repository_path), *arguments).stdout
 
+    def diff_numstat(self, repository_path) -> tuple[int, int]:
+        output = self._run(
+            self._repo(repository_path), "diff", "--numstat", "--no-ext-diff"
+        ).stdout
+        additions = 0
+        deletions = 0
+        for line in output.splitlines():
+            added, deleted, _ = line.split("\t", 2)
+            if added == "-" or deleted == "-":
+                raise GitProviderError("Binary diff statistics are forbidden")
+            additions += int(added)
+            deletions += int(deleted)
+        return additions, deletions
+
     def is_clean(self, repository_path) -> bool:
         return self.status(repository_path).clean
 
