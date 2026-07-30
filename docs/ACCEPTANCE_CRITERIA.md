@@ -1,5 +1,22 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.4 acceptance
+
+Managed provider execution requires typed capabilities, secret-safe injected
+configuration, durable submission intent, deterministic idempotency, exact
+uncertain-state reconciliation, monotonic progress, bounded context/results,
+validated text patches, independent Git inspection, enforced usage limits, and
+explicit live authorization. Existing approval and product-write controls remain
+mandatory. The product pilot runs against temporary fixtures by default.
+
+Live correctness must survive process restart through a durable exact-identity
+response receipt; absent provider retrieval or receipt, uncertainty must require
+operator action. Patch intent precedes staged writes, every replacement is
+checkpointed, and only a verified manifest of independently observed Git state
+may be accepted. Component-aware no-link path handling, request-specific output
+limits, exact acceptance predecessors, and evidence-confirmed cancellation are
+required.
+
 # Milestone 12.3B acceptance
 
 Managed execution requires completed 12.3A materialisation and separate

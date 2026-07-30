@@ -75,6 +75,7 @@ class ManagedProductExecutionService:
         quality_gate_profiles=(),
         coding_provider_ids=("deterministic",),
         gate_environment=None,
+        coding_provider_service=None,
     ):
         self.registry = registry
         self.planning_store = planning_store
@@ -88,6 +89,7 @@ class ManagedProductExecutionService:
         self.gate_profiles = {profile.profile_id: profile for profile in quality_gate_profiles}
         self.coding_provider_ids = frozenset(coding_provider_ids)
         self.gate_environment = dict(gate_environment or {})
+        self.coding_provider_service = coding_provider_service
         self.eligibility = ManagedProductExecutionEligibilityService(
             registry, planning_store, manager_loader, execution_store)
 
@@ -474,6 +476,63 @@ class ManagedProductExecutionService:
             manager.start_task(project_task_id)
             manager.save()
         return coding_request
+
+    def prepare_provider_operation(
+        self, project_id, plan_id, project_task_id, provider_id, *, attempt=1
+    ):
+        """Bind one submitted managed coding request to durable provider intent."""
+        if self.coding_provider_service is None:
+            raise ExecutionValidationError("Coding-provider service is not configured")
+        coding_request = self.submit_coding_task(
+            project_id, plan_id, project_task_id)
+        plan = self.get_execution_plan(project_id, plan_id)
+        task = next(
+            item for item in plan.ordered_task_executions
+            if item.project_task_id == project_task_id)
+        workspace = self.store.load_workspace(project_id, plan.workspace_identity)
+        operation, provider_request = self.coding_provider_service.prepare(
+            plan=plan, task=task, coding_request=coding_request,
+            workspace_path=workspace.local_path, provider_id=provider_id,
+            attempt=attempt)
+        return operation, provider_request
+
+    def accept_provider_result(
+        self, project_id, plan_id, project_task_id, operation_id,
+        provider_request, policy_id, *, allow_live_provider=False,
+    ):
+        """Run the provider boundary and feed ASCOS-observed changes into 12.3B."""
+        if self.coding_provider_service is None:
+            raise ExecutionValidationError("Coding-provider service is not configured")
+        plan = self.get_execution_plan(project_id, plan_id)
+        task = next(
+            item for item in plan.ordered_task_executions
+            if item.project_task_id == project_task_id)
+        workspace = self.store.load_workspace(project_id, plan.workspace_identity)
+        self.coding_provider_service.submit(
+            project_id, operation_id, provider_request,
+            allow_live_provider=allow_live_provider)
+        operation = self.coding_provider_service.poll(project_id, operation_id)
+        if operation.state.value != "RESULT_AVAILABLE":
+            raise ExecutionPolicyError("Provider result is not successful")
+        result = self.coding_provider_service.result(project_id, operation_id)
+        _, manifest = self.coding_provider_service.apply_and_accept(
+            project_id, operation_id, workspace_path=workspace.local_path,
+            task=task, policy_id=policy_id)
+        validated = ValidatedCodingResult(
+            provider_request.external_task_id, plan.workspace_identity,
+            "SUCCEEDED", tuple(sorted(manifest.changed_paths)),
+            manifest.additions, manifest.deletions,
+            (), tuple(dict.fromkeys(
+                (*provider_request.context.evidence, *result.artifacts,
+                 *self.build_coding_request(
+                     project_id, plan_id, project_task_id).expected_artifacts))),
+            result.summary, result.provider_task_id,
+            tuple(range(1, len(result.progress_sequences) + 1)),
+        )
+        coding_request = self.build_coding_request(
+            project_id, plan_id, project_task_id)
+        return self.process_coding_result(
+            project_id, plan_id, coding_request, validated, policy_id)
 
     def process_coding_result(
         self, project_id, plan_id, coding_request, result, policy_id

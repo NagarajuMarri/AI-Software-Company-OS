@@ -52,14 +52,16 @@ def validate_change(
     normalized = safe_relative_path(path)
     lower = normalized.casefold()
     if policy.allowed_path_prefixes and not any(
-        lower.startswith(prefix.casefold()) for prefix in policy.allowed_path_prefixes
+        _path_prefix(lower, prefix.casefold()) for prefix in policy.allowed_path_prefixes
     ):
         raise ExecutionPolicyError(f"Path {path!r} is outside the allow-list")
-    if any(lower.startswith(prefix.casefold()) for prefix in policy.forbidden_path_prefixes):
+    if any(_path_prefix(lower, prefix.casefold())
+           for prefix in policy.forbidden_path_prefixes):
         raise ExecutionPolicyError(f"Path {path!r} is forbidden")
     if any(lower.endswith(suffix.casefold()) for suffix in policy.forbidden_file_types):
         raise ExecutionPolicyError(f"File type for {path!r} is forbidden")
-    if any(token.casefold() in lower for token in policy.protected_configuration_files):
+    if any(_path_prefix(lower, token.casefold())
+           for token in policy.protected_configuration_files):
         raise ExecutionPolicyError(f"Protected configuration path {path!r} requires approval")
     if additions > policy.maximum_additions or deletions > policy.maximum_deletions:
         raise ExecutionPolicyError("Change line limits exceeded")
@@ -95,10 +97,12 @@ def validate_coding_result(
     for path in result.changed_files:
         normalized = safe_relative_path(path)
         if request.allowed_paths and not any(
-            normalized.startswith(prefix) for prefix in request.allowed_paths
+            _path_prefix(normalized.casefold(), prefix.casefold())
+            for prefix in request.allowed_paths
         ):
             raise ExecutionPolicyError("Provider changed a path outside the task allow-list")
-        if any(normalized.startswith(prefix) for prefix in request.forbidden_paths):
+        if any(_path_prefix(normalized.casefold(), prefix.casefold())
+               for prefix in request.forbidden_paths):
             raise ExecutionPolicyError("Provider changed a forbidden path")
         validate_change(path, policy, additions=result.additions, deletions=result.deletions)
     summary = result.summary.casefold()
@@ -139,3 +143,12 @@ def _canonical(value):
     if isinstance(value, (tuple, list)):
         return [_canonical(item) for item in value]
     return value
+
+
+def _path_prefix(path: str, prefix: str) -> bool:
+    prefix = prefix.replace("\\", "/").strip("/")
+    if not prefix:
+        return True
+    path_parts = tuple(part for part in path.replace("\\", "/").split("/") if part)
+    prefix_parts = tuple(part for part in prefix.split("/") if part)
+    return path_parts[:len(prefix_parts)] == prefix_parts
