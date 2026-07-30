@@ -65,6 +65,11 @@ CLI groups include `planning request create|show|list`,
 and `planning status`. Every invocation requires explicit registry and state-root
 paths and supports `--json`.
 
-Current limitations: one deterministic template provider, no live LLM, no
-automatic revision generation, no runtime execution bridge, and context
-relevance based on stable bounded ordering rather than semantic search.
+Current planning limitations: one deterministic template provider, no live LLM,
+no automatic revision generation, and context relevance based on stable bounded
+ordering rather than semantic search.
+
+Milestone 12.3B adds an optional downstream execution bridge. Planning remains
+proposal-only: materialisation does not create runtime work or authorize a
+workspace, provider, product write, commit, push, or pull request. Those require
+a new immutable execution request and separate exact-plan human approval.

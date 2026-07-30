@@ -1,5 +1,25 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 12.3B acceptance
+
+Managed execution requires completed 12.3A materialisation and separate
+version-specific human execution approval. Runtime mappings are deterministic
+and idempotent; workspaces are isolated; coding results and changes are
+policy-validated; commands are bounded argument arrays; required gates and
+review evidence are durable; completion requires separate human review; and
+commit, push, and draft-PR effects remain explicit, restart-safe, protected from
+duplicates, and incapable of automatic merge, deployment, or release.
+
+Every external effect must persist exact intent before invocation and exact
+verified completion afterward. Crash recovery must reuse matching workspace,
+branch, commit, remote ref, PR, and runtime-mapping state without duplication;
+divergence must require operator reconciliation. Evidence may use only durable
+accepted successful coding results, must canonically bind all plan, workspace,
+branch, base, result, path, and gate identities, and must be digest-verified at
+every sensitive transition. Gate profiles must enforce executable/environment
+allow-lists, no shell mediation, bounded time/output, redaction, deterministic
+failure policy, and one non-success-preserving result per required gate.
+
 # Milestone 12.3A acceptance
 
 Planning must use registered identity and an explicit current knowledge snapshot,

@@ -1,5 +1,13 @@
 # AI-Software-Company-OS (ASCOS)
 
+Milestone 12.3B adds controlled managed-product execution. An approved and
+materialised proposal can enter a separately approved execution plan, map to
+runtime work, run in an isolated workspace with deterministic offline coding,
+pass explicit change policy and quality gates, produce integrity-checked review
+evidence, and—only for an explicit `CONTROLLED_WRITE` request—be committed,
+pushed, and opened as a draft PR. Nothing is automatically approved, merged,
+deployed, or released. See `docs/MANAGED_PRODUCT_EXECUTION.md`.
+
 ASCOS is the engineering foundation for a reusable AI software company. This repository is intentionally not a product application. It is the long-lived governance, architecture, and operating-model backbone that future product teams will inherit.
 
 ## Mission

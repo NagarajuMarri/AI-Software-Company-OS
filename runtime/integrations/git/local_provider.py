@@ -85,6 +85,44 @@ class LocalGitProvider:
             self._repo(repository_path), "rev-parse", "HEAD"
         ).stdout.strip()
 
+    def branch_commit(self, repository_path, branch: str) -> str | None:
+        self._branch(branch)
+        result = self.runner.execute(CommandRequest(
+            "git", ("rev-parse", "--verify", f"refs/heads/{branch}"),
+            self._repo(repository_path)))
+        return result.stdout.strip() if result.exit_code == 0 else None
+
+    def remote_branch_commit(
+        self, repository_path, remote: str, branch: str
+    ) -> str | None:
+        self._branch(branch)
+        if not isinstance(remote, str) or not remote or remote.startswith("-"):
+            raise GitProviderError("Invalid remote name")
+        result = self.runner.execute(CommandRequest(
+            "git", ("ls-remote", "--heads", remote, f"refs/heads/{branch}"),
+            self._repo(repository_path)))
+        if result.exit_code:
+            raise GitProviderError("Could not inspect remote branch")
+        line = result.stdout.strip()
+        return line.split()[0] if line else None
+
+    def commit_parent(self, repository_path, commit_sha: str) -> str:
+        return self._revision(
+            repository_path, f"{commit_sha}^", "commit parent")
+
+    def commit_message(self, repository_path, commit_sha: str) -> str:
+        return self._run(
+            self._repo(repository_path), "show", "-s", "--format=%B",
+            commit_sha).stdout.strip()
+
+    def commit_changed_paths(
+        self, repository_path, commit_sha: str
+    ) -> tuple[str, ...]:
+        output = self._run(
+            self._repo(repository_path), "diff-tree", "--no-commit-id",
+            "--name-only", "-r", commit_sha).stdout
+        return tuple(line for line in output.splitlines() if line)
+
     def create_branch(self, repository_path, branch: str) -> None:
         self._branch(branch)
         self._run(self._repo(repository_path), "switch", "-c", branch)
@@ -177,3 +215,9 @@ class LocalGitProvider:
     def _branch(value):
         if not isinstance(value, str) or not _BRANCH.fullmatch(value):
             raise InvalidBranchNameError("Invalid Git branch name")
+
+    def _revision(self, repository_path, value: str, description: str) -> str:
+        if not isinstance(value, str) or value.startswith("-") or "\0" in value:
+            raise GitProviderError(f"Invalid {description}")
+        return self._run(
+            self._repo(repository_path), "rev-parse", value).stdout.strip()

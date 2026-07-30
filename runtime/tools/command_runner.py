@@ -58,7 +58,7 @@ class LocalCommandRunner:
             process = subprocess.Popen(
                 [request.executable, *request.arguments],
                 cwd=working_directory,
-                env=environment or None,
+                env=environment,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=False,
