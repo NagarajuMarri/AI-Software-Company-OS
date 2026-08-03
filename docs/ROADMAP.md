@@ -78,3 +78,10 @@ circuit breaking, deterministic routing, and an optional PostgreSQL concurrency
 adapter are implemented. A future milestone may add deployment-specific composition
 and broader real-PostgreSQL soak testing; it must not weaken explicit-start,
 operator-control, idempotency, or fencing guarantees.
+
+# Milestone 12.5
+
+Typed repository-baseline, knowledge-SHA binding, bounded learner-web-shell task,
+and managed-pilot records are supported with a deterministic temporary fixture.
+The real product was reconciled read-only and stopped safely at
+`PROVIDER_CONFIGURATION_REQUIRED`; no product mutation or release occurred.

@@ -1,0 +1,56 @@
+# Milestone 12.5 managed-product pilot
+
+The first real product pilot targets `NagarajuMarri/spoken-english-ai` and the
+**Learner Daily Speaking Practice Web Shell**. ASCOS owns reconciliation,
+knowledge binding, approval, provider routing, controlled patch application,
+quality evidence, review, Git effects, and the draft-PR boundary. A provider may
+generate bounded text changes but cannot approve, run commands, commit, push,
+open a PR, merge, release, or deploy.
+
+## Observed product baseline
+
+Read-only reconciliation on 2026-08-03 found:
+
+- repository: `https://github.com/NagarajuMarri/spoken-english-ai`
+- default branch: `main`
+- local and `origin/main`: `4c88b7edcb306ba736237e0cbcc289b5ca479543`
+- working tree: clean; local main: not divergent
+- latest merged milestone: Product Milestone 6, PR 5
+- Milestone 7 exists locally and remotely at
+  `cdeb27ab9eea2325a2b76c4580b2b1668dc07422`
+- Milestone 7 is one commit based directly on current main, changes 59 paths,
+  and has no open or recently closed pull request
+- no `ascos/milestone-8-learner-web-shell` branch was observed
+
+Milestone 7 remains unresolved product work. ASCOS must not merge it or duplicate
+its AI/voice backend changes. The web-shell pilot remains bound to the observed
+main SHA.
+
+## Knowledge and plan
+
+The main tree contains a FastAPI/SQLAlchemy backend with API routes under
+`backend/app/api/routes`, JWT access and rotating opaque refresh-token flows,
+conversation, curriculum/progress, and simulated voice modules. It has backend
+tests, five Alembic migrations, and Markdown documentation. No frontend is
+present. Snapshots exclude VCS metadata, `.env` files, credentials, virtual
+environments, caches, dependency trees, build outputs, binaries, and secrets.
+
+`learner_web_shell_request()` produces the approved change request. The epic is
+**Learner Web Experience Foundation**, with six dependency-ordered bounded tasks
+from `pilot_tasks()`. Each declares allowed and prohibited paths, acceptance
+criteria, capabilities, gates, evidence, risk, output limit, timeout, and retry
+policy. The human approval actor is `NagarajuMarri`; providers cannot approve or
+review their own work.
+
+## Current result
+
+Final status is `PROVIDER_CONFIGURATION_REQUIRED`. `OPENAI_API_KEY` was not
+present, and no enabled, authorized live provider with a durable response sink
+was configured. The deterministic provider is used only by the temporary fixture.
+
+ASCOS therefore did not create a product workspace or feature branch, invoke a
+live provider, apply product changes, run product gates, commit, push, open a
+product PR, merge, or deploy. To resume, an operator must configure an approved
+model and credential through the secret boundary, explicitly authorize the live
+operation, configure a durable response sink, and retain request/output limits.
+The credential must never be printed, persisted, logged, or put in context.
