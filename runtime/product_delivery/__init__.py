@@ -10,6 +10,7 @@ from runtime.product_delivery.intake_models import (
     ExistingProductIntakeStage,
     HumanReviewedProductDelivery,
     ImplementationSource,
+    ProductReviewerDashboard,
     VerificationOutcome,
     VerificationResult,
 )
@@ -63,6 +64,7 @@ __all__ = [
     "ProductDeliveryPipeline",
     "ProductDeliveryState",
     "ProductStateStore",
+    "ProductReviewerDashboard",
     "ProviderExecutionMode",
     "ReviewDecision",
     "ReviewDecisionType",

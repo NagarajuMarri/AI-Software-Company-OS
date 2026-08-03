@@ -16,5 +16,11 @@ credentials or provider configuration. A restart restores branch binding,
 verification evidence, reviewer, lifecycle, and PR evidence. Malformed state
 fails as a complete load and cannot partially replace a valid live record.
 
+The reviewer dashboard additionally presents authoritative repository, branch,
+commit and merge-base identity; test, migration, example, and security results;
+draft and mergeability status; the assigned reviewer; and an explicit
+`NOT_APPROVED` status. Pull-request evidence is rejected unless its base, head,
+head commit, draft state, and mergeability match the delivery record.
+
 The deterministic example uses a temporary Git repository and stops at
 `WAITING_FOR_HUMAN_REVIEW`.

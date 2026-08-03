@@ -72,6 +72,11 @@ class HumanReviewedProductDelivery:
     reviewer: str | None = None
     pull_request_number: int | None = None
     pull_request_url: str | None = None
+    pull_request_base: str | None = None
+    pull_request_head: str | None = None
+    pull_request_head_sha: str | None = None
+    pull_request_draft: bool | None = None
+    pull_request_mergeable: bool | None = None
     known_limitations: tuple[str, ...] = ()
     created_at: datetime | None = None
 
@@ -89,3 +94,20 @@ class ExistingProductDashboard:
     latest_commit: str
     pending_actions: tuple[str, ...]
     progress: int
+
+
+@dataclass(frozen=True)
+class ProductReviewerDashboard:
+    product_repository: str
+    branch: str
+    commit: str
+    merge_base: str
+    tests: str
+    migration_validation: str
+    examples: str
+    security_review: str
+    pull_request_number: int
+    draft: bool
+    mergeable: bool
+    reviewer: str
+    approval_status: str

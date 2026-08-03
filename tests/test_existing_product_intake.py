@@ -176,7 +176,14 @@ def test_existing_pr_is_reused_and_pr_evidence_persists(repository, tmp_path):
         service.record_verification("spoken-english-ai", gate, True, "passed")
     service.request_human_review("spoken-english-ai", "NagarajuMarri")
     reused = service.attach_pull_request(
-        "spoken-english-ai", 7, "https://example.invalid/pull/7"
+        "spoken-english-ai",
+        7,
+        "https://example.invalid/pull/7",
+        base="main",
+        head="product/milestone-7-ai-conversation-voice",
+        head_sha=head,
+        draft=True,
+        mergeable=True,
     )
     assert reused.pull_request_number == 7
     restarted = ExistingProductIntakeService(store)
@@ -194,7 +201,16 @@ def test_pr_creation_is_blocked_until_all_gates_pass(repository):
     service = ExistingProductIntakeService(InMemoryExistingProductDeliveryStore())
     register(service, target, base, head)
     with pytest.raises(ExistingProductIntakeError, match="before PR"):
-        service.attach_pull_request("spoken-english-ai", 8, "https://example.invalid/8")
+        service.attach_pull_request(
+            "spoken-english-ai",
+            8,
+            "https://example.invalid/8",
+            base="main",
+            head="product/milestone-7-ai-conversation-voice",
+            head_sha=head,
+            draft=True,
+            mergeable=True,
+        )
     with pytest.raises(ExistingProductIntakeError, match="missing"):
         service.request_human_review("spoken-english-ai", "NagarajuMarri")
 
@@ -202,9 +218,78 @@ def test_pr_creation_is_blocked_until_all_gates_pass(repository):
 def test_new_pr_evidence_can_be_attached_once(repository):
     service, _ = passing_service(repository)
     service.request_human_review("spoken-english-ai", "NagarajuMarri")
-    service.attach_pull_request("spoken-english-ai", 8, "https://example.invalid/8")
+    service.attach_pull_request(
+        "spoken-english-ai",
+        8,
+        "https://example.invalid/8",
+        base="main",
+        head="product/milestone-7-ai-conversation-voice",
+        head_sha=repository[2],
+        draft=True,
+        mergeable=True,
+    )
     with pytest.raises(ExistingProductIntakeError, match="Different"):
-        service.attach_pull_request("spoken-english-ai", 9, "https://example.invalid/9")
+        service.attach_pull_request(
+            "spoken-english-ai",
+            9,
+            "https://example.invalid/9",
+            base="main",
+            head="product/milestone-7-ai-conversation-voice",
+            head_sha=repository[2],
+            draft=True,
+            mergeable=True,
+        )
+
+
+def test_reviewer_dashboard_contains_authoritative_evidence(repository):
+    service, _ = passing_service(repository)
+    service.request_human_review("spoken-english-ai", "NagarajuMarri")
+    service.attach_pull_request(
+        "spoken-english-ai",
+        6,
+        "https://example.invalid/pull/6",
+        base="main",
+        head="product/milestone-7-ai-conversation-voice",
+        head_sha=repository[2],
+        draft=True,
+        mergeable=True,
+    )
+    dashboard = service.reviewer_dashboard("spoken-english-ai")
+    assert dashboard.product_repository == "NagarajuMarri/spoken-english-ai"
+    assert dashboard.commit == repository[2]
+    assert dashboard.merge_base == repository[1]
+    assert dashboard.pull_request_number == 6
+    assert dashboard.draft is True
+    assert dashboard.mergeable is True
+    assert dashboard.reviewer == "NagarajuMarri"
+    assert dashboard.approval_status == "NOT_APPROVED"
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"base": "other"}, "refs"),
+        ({"head": "other"}, "refs"),
+        ({"head_sha": "other"}, "head commit"),
+        ({"draft": False}, "draft and mergeable"),
+        ({"mergeable": False}, "draft and mergeable"),
+    ],
+)
+def test_pull_request_evidence_must_match_delivery(repository, changes, message):
+    service, _ = passing_service(repository)
+    service.request_human_review("spoken-english-ai", "NagarajuMarri")
+    evidence = {
+        "base": "main",
+        "head": "product/milestone-7-ai-conversation-voice",
+        "head_sha": repository[2],
+        "draft": True,
+        "mergeable": True,
+    }
+    evidence.update(changes)
+    with pytest.raises(ExistingProductIntakeError, match=message):
+        service.attach_pull_request(
+            "spoken-english-ai", 6, "https://example.invalid/pull/6", **evidence
+        )
 
 
 def test_corrupt_restart_state_does_not_replace_valid_in_memory_delivery(

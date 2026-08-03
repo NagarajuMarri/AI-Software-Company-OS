@@ -9,6 +9,7 @@ from runtime.product_delivery.intake_models import (
     ExistingProductIntakeStage,
     HumanReviewedProductDelivery,
     ImplementationSource,
+    ProductReviewerDashboard,
     VerificationOutcome,
     VerificationResult,
 )
@@ -159,21 +160,82 @@ class ExistingProductIntakeService:
         return delivery
 
     def attach_pull_request(
-        self, project_id: str, number: int, url: str
+        self,
+        project_id: str,
+        number: int,
+        url: str,
+        *,
+        base: str,
+        head: str,
+        head_sha: str,
+        draft: bool,
+        mergeable: bool,
     ) -> HumanReviewedProductDelivery:
         delivery = self._get(project_id)
         if delivery.stage is not ExistingProductIntakeStage.WAITING_FOR_HUMAN_REVIEW:
             raise ExistingProductIntakeError("Verification must pass before PR attachment")
         if number < 1 or not url.strip():
             raise ExistingProductIntakeError("Valid pull request evidence is required")
+        if base != delivery.base_branch or head != delivery.current_branch:
+            raise ExistingProductIntakeError("Pull request refs do not match delivery")
+        if head_sha != delivery.expected_head_sha:
+            raise ExistingProductIntakeError("Pull request head commit does not match delivery")
+        if not draft or not mergeable:
+            raise ExistingProductIntakeError(
+                "Pull request must be draft and mergeable for human review"
+            )
         if delivery.pull_request_number is not None and (
             delivery.pull_request_number != number or delivery.pull_request_url != url
         ):
             raise ExistingProductIntakeError("Different pull request evidence already exists")
         delivery.pull_request_number = number
         delivery.pull_request_url = url.strip()
+        delivery.pull_request_base = base
+        delivery.pull_request_head = head
+        delivery.pull_request_head_sha = head_sha
+        delivery.pull_request_draft = draft
+        delivery.pull_request_mergeable = mergeable
         self.store.save(delivery)
         return delivery
+
+    def reviewer_dashboard(self, project_id: str) -> ProductReviewerDashboard:
+        delivery = self._get(project_id)
+        if (
+            delivery.stage is not ExistingProductIntakeStage.WAITING_FOR_HUMAN_REVIEW
+            or delivery.reviewer is None
+            or delivery.pull_request_number is None
+            or delivery.pull_request_draft is None
+            or delivery.pull_request_mergeable is None
+        ):
+            raise ExistingProductIntakeError(
+                "Complete review and pull request evidence is required"
+            )
+        results = {result.gate: result.details for result in delivery.verification_results}
+        return ProductReviewerDashboard(
+            product_repository=delivery.repository,
+            branch=delivery.current_branch,
+            commit=delivery.expected_head_sha,
+            merge_base=delivery.reconciliation.merge_base_sha,
+            tests=results["tests"],
+            migration_validation=" ".join(
+                (results["migration_sql"], results["migration_cycle"])
+            ),
+            examples=" ".join((results["ai_example"], results["voice_example"])),
+            security_review=" ".join(
+                filter(
+                    None,
+                    (
+                        results["secret_scan"],
+                        results.get("changed_path_scope"),
+                    ),
+                )
+            ),
+            pull_request_number=delivery.pull_request_number,
+            draft=delivery.pull_request_draft,
+            mergeable=delivery.pull_request_mergeable,
+            reviewer=delivery.reviewer,
+            approval_status="NOT_APPROVED",
+        )
 
     def dashboard(self, project_id: str) -> ExistingProductDashboard:
         delivery = self._get(project_id)
