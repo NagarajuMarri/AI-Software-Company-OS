@@ -54,3 +54,21 @@ product PR, merge, or deploy. To resume, an operator must configure an approved
 model and credential through the secret boundary, explicitly authorize the live
 operation, configure a durable response sink, and retain request/output limits.
 The credential must never be printed, persisted, logged, or put in context.
+
+## Codex CLI activation follow-up
+
+The `codex-cli` adapter validates CLI `0.146.x`, uses the existing no-shell
+argument-array runner, a read-only ephemeral sandbox, strict schema output,
+workspace and environment allow-lists, bounded context/result/patch sizes,
+request and wall-clock limits, and a durable receipt before returning success.
+Authentication remains owned by the installed CLI; ASCOS does not inspect or
+persist its credential files or tokens.
+
+The first live fixture reached Codex CLI `0.146.0` with model `gpt-5.6-sol` and
+persisted a complete receipt. The provider returned `SUCCEEDED` with no proposed
+file operations. Independent verification rejected the result because
+`docs/ascos-codex-smoke.txt` was absent. The adapter now rejects any successful
+implementation result with zero operations and clarifies that Codex must propose,
+but not directly apply, operations. In accordance with the live-smoke failure
+policy, the request was not resubmitted and Spoken English Milestone 7 was not
+opened or modified. Current state is `CODEX_LIVE_SMOKE_TEST_REQUIRED`.

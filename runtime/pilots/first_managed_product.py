@@ -38,6 +38,7 @@ class PilotStatus(str, Enum):
     APPROVED = "APPROVED"
     MATERIALISED = "MATERIALISED"
     PROVIDER_CONFIGURATION_REQUIRED = "PROVIDER_CONFIGURATION_REQUIRED"
+    CODEX_LIVE_SMOKE_TEST_REQUIRED = "CODEX_LIVE_SMOKE_TEST_REQUIRED"
     EXECUTING = "EXECUTING"
     RESULT_ACCEPTED = "RESULT_ACCEPTED"
     QUALITY_VALIDATED = "QUALITY_VALIDATED"
@@ -249,3 +250,19 @@ class PilotRecordStore:
     def load(self) -> dict[str, object]:
         target = self.root / PROJECT_ID / "pilots" / f"{PILOT_ID}.json"
         return json.loads(target.read_text(encoding="utf-8"))
+
+    def update_status(self, status: PilotStatus, limitation: str) -> Path:
+        """Atomically advance terminal evidence without reconstructing prior identities."""
+        value = self.load()
+        value["status"] = status.value
+        value["updated_at"] = utc_now().isoformat()
+        existing = value.get("known_limitations", ())
+        limitations = list(existing) if isinstance(existing, list) else []
+        if limitation not in limitations:
+            limitations.append(limitation)
+        value["known_limitations"] = limitations
+        target = self.root / PROJECT_ID / "pilots" / f"{PILOT_ID}.json"
+        temporary = target.with_suffix(".tmp")
+        temporary.write_text(json.dumps(value, sort_keys=True, indent=2), encoding="utf-8")
+        temporary.replace(target)
+        return target

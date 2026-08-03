@@ -1,4 +1,7 @@
 from runtime.coding_providers.context import CodingContextBuilder
+from runtime.coding_providers.codex_cli_provider import (
+    CodexCliCodingProvider, CodexCliProviderConfiguration,
+)
 from runtime.coding_providers.deterministic_provider import DeterministicCodingProvider
 from runtime.coding_providers.errors import (
     CodingProviderError,
@@ -16,7 +19,8 @@ from runtime.coding_providers.service import CodingProviderService
 from runtime.coding_providers.storage import ProviderOperationStore
 
 __all__ = [
-    "CodingContextBuilder", "DeterministicCodingProvider",
+    "CodingContextBuilder", "CodexCliCodingProvider", "CodexCliProviderConfiguration",
+    "DeterministicCodingProvider",
     "CodingProviderError", "ProviderConfigurationError", "ProviderPolicyError",
     "ProviderReconciliationError", "ProviderRegistryError", "ProviderStateError",
     "OpenAICodexProvider", "ControlledPatchApplier", "CodingProviderRegistry",

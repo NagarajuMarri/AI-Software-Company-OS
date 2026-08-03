@@ -1,0 +1,134 @@
+"""Operator-invoked real Codex CLI fixture; never targets a product repository."""
+
+from __future__ import annotations
+
+import hashlib
+import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+
+from runtime.coding_providers import (
+    CodingContextBuilder, CodingProviderRegistry, CodingProviderService,
+    CodexCliCodingProvider, CodexCliProviderConfiguration, ContextLimits,
+    ControlledPatchApplier, ProviderOperationStore,
+)
+from runtime.integrations.git.models import GitStatus
+from runtime.managed_execution import ChangePolicy
+from runtime.tools.command_runner import LocalCommandRunner
+from runtime.tools.models import CommandRequest
+
+
+EXPECTED_PATH = "docs/ascos-codex-smoke.txt"
+EXPECTED_CONTENT = "ASCOS_CODEX_PROVIDER_SMOKE_TEST_OK"
+
+
+class FixtureGitObserver:
+    def __init__(self, root: Path):
+        self.root = root
+
+    def status(self, path):
+        changed = tuple(sorted(
+            item.relative_to(self.root).as_posix()
+            for item in self.root.rglob("*")
+            if item.is_file() and ".git" not in item.parts
+            and ".ascos-provider-staging" not in item.parts))
+        return GitStatus("agent/codex-live-smoke", not changed, changed)
+
+    def current_commit(self, path):
+        return "fixture-base-sha"
+
+    def diff(self, path):
+        target = self.root / EXPECTED_PATH
+        return target.read_text(encoding="utf-8") if target.is_file() else ""
+
+    def diff_numstat(self, path):
+        target = self.root / EXPECTED_PATH
+        return (1, 0) if target.is_file() else (0, 0)
+
+
+def run_live_fixture(state_root: str | Path) -> dict[str, object]:
+    """Run one live bounded request and return secret-free observed evidence."""
+    with TemporaryDirectory(prefix="ascos-codex-live-") as directory:
+        workspace = Path(directory).resolve()
+        state = Path(state_root).resolve()
+        allowed_environment = {
+            key: os.environ[key]
+            for key in CodexCliProviderConfiguration().environment_allow_list
+            if key in os.environ
+        }
+        runner = LocalCommandRunner(
+            workspace, allowed_executables={"codex.cmd", "git"},
+            allowed_environment=set(), max_output_bytes=128_000,
+            base_environment=allowed_environment)
+        initialized = runner.execute(CommandRequest(
+            "git", ("init", "-b", "agent/codex-live-smoke"), workspace, {}, 30))
+        if initialized.exit_code:
+            raise RuntimeError("Could not initialize the live fixture Git repository")
+        store = ProviderOperationStore(state)
+        provider = CodexCliCodingProvider(CodexCliProviderConfiguration(
+            enabled=True, allowed_workspace_root=str(workspace), health_smoke_test=True),
+            runner=runner,
+            response_sink=lambda receipt, result: (
+                store.save_result(receipt.project_id, receipt.provider_operation_id, result),
+                store.save_receipt(receipt),
+            ))
+        registry = CodingProviderRegistry((provider,))
+        plan = SimpleNamespace(
+            project_id="codex-live-fixture", execution_plan_id="codex-cli-smoke-v1",
+            version=1, workspace_identity="codex-live-fixture-workspace",
+            feature_branch="agent/codex-live-smoke")
+        task = SimpleNamespace(
+            project_task_id="create-smoke-file",
+            objective=f"Create only {EXPECTED_PATH} with exact content {EXPECTED_CONTENT}",
+            acceptance_criteria=(f"The complete file content is exactly {EXPECTED_CONTENT}",),
+            allowed_paths=(EXPECTED_PATH,), forbidden_paths=(".git", ".env"),
+            allowed_commands=(), candidate_files=())
+        coding_request = SimpleNamespace(
+            external_task_id="codex-cli-smoke-v1-create-smoke-file-attempt-1",
+            timeout_seconds=600)
+        observer = FixtureGitObserver(workspace)
+        service = CodingProviderService(
+            registry, store, CodingContextBuilder(ContextLimits()),
+            ControlledPatchApplier(maximum_patch_bytes=1_024,
+                                   maximum_file_bytes=1_024),
+            change_policies=(ChangePolicy(
+                "codex-smoke", (EXPECTED_PATH,), (".git", ".env"),
+                maximum_changed_files=1, maximum_additions=1, maximum_deletions=0),),
+            git_provider_factory=lambda _: observer)
+        operation, request = service.prepare(
+            plan=plan, task=task, coding_request=coding_request,
+            workspace_path=workspace, provider_id="codex-cli",
+            maximum_output_bytes=96_000, maximum_attempts=1)
+        submitted = service.submit(
+            plan.project_id, operation.provider_operation_id, request,
+            allow_live_provider=True)
+        service.poll(plan.project_id, operation.provider_operation_id)
+        service.result(plan.project_id, operation.provider_operation_id,
+                       token_budget=32_000)
+        accepted, manifest = service.apply_and_accept(
+            plan.project_id, operation.provider_operation_id,
+            workspace_path=workspace, task=task, policy_id="codex-smoke")
+        duplicate = provider.submit_task(request)
+        target = workspace / EXPECTED_PATH
+        content = target.read_text(encoding="utf-8")
+        paths = observer.status(workspace).changed_paths
+        if content != EXPECTED_CONTENT or paths != (EXPECTED_PATH,):
+            raise RuntimeError("Live fixture independent verification failed")
+        receipt = store.load_receipt(plan.project_id, operation.provider_operation_id)
+        return {
+            "provider_id": provider.provider_id,
+            "cli_version": provider.cli_version,
+            "model": provider.configuration.model,
+            "operation_id": operation.provider_operation_id,
+            "provider_task_id": submitted.provider_task_id,
+            "receipt_id": receipt.provider_operation_id,
+            "receipt_digest": receipt.response_digest,
+            "manifest_digest": manifest.manifest_digest,
+            "changed_paths": paths,
+            "content_digest": hashlib.sha256(content.encode()).hexdigest(),
+            "duplicate_suppressed": duplicate == submitted.provider_task_id,
+            "usage_available": receipt.usage.total_units is not None,
+            "terminal_status": accepted.state.value,
+            "fixture_cleaned_after_return": True,
+        }

@@ -115,6 +115,8 @@ def test_provider_configuration_required_record_is_durable(tmp_path):
     assert "spoken-english-ai" in path.parts
     assert path.is_relative_to(tmp_path / "ascos-state")
     assert store.load()["status"] == "PROVIDER_CONFIGURATION_REQUIRED"
+    store.update_status(PilotStatus.CODEX_LIVE_SMOKE_TEST_REQUIRED, "Live fixture mismatch.")
+    assert store.load()["status"] == "CODEX_LIVE_SMOKE_TEST_REQUIRED"
 
 
 def test_baseline_and_knowledge_sha_binding_are_durable(tmp_path):
