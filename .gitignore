@@ -6,3 +6,4 @@ venv/
 coverage.xml
 .coverage
 htmlcov/
+.ascos-state/
