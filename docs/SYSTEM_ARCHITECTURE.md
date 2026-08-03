@@ -31,6 +31,19 @@ outside domain models, preserving the provider-neutral boundary.
 The file provider is a development and test implementation. A future database
 provider can implement checkpoint, state, event, and persistence-transaction
 contracts while preserving checkpoint schema and integrity validation.
+
+Human-reviewed product delivery is the default product-level control loop. It
+links knowledge capture, implementation planning, optional provider dispatch,
+verification, recorded human review, explicit merge authorization, and next
+milestone creation. See [Human-Reviewed Product Delivery](HUMAN_REVIEWED_PRODUCT_DELIVERY.md).
+# Milestone 13.0 human-reviewed product delivery
+
+Human-reviewed product delivery is the default operating model. The product
+delivery domain separates provider execution, verification, human review, merge
+authorization, and merge into explicit persisted transitions. See
+`HUMAN_REVIEWED_PRODUCT_DELIVERY.md` for lifecycle, execution modes, persistence,
+dashboard, and adapter boundaries.
+
 # Milestone 11.3F runtime boundary
 
 Explicit spawned workers reconstruct dependencies from safe references. Worker
