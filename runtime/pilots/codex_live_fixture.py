@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import asdict
+import json
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -12,6 +14,7 @@ from runtime.coding_providers import (
     CodingContextBuilder, CodingProviderRegistry, CodingProviderService,
     CodexCliCodingProvider, CodexCliProviderConfiguration, ContextLimits,
     ControlledPatchApplier, ProviderOperationStore,
+    CodexScratchCodingProvider, CodexScratchConfiguration,
 )
 from runtime.integrations.git.models import GitStatus
 from runtime.managed_execution import ChangePolicy
@@ -45,6 +48,42 @@ class FixtureGitObserver:
     def diff_numstat(self, path):
         target = self.root / EXPECTED_PATH
         return (1, 0) if target.is_file() else (0, 0)
+
+
+class RunnerGitObserver:
+    def __init__(self, root, runner):
+        self.root, self.runner = root, runner
+
+    def _git(self, *arguments):
+        result = self.runner.execute(CommandRequest("git", tuple(arguments), self.root, {}, 60))
+        if result.exit_code:
+            raise RuntimeError("Fixture Git observation failed")
+        return result.stdout
+
+    def status(self, path):
+        output = self._git("status", "--porcelain", "--untracked-files=all")
+        changed = tuple(line[3:].replace("\\", "/") for line in output.splitlines() if line)
+        return GitStatus(self._git("branch", "--show-current").strip(), not changed, changed)
+
+    def current_commit(self, path):
+        return self._git("rev-parse", "HEAD").strip()
+
+    def diff(self, path):
+        target = self.root / EXPECTED_PATH
+        return self._git("diff", "--no-ext-diff") + (
+            target.read_text(encoding="utf-8") if target.is_file() else "")
+
+    def diff_numstat(self, path):
+        return (1, 0) if (self.root / EXPECTED_PATH).is_file() else (0, 0)
+
+
+def _persist_json(root, name, value):
+    root.mkdir(parents=True, exist_ok=True)
+    target = root / f"{name}.json"
+    temporary = target.with_suffix(".tmp")
+    temporary.write_text(json.dumps(asdict(value), sort_keys=True, indent=2,
+                                    default=str), encoding="utf-8")
+    temporary.replace(target)
 
 
 def run_live_fixture(state_root: str | Path) -> dict[str, object]:
@@ -133,4 +172,110 @@ def run_live_fixture(state_root: str | Path) -> dict[str, object]:
             "usage_available": receipt.usage.total_units is not None,
             "terminal_status": accepted.state.value,
             "fixture_cleaned_after_return": True,
+        }
+
+
+def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
+    """Run the one authorized disposable-workspace mutation smoke test."""
+    with TemporaryDirectory(prefix="ascos-codex-scratch-") as directory:
+        root = Path(directory).resolve()
+        source, scratch = root / "approved-baseline", root / "scratch"
+        source.mkdir()
+        scratch.mkdir()
+        allowed_environment = {
+            key: os.environ[key]
+            for key in CodexCliProviderConfiguration().environment_allow_list
+            if key in os.environ
+        }
+        runner = LocalCommandRunner(
+            root, allowed_executables={"codex.cmd", "git"}, allowed_environment=set(),
+            max_output_bytes=128_000, base_environment=allowed_environment)
+        for arguments in (
+            ("init", "-b", "agent/codex-scratch-smoke"),
+            ("config", "user.email", "fixture@example.invalid"),
+            ("config", "user.name", "ASCOS Fixture"),
+        ):
+            if runner.execute(CommandRequest("git", arguments, source, {}, 30)).exit_code:
+                raise RuntimeError("Could not prepare scratch fixture baseline")
+        (source / "README.md").write_text("ASCOS disposable fixture baseline\n", encoding="utf-8")
+        for commit_arguments in (("add", "README.md"),
+                                 ("commit", "-m", "fixture baseline")):
+            if runner.execute(CommandRequest(
+                    "git", commit_arguments, source, {}, 30)).exit_code:
+                raise RuntimeError("Could not commit scratch fixture baseline")
+        state = Path(state_root).resolve()
+        store = ProviderOperationStore(state)
+        manifests, effects = [], []
+
+        def manifest_sink(value):
+            manifests.append(value)
+            _persist_json(state / "observed-manifests", value.operation_id, value)
+
+        def effect_sink(value):
+            effects.append(value)
+            _persist_json(state / "scratch-effects", value.operation_id, value)
+
+        provider = CodexScratchCodingProvider(CodexScratchConfiguration(
+            enabled=True, source_workspace=str(source), scratch_root=str(scratch)),
+            runner=runner,
+            response_sink=lambda receipt, result: (
+                store.save_result(receipt.project_id, receipt.provider_operation_id, result),
+                store.save_receipt(receipt)),
+            manifest_sink=manifest_sink, effect_sink=effect_sink)
+        registry = CodingProviderRegistry((provider,))
+        plan = SimpleNamespace(
+            project_id="codex-live-fixture", execution_plan_id="codex-scratch-smoke-v3",
+            version=1, workspace_identity="codex-scratch-final-workspace",
+            feature_branch="agent/codex-scratch-smoke")
+        task = SimpleNamespace(
+            project_task_id="create-smoke-file",
+            objective=("This is an implementation task. Modify the current scratch workspace "
+                       f"now. Create {EXPECTED_PATH} with exactly {EXPECTED_CONTENT}."),
+            acceptance_criteria=(f"Normalized complete content equals {EXPECTED_CONTENT}",),
+            allowed_paths=(EXPECTED_PATH,), forbidden_paths=(".git", ".env", "README.md"),
+            allowed_commands=(), candidate_files=("README.md",),
+            allows_no_change_success=False, allows_deletions=False)
+        coding_request = SimpleNamespace(
+            external_task_id="codex-scratch-smoke-v3-create-file-attempt-1",
+            timeout_seconds=600)
+        observer = RunnerGitObserver(source, runner)
+        service = CodingProviderService(
+            registry, store, CodingContextBuilder(ContextLimits()),
+            ControlledPatchApplier(maximum_patch_bytes=1_024, maximum_file_bytes=1_024),
+            change_policies=(ChangePolicy(
+                "codex-scratch-smoke", (EXPECTED_PATH,), (".git", ".env", "README.md"),
+                maximum_changed_files=1, maximum_additions=1, maximum_deletions=0),),
+            git_provider_factory=lambda _: observer)
+        operation, request = service.prepare(
+            plan=plan, task=task, coding_request=coding_request, workspace_path=source,
+            provider_id="codex-cli-scratch", maximum_output_bytes=96_000)
+        submitted = service.submit(plan.project_id, operation.provider_operation_id, request,
+                                   allow_live_provider=True)
+        service.poll(plan.project_id, operation.provider_operation_id)
+        service.result(plan.project_id, operation.provider_operation_id, token_budget=32_000)
+        accepted, applied_manifest = service.apply_and_accept(
+            plan.project_id, operation.provider_operation_id, workspace_path=source,
+            task=task, policy_id="codex-scratch-smoke")
+        duplicate = provider.submit_task(request)
+        content = (source / EXPECTED_PATH).read_text(encoding="utf-8").rstrip("\r\n")
+        observed = manifests[-1]
+        receipt = store.load_receipt(plan.project_id, operation.provider_operation_id)
+        if content != EXPECTED_CONTENT or observed.changed_paths != (EXPECTED_PATH,):
+            raise RuntimeError("Scratch fixture independent verification failed")
+        return {
+            "operation_id": operation.provider_operation_id,
+            "provider_task_id": submitted.provider_task_id,
+            "scratch_workspace_id": observed.scratch_workspace_id,
+            "exit_code": observed.exit_code,
+            "changed_paths": observed.changed_paths,
+            "created_paths": observed.created_paths,
+            "content_digest": hashlib.sha256(content.encode()).hexdigest(),
+            "receipt_id": receipt.provider_operation_id,
+            "receipt_digest": receipt.response_digest,
+            "observed_manifest_digest": observed.manifest_digest,
+            "applied_manifest_digest": applied_manifest.manifest_digest,
+            "duplicate_suppressed": duplicate == submitted.provider_task_id,
+            "cleanup_stage": effects[-1].stage.value,
+            "usage_available": receipt.usage.total_units is not None,
+            "terminal_status": accepted.state.value,
         }

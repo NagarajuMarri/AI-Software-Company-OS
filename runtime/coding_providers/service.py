@@ -134,7 +134,7 @@ class CodingProviderService:
                 reconciliation_details=redact(str(error)),
                 updated_at=datetime.now(timezone.utc)))
             raise
-        if operation.provider_id in {"openai-codex", "codex-cli"}:
+        if operation.provider_id in {"openai-codex", "codex-cli", "codex-cli-scratch"}:
             try:
                 receipt = self.store.load_receipt(project_id, operation_id)
                 result = self.store.load_result(project_id, operation_id)
@@ -232,7 +232,7 @@ class CodingProviderService:
         ):
             raise ProviderPolicyError("Provider cost budget exceeded")
         response_digest = hashlib.sha256(serialized).hexdigest()
-        if operation.provider_id in {"openai-codex", "codex-cli"}:
+        if operation.provider_id in {"openai-codex", "codex-cli", "codex-cli-scratch"}:
             receipt = self.store.load_receipt(project_id, operation_id)
             self._verify_receipt(operation, receipt, result, response_digest)
         else:

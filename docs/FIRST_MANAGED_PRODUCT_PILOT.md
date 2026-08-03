@@ -81,3 +81,22 @@ were provided despite the bounded task objective and acceptance criteria. ASCOS
 did not parse the result as success, did not apply a patch, and did not retry.
 The fixture therefore remains blocked at `CODEX_LIVE_SMOKE_TEST_REQUIRED`, and
 Milestone 7 verification remains unstarted.
+
+## Disposable observed-workspace mode
+
+`DISPOSABLE_WORKSPACE_MUTATION` is now the primary Codex CLI mode. ASCOS copies
+an exact clean Git baseline into a unique scratch workspace, removes remotes,
+invokes Codex with workspace-write and approval policy `never`, and treats the
+resulting Git status, diff, filesystem contents, and hashes as authoritative.
+Codex summaries never determine success. Only an observed manifest is converted
+to file operations for later ASCOS-controlled application to the final workspace.
+Uncertain scratch state is retained for reconciliation and is never rerun
+automatically.
+
+The single V3 live attempt exited but produced no Git-observable file. It left a
+`docs` directory and Git metadata inaccessible to the observing process under
+Windows permissions, preventing trustworthy filesystem inspection and cleanup.
+No manifest, converted result, or accepted receipt was created. The scratch
+identity and baseline evidence were retained at `OBSERVATION_STARTED` and then
+classified `RECONCILIATION_REQUIRED`. Per policy, Milestone 7 did not start and
+the pilot remains `CODEX_LIVE_SMOKE_TEST_REQUIRED`.
