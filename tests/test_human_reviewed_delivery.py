@@ -102,7 +102,7 @@ def test_self_approval_is_prevented_for_implementer_and_provider():
     service = pipeline()
     implemented_delivery(service)
     service.record_verification("ascos", True)
-    service.request_review("ascos")
+    service.request_review("ascos", "human-1")
 
     with pytest.raises(HumanReviewError, match="Self-approval"):
         service.approve("ascos", "agent-1")
@@ -148,10 +148,10 @@ def test_verification_is_required_before_review_and_approval_before_merge():
     service = pipeline()
     implemented_delivery(service)
     with pytest.raises(HumanReviewError, match="verification"):
-        service.request_review("ascos")
+        service.request_review("ascos", "human-1")
     service.record_verification("ascos", False)
     with pytest.raises(HumanReviewError, match="verification"):
-        service.request_review("ascos")
+        service.request_review("ascos", "human-1")
     with pytest.raises(ProductDeliveryError, match="approval"):
         service.authorize_merge("ascos", "release-manager")
 

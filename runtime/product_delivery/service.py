@@ -58,7 +58,7 @@ class ProductDeliveryPipeline:
 
     def capture_knowledge(self, project: str, snapshot: str) -> ProductDeliveryState:
         state = self._get(project)
-        self._require_active(state)
+        self._require_stage(state, HumanReviewStage.PLANNED)
         self._require_text(snapshot, "Knowledge snapshot")
         state.knowledge_snapshot = snapshot
         state.pending_actions = ["create implementation plan"]
@@ -67,7 +67,7 @@ class ProductDeliveryPipeline:
 
     def record_plan(self, project: str, plan: str) -> ProductDeliveryState:
         state = self._get(project)
-        self._require_active(state)
+        self._require_stage(state, HumanReviewStage.PLANNED)
         if state.knowledge_snapshot is None:
             raise ProductDeliveryError("Knowledge snapshot is required before planning")
         self._require_text(plan, "Implementation plan")
@@ -111,6 +111,9 @@ class ProductDeliveryPipeline:
         state.current_pr = pull_request
         state.review_state = HumanReviewStage.IMPLEMENTED
         state.verification_status = "NOT_RUN"
+        state.verified_commit = None
+        state.merge_authorized_by = None
+        state.merge_authorized_commit = None
         state.pending_actions = ["run verification"]
         state.progress = 55
         return self._save(state)
@@ -120,13 +123,12 @@ class ProductDeliveryPipeline:
         if state.review_state is not HumanReviewStage.IMPLEMENTED:
             raise ProductDeliveryError("Implementation is required before verification")
         state.verification_status = "PASSED" if passed else "FAILED"
+        state.verified_commit = state.latest_commit if passed else None
         state.pending_actions = ["request human review"] if passed else ["fix verification"]
         state.progress = 70 if passed else 55
         return self._save(state)
 
-    def request_review(
-        self, project: str, reviewer: str | None = None
-    ) -> ProductDeliveryState:
+    def request_review(self, project: str, reviewer: str) -> ProductDeliveryState:
         state = self._get(project)
         if not state.execution_mode.requires_human_review:
             raise ProductDeliveryError("Execution mode does not include human review")
@@ -159,18 +161,30 @@ class ProductDeliveryPipeline:
         state = self._get(project)
         if state.review_state is not HumanReviewStage.APPROVED:
             raise ProductDeliveryError("Human approval is required before merge authorization")
+        if not state.review_history:
+            raise ProductDeliveryError("Approved review evidence is required")
+        approval = state.review_history[-1]
+        if approval.reviewed_commit != state.latest_commit:
+            raise ProductDeliveryError("Review evidence is stale for the current commit")
+        if state.verified_commit != state.latest_commit:
+            raise ProductDeliveryError("Verification evidence is stale for the current commit")
         self._require_text(human, "Merge authorizer")
         if state.implementer and human.strip().casefold() == state.implementer.casefold():
             raise HumanReviewError("Self-authorization is not permitted")
         state.merge_authorized_by = human
+        state.merge_authorized_commit = state.latest_commit
         state.pending_actions = ["merge pull request"]
         state.progress = 95
         return self._save(state)
 
     def merge(self, project: str, provider: MergeProvider) -> str:
         state = self._get(project)
+        if state.review_state is not HumanReviewStage.APPROVED:
+            raise ProductDeliveryError("Approved delivery is required before merge")
         if state.merge_authorized_by is None or state.current_pr is None:
             raise ProductDeliveryError("Explicit merge authorization is required")
+        if state.merge_authorized_commit != state.latest_commit:
+            raise ProductDeliveryError("Merge authorization is stale for the current commit")
         result = provider.merge(state.current_pr, state.merge_authorized_by)
         state.review_state = HumanReviewStage.MERGED
         state.pending_actions = ["create next milestone"]
@@ -197,8 +211,8 @@ class ProductDeliveryPipeline:
 
     def cancel(self, project: str) -> ProductDeliveryState:
         state = self._get(project)
-        if state.review_state is HumanReviewStage.MERGED:
-            raise ProductDeliveryError("Merged delivery cannot be cancelled")
+        if state.review_state in {HumanReviewStage.MERGED, HumanReviewStage.CANCELLED}:
+            raise ProductDeliveryError("Terminal delivery cannot be cancelled")
         state.review_state = HumanReviewStage.CANCELLED
         state.pending_actions = []
         return self._save(state)
@@ -230,9 +244,13 @@ class ProductDeliveryPipeline:
         return state
 
     @staticmethod
-    def _require_active(state: ProductDeliveryState) -> None:
-        if state.review_state is HumanReviewStage.CANCELLED:
-            raise ProductDeliveryError("Cancelled delivery cannot be modified")
+    def _require_stage(
+        state: ProductDeliveryState, expected: HumanReviewStage
+    ) -> None:
+        if state.review_state is not expected:
+            raise ProductDeliveryError(
+                f"Delivery must be {expected.value} for this operation"
+            )
 
     @staticmethod
     def _require_text(value: str, label: str) -> None:

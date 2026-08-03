@@ -42,6 +42,7 @@ class ReviewDecision:
     decision: ReviewDecisionType
     decided_at: datetime
     comments: str
+    reviewed_commit: str
 
 
 @dataclass
@@ -56,15 +57,17 @@ class ProductDeliveryState:
     )
     review_state: HumanReviewStage = HumanReviewStage.PLANNED
     current_reviewer: str | None = None
-    review_history: list[ReviewDecision] = field(default_factory=list)
+    review_history: tuple[ReviewDecision, ...] = ()
     knowledge_snapshot: str | None = None
     implementation_plan: str | None = None
     latest_commit: str | None = None
     verification_status: str = "NOT_RUN"
+    verified_commit: str | None = None
     pending_actions: list[str] = field(default_factory=lambda: ["capture knowledge"])
     progress: int = 0
     implementer: str | None = None
     merge_authorized_by: str | None = None
+    merge_authorized_commit: str | None = None
     next_milestone: str | None = None
 
 

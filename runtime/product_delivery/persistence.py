@@ -69,6 +69,7 @@ def _serialize(state: ProductDeliveryState) -> dict[str, object]:
             "decision": item.decision.value,
             "decided_at": item.decided_at.isoformat(),
             "comments": item.comments,
+            "reviewed_commit": item.reviewed_commit,
         }
         for item in state.review_history
     ]
@@ -80,15 +81,16 @@ def _deserialize(value: dict[str, object]) -> ProductDeliveryState:
     data["execution_mode"] = ProviderExecutionMode(str(data["execution_mode"]))
     data["review_state"] = HumanReviewStage(str(data["review_state"]))
     history = cast(list[dict[str, Any]], data.get("review_history", []))
-    data["review_history"] = [
+    data["review_history"] = tuple(
         ReviewDecision(
             reviewer=str(item["reviewer"]),
             decision=ReviewDecisionType(str(item["decision"])),
             decided_at=datetime.fromisoformat(str(item["decided_at"])),
             comments=str(item["comments"]),
+            reviewed_commit=str(item.get("reviewed_commit", data.get("latest_commit", ""))),
         )
         for item in history
-    ]
+    )
     data["pending_actions"] = list(
         cast(list[str], data.get("pending_actions", []))
     )

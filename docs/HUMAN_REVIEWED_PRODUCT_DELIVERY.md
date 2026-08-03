@@ -46,9 +46,10 @@ commit, pending actions, and progress.
 
 Successful verification is mandatory before review. Reviewer identities are
 recorded with decisions, timestamps, and comments. Identity comparisons are
-case-insensitive to prevent trivial self-approval bypasses. Only the approving
-reviewer may authorize merge, and merge cannot occur without that explicit
-authorization.
+case-insensitive to prevent trivial self-approval bypasses. Review and
+verification evidence are bound to the implementation commit. Merge
+authorization is a separate human act, is also commit-bound, and does not
+itself execute a repository merge.
 
 The example in `examples/human_reviewed_delivery.py` uses deterministic local
 providers and requires neither Codex invocation nor GitHub credentials.

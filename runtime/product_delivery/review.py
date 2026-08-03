@@ -19,17 +19,19 @@ class HumanReviewService:
     def __init__(self, clock: Callable[[], datetime] | None = None) -> None:
         self._clock = clock or (lambda: datetime.now(timezone.utc))
 
-    def request_review(
-        self, state: ProductDeliveryState, reviewer: str | None = None
-    ) -> None:
+    def request_review(self, state: ProductDeliveryState, reviewer: str) -> None:
         if state.review_state is not HumanReviewStage.IMPLEMENTED:
             raise HumanReviewError("Review requires an implemented milestone")
-        if state.verification_status != "PASSED":
+        if (
+            state.verification_status != "PASSED"
+            or state.verified_commit != state.latest_commit
+        ):
             raise HumanReviewError("Review requires successful verification")
-        if reviewer is not None:
-            self._require_identity(reviewer, "Reviewer")
-            if self._same_identity(reviewer, state.implementer):
-                raise HumanReviewError("Implementer cannot review their own work")
+        self._require_identity(reviewer, "Reviewer")
+        if self._same_identity(reviewer, state.implementer) or self._same_identity(
+            reviewer, state.current_provider
+        ):
+            raise HumanReviewError("Implementer or provider cannot review their own work")
         state.current_reviewer = reviewer
         state.review_state = HumanReviewStage.WAITING_FOR_HUMAN_REVIEW
 
@@ -65,8 +67,19 @@ class HumanReviewService:
             reviewer, state.current_reviewer
         ):
             raise HumanReviewError("Decision must be made by the assigned reviewer")
-        item = ReviewDecision(reviewer, decision, self._clock(), comments.strip())
-        state.review_history.append(item)
+        if state.latest_commit is None:
+            raise HumanReviewError("Review decision requires an implementation commit")
+        decided_at = self._clock()
+        if decided_at.tzinfo is None or decided_at.utcoffset() is None:
+            raise HumanReviewError("Review timestamp must be timezone-aware")
+        item = ReviewDecision(
+            reviewer,
+            decision,
+            decided_at.astimezone(timezone.utc),
+            comments.strip(),
+            state.latest_commit,
+        )
+        state.review_history += (item,)
         state.current_reviewer = reviewer
         state.review_state = (
             HumanReviewStage.APPROVED

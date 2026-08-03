@@ -87,7 +87,7 @@ def test_implementer_cannot_review_or_approve_their_own_work(reviewer):
     implemented_delivery(service)
     with pytest.raises(HumanReviewError, match="own work"):
         service.request_review("ascos", reviewer)
-    service.request_review("ascos")
+    service.request_review("ascos", "human-reviewer")
     with pytest.raises(HumanReviewError, match="Self-approval"):
         service.approve("ascos", reviewer)
 
@@ -100,7 +100,7 @@ def test_review_requires_verification_and_assigned_reviewer():
     service.dispatch("ascos", Provider(), "builder")
     service.record_implementation("ascos", "def456", "PR-13")
     with pytest.raises(HumanReviewError, match="verification"):
-        service.request_review("ascos")
+        service.request_review("ascos", "reviewer")
     service.record_verification("ascos", True)
     service.request_review("ascos", "alice")
     with pytest.raises(HumanReviewError, match="assigned reviewer"):
@@ -185,5 +185,52 @@ def test_invalid_transition_and_cancellation_are_rejected():
         service.record_plan("ascos", "plan")
     cancelled = service.cancel("ascos")
     assert cancelled.review_state is HumanReviewStage.CANCELLED
-    with pytest.raises(ProductDeliveryError, match="Cancelled"):
+    with pytest.raises(ProductDeliveryError, match="PLANNED"):
         service.capture_knowledge("ascos", "snapshot")
+
+
+def test_review_and_merge_authorization_are_bound_to_verified_commit():
+    service = pipeline()
+    implemented_delivery(service)
+    service.request_review("ascos", "reviewer")
+    decision = service.approve("ascos", "reviewer")
+    assert decision.reviewed_commit == "abc123"
+    state = service.store.load("ascos")
+    assert state is not None
+    state.latest_commit = "changed-after-review"
+    service.store.save(state)
+    with pytest.raises(ProductDeliveryError, match="stale"):
+        service.authorize_merge("ascos", "release-manager")
+
+
+def test_review_clock_must_be_timezone_aware():
+    clock = lambda: datetime(2026, 8, 3, 12, 0, tzinfo=timezone.utc).replace(
+        tzinfo=None
+    )
+    service = ProductDeliveryPipeline(
+        InMemoryProductStateStore(), HumanReviewService(clock)
+    )
+    implemented_delivery(service)
+    service.request_review("ascos", "reviewer")
+    with pytest.raises(HumanReviewError, match="timezone-aware"):
+        service.approve("ascos", "reviewer")
+
+
+def test_merge_is_terminal_and_cannot_execute_twice():
+    service = pipeline()
+    implemented_delivery(service)
+    service.request_review("ascos", "reviewer")
+    service.approve("ascos", "reviewer")
+    service.authorize_merge("ascos", "release-manager")
+    service.merge("ascos", Merger())
+    with pytest.raises(ProductDeliveryError, match="Approved delivery"):
+        service.merge("ascos", Merger())
+
+
+def test_planning_inputs_cannot_change_after_dispatch():
+    service = pipeline()
+    implemented_delivery(service)
+    with pytest.raises(ProductDeliveryError, match="PLANNED"):
+        service.capture_knowledge("ascos", "replacement")
+    with pytest.raises(ProductDeliveryError, match="PLANNED"):
+        service.record_plan("ascos", "replacement")
