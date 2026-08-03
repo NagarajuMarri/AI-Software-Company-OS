@@ -1,5 +1,24 @@
 """Human-reviewed product delivery public API."""
 
+from runtime.product_delivery.intake import (
+    ExistingProductIntakeError,
+    ExistingProductIntakeService,
+)
+from runtime.product_delivery.intake_models import (
+    BranchReconciliation,
+    ExistingProductDashboard,
+    ExistingProductIntakeStage,
+    HumanReviewedProductDelivery,
+    ImplementationSource,
+    VerificationOutcome,
+    VerificationResult,
+)
+from runtime.product_delivery.intake_persistence import (
+    ExistingProductDeliveryStore,
+    InMemoryExistingProductDeliveryStore,
+    JsonExistingProductDeliveryStore,
+)
+
 from runtime.product_delivery.models import (
     HumanReviewStage,
     ProductDashboard,
@@ -22,12 +41,22 @@ from runtime.product_delivery.service import (
 )
 
 __all__ = [
+    "BranchReconciliation",
+    "ExistingProductDashboard",
+    "ExistingProductDeliveryStore",
+    "ExistingProductIntakeError",
+    "ExistingProductIntakeService",
+    "ExistingProductIntakeStage",
     "HumanReviewError",
     "HumanReviewService",
     "HumanReviewStage",
+    "HumanReviewedProductDelivery",
+    "ImplementationSource",
     "ImplementationProvider",
     "InMemoryProductStateStore",
+    "InMemoryExistingProductDeliveryStore",
     "JsonProductStateStore",
+    "JsonExistingProductDeliveryStore",
     "MergeProvider",
     "ProductDashboard",
     "ProductDeliveryError",
@@ -37,4 +66,6 @@ __all__ = [
     "ProviderExecutionMode",
     "ReviewDecision",
     "ReviewDecisionType",
+    "VerificationOutcome",
+    "VerificationResult",
 ]
