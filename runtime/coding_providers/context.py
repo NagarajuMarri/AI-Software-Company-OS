@@ -65,6 +65,9 @@ class CodingContextBuilder:
             "quality_gate_commands": task.allowed_commands,
             "files": tuple((item.path, item.content, item.truncated) for item in files),
             "evidence": bounded_evidence,
+            "allows_no_change_success": bool(
+                getattr(task, "allows_no_change_success", False)),
+            "allows_deletions": bool(getattr(task, "allows_deletions", False)),
         }
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
         if len(encoded) > self.limits.maximum_prompt_bytes:
@@ -75,4 +78,6 @@ class CodingContextBuilder:
             task.project_task_id, plan.workspace_identity, plan.feature_branch,
             task.objective, task.acceptance_criteria, task.allowed_paths,
             task.forbidden_paths, task.allowed_commands, tuple(files),
-            bounded_evidence, digest, total)
+            bounded_evidence, digest, total,
+            bool(getattr(task, "allows_no_change_success", False)),
+            bool(getattr(task, "allows_deletions", False)))

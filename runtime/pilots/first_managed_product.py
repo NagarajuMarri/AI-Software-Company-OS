@@ -103,6 +103,18 @@ class KnowledgeSnapshotBinding:
 
 
 @dataclass(frozen=True)
+class CodexSmokeRootCauseRecord:
+    operation_id: str
+    request_digest: str
+    expected_output_schema_version: int
+    observed_result_category: str
+    parser_result: str
+    workspace_observation: str
+    failure_classification: str
+    recorded_at: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
 class PilotTask:
     task_id: str
     title: str
@@ -237,6 +249,9 @@ class PilotRecordStore:
         if binding.project_id != PROJECT_ID:
             raise ValueError("knowledge binding identity mismatch")
         return self._save_json("knowledge-binding.json", asdict(binding))
+
+    def save_codex_root_cause(self, record: CodexSmokeRootCauseRecord) -> Path:
+        return self._save_json("codex-smoke-root-cause.json", asdict(record))
 
     def _save_json(self, name: str, value: object) -> Path:
         target = self.root / PROJECT_ID / "pilots" / PILOT_ID / name

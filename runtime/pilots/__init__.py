@@ -1,6 +1,7 @@
 """Managed product pilot definitions."""
 
 from runtime.pilots.first_managed_product import (
+    CodexSmokeRootCauseRecord,
     ManagedProductPilotRecord,
     KnowledgeSnapshotBinding,
     PilotRecordStore,
@@ -12,7 +13,8 @@ from runtime.pilots.first_managed_product import (
 )
 
 __all__ = [
-    "KnowledgeSnapshotBinding", "ManagedProductPilotRecord", "PilotRecordStore", "PilotStatus",
+    "CodexSmokeRootCauseRecord", "KnowledgeSnapshotBinding", "ManagedProductPilotRecord",
+    "PilotRecordStore", "PilotStatus",
     "RepositoryBaseline", "learner_web_shell_request", "pilot_tasks",
     "validate_task_graph",
 ]

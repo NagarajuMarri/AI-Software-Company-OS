@@ -23,13 +23,15 @@ class FakeRunner:
         else:
             path = Path(request.arguments[request.arguments.index("--output-last-message") + 1])
             path.write_text(json.dumps({
-                "status": "SUCCEEDED", "summary": "fixture proposal",
+                "schema_version": 1, "status": "SUCCEEDED", "summary": "fixture proposal",
                 "file_operations": [{
-                    "operation_type": "CREATE", "path": "docs/ascos-codex-smoke.txt",
+                    "operation": "CREATE", "path": "docs/ascos-codex-smoke.txt",
                     "content": "ASCOS_CODEX_PROVIDER_SMOKE_TEST_OK\n",
-                    "expected_prior_digest": None,
+                    "expected_prior_sha256": None,
                 }],
-                "progress": ["structured proposal created"], "diagnostics": [],
+                "progress": [{"sequence": 1, "stage": "IMPLEMENTATION",
+                              "message": "structured proposal created"}],
+                "diagnostics": [], "commands": [],
             }), encoding="utf-8")
             output = "bounded fake runner"
         return CommandResult(request.executable, request.arguments, 0, output, "",

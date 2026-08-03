@@ -124,6 +124,8 @@ class CodingContextPackage:
     evidence: tuple[str, ...]
     context_digest: str
     byte_count: int
+    allows_no_change_success: bool = False
+    allows_deletions: bool = False
 
 
 @dataclass(frozen=True)

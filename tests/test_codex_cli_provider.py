@@ -25,7 +25,7 @@ class FakeRunner:
     def __init__(self, *, version="codex-cli 0.146.0", result=None, failure=None,
                  exit_code=0, stderr="", truncated=False):
         self.version = version
-        self.result = result or valid_result()
+        self.result = valid_result() if result is None else result
         self.failure = failure
         self.exit_code = exit_code
         self.stderr = stderr
@@ -51,10 +51,13 @@ class FakeRunner:
 
 def valid_result(path="docs/ascos-codex-smoke.txt", content="OK\n"):
     return {
-        "status": "SUCCEEDED", "summary": "Created the requested file.",
-        "file_operations": [{"operation_type": "CREATE", "path": path,
-                             "content": content, "expected_prior_digest": None}],
-        "progress": ["proposal prepared"], "diagnostics": [],
+        "schema_version": 1, "status": "SUCCEEDED",
+        "summary": "Created the requested file.",
+        "file_operations": [{"operation": "CREATE", "path": path,
+                             "content": content, "expected_prior_sha256": None}],
+        "progress": [{"sequence": 1, "stage": "IMPLEMENTATION",
+                      "message": "proposal prepared"}],
+        "diagnostics": [], "commands": [],
     }
 
 
@@ -146,8 +149,8 @@ def test_success_is_structured_durable_and_idempotent(tmp_path):
     valid_result(content="binary\x00data"),
     valid_result(content="api_key=secret-shaped"),
     {**valid_result(), "file_operations": []},
-    {**valid_result(), "file_operations": [{"operation_type": "DELETE",
-      "path": "docs/ascos-codex-smoke.txt", "content": "", "expected_prior_digest": None}]},
+    {**valid_result(), "file_operations": [{"operation": "DELETE",
+      "path": "docs/ascos-codex-smoke.txt", "content": "", "expected_prior_sha256": None}]},
 ])
 def test_untrusted_results_are_rejected(tmp_path, result):
     item, receipts = provider(tmp_path, runner=FakeRunner(result=result))
@@ -211,7 +214,71 @@ def test_receipt_failure_never_reports_success_and_leaves_reconciliation_artifac
     item, _ = provider(tmp_path, sink=unavailable)
     with pytest.raises(OSError, match="receipt store unavailable"):
         item.submit_task(request(tmp_path))
-    assert (tmp_path / ".ascos-codex" / "operation-1" / "result.json").is_file()
+    assert tuple((tmp_path / ".ascos-codex" / "operation-1").glob("result-*.json"))
+
+
+@pytest.mark.parametrize("payload", [
+    "```json\n{}\n```", "before {}", "{} after", "{}{}", "",
+])
+def test_free_form_empty_and_multiple_documents_are_rejected(tmp_path, payload):
+    item, _ = provider(tmp_path, runner=FakeRunner(result=payload))
+    with pytest.raises(ProviderStateError, match="Malformed"):
+        item.submit_task(request(tmp_path))
+
+
+@pytest.mark.parametrize("changes", [
+    {"schema_version": 2}, {"schema_version": None}, {"status": "UNKNOWN"},
+])
+def test_schema_version_and_status_are_strict(tmp_path, changes):
+    payload = {**valid_result(), **changes}
+    item, _ = provider(tmp_path, runner=FakeRunner(result=payload))
+    with pytest.raises(ProviderStateError):
+        item.submit_task(request(tmp_path))
+
+
+def test_allowed_no_change_analysis_task(tmp_path):
+    payload = {**valid_result(), "file_operations": []}
+    task = request(tmp_path)
+    task.context.allows_no_change_success = True
+    item, _ = provider(tmp_path, runner=FakeRunner(result=payload))
+    identifier = item.submit_task(task)
+    assert item.get_task_result(identifier).file_operations == ()
+
+
+def test_valid_update_requires_matching_prior_digest(tmp_path):
+    target = tmp_path / "docs" / "ascos-codex-smoke.txt"
+    target.parent.mkdir()
+    target.write_text("old", encoding="utf-8")
+    prior = __import__("hashlib").sha256(b"old").hexdigest()
+    payload = valid_result(content="new")
+    payload["file_operations"][0].update(
+        operation="UPDATE", expected_prior_sha256=prior)
+    item, _ = provider(tmp_path, runner=FakeRunner(result=payload))
+    result = item.get_task_result(item.submit_task(request(tmp_path)))
+    assert result.file_operations[0].expected_prior_digest == prior
+
+
+def test_prior_digest_mismatch_is_rejected(tmp_path):
+    target = tmp_path / "docs" / "ascos-codex-smoke.txt"
+    target.parent.mkdir()
+    target.write_text("old", encoding="utf-8")
+    payload = valid_result(content="new")
+    payload["file_operations"][0].update(
+        operation="UPDATE", expected_prior_sha256="0" * 64)
+    item, _ = provider(tmp_path, runner=FakeRunner(result=payload))
+    with pytest.raises(ProviderStateError, match="digest mismatch"):
+        item.submit_task(request(tmp_path))
+
+
+def test_duplicate_paths_and_returned_commands_are_rejected(tmp_path):
+    duplicate = valid_result()
+    duplicate["file_operations"].append(dict(duplicate["file_operations"][0]))
+    for payload in (duplicate, {**valid_result(), "commands": ["git status"]}):
+        workspace = tmp_path / str(len(tuple(tmp_path.iterdir())))
+        workspace.mkdir()
+        item, _ = provider(workspace, runner=FakeRunner(result=payload))
+        with pytest.raises(ProviderStateError):
+            item.submit_task(request(workspace))
 
 
 def test_symlink_or_reparse_escape_is_rejected(tmp_path):

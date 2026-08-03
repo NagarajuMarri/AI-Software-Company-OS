@@ -75,7 +75,7 @@ def run_live_fixture(state_root: str | Path) -> dict[str, object]:
             ))
         registry = CodingProviderRegistry((provider,))
         plan = SimpleNamespace(
-            project_id="codex-live-fixture", execution_plan_id="codex-cli-smoke-v1",
+            project_id="codex-live-fixture", execution_plan_id="codex-cli-smoke-v2",
             version=1, workspace_identity="codex-live-fixture-workspace",
             feature_branch="agent/codex-live-smoke")
         task = SimpleNamespace(
@@ -83,9 +83,10 @@ def run_live_fixture(state_root: str | Path) -> dict[str, object]:
             objective=f"Create only {EXPECTED_PATH} with exact content {EXPECTED_CONTENT}",
             acceptance_criteria=(f"The complete file content is exactly {EXPECTED_CONTENT}",),
             allowed_paths=(EXPECTED_PATH,), forbidden_paths=(".git", ".env"),
-            allowed_commands=(), candidate_files=())
+            allowed_commands=(), candidate_files=(), allows_no_change_success=False,
+            allows_deletions=False)
         coding_request = SimpleNamespace(
-            external_task_id="codex-cli-smoke-v1-create-smoke-file-attempt-1",
+            external_task_id="codex-cli-smoke-v2-create-smoke-file-attempt-1",
             timeout_seconds=600)
         observer = FixtureGitObserver(workspace)
         service = CodingProviderService(
@@ -111,7 +112,8 @@ def run_live_fixture(state_root: str | Path) -> dict[str, object]:
             workspace_path=workspace, task=task, policy_id="codex-smoke")
         duplicate = provider.submit_task(request)
         target = workspace / EXPECTED_PATH
-        content = target.read_text(encoding="utf-8")
+        raw_content = target.read_text(encoding="utf-8")
+        content = raw_content.rstrip("\r\n")
         paths = observer.status(workspace).changed_paths
         if content != EXPECTED_CONTENT or paths != (EXPECTED_PATH,):
             raise RuntimeError("Live fixture independent verification failed")

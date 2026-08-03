@@ -5,6 +5,7 @@ import pytest
 
 from runtime.pilots.first_managed_product import (
     BASE_BRANCH,
+    CodexSmokeRootCauseRecord,
     FEATURE_BRANCH,
     KnowledgeSnapshotBinding,
     MILESTONE_ID,
@@ -129,6 +130,12 @@ def test_baseline_and_knowledge_sha_binding_are_durable(tmp_path):
     )
     assert store.save_baseline(observed).is_file()
     assert store.save_knowledge_binding(binding).is_file()
+    root_cause = CodexSmokeRootCauseRecord(
+        "operation", "request-digest", 1, "EMPTY_OPERATIONS",
+        "VALID_ENVELOPE_WITH_ZERO_OPERATIONS", "NO_WORKSPACE_CHANGES",
+        "PROMPT_AMBIGUITY_AND_FORBIDDEN_NO_CHANGE_SUCCESS",
+    )
+    assert store.save_codex_root_cause(root_cause).is_file()
 
 
 def request_id():

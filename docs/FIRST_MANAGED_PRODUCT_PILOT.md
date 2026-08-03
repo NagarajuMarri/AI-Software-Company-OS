@@ -72,3 +72,12 @@ implementation result with zero operations and clarifies that Codex must propose
 but not directly apply, operations. In accordance with the live-smoke failure
 policy, the request was not resubmitted and Spoken English Milestone 7 was not
 opened or modified. Current state is `CODEX_LIVE_SMOKE_TEST_REQUIRED`.
+
+A single operator-authorized V2 attempt then used the strict
+`CodexCliResultEnvelopeV1` protocol in a fresh Git fixture. The CLI produced one
+raw JSON envelope and a durable matching receipt, but returned terminal
+`FAILED_PERMANENT`, zero operations, and claimed no implementation requirements
+were provided despite the bounded task objective and acceptance criteria. ASCOS
+did not parse the result as success, did not apply a patch, and did not retry.
+The fixture therefore remains blocked at `CODEX_LIVE_SMOKE_TEST_REQUIRED`, and
+Milestone 7 verification remains unstarted.
