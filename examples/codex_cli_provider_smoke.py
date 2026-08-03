@@ -26,7 +26,7 @@ class FakeRunner:
                                  "", now, now, 0.01, False)
         root = Path(request.working_directory)
         target = root / "docs" / "ascos-codex-smoke.txt"
-        target.parent.mkdir()
+        target.parent.mkdir(exist_ok=True)
         target.write_text("ASCOS_CODEX_PROVIDER_SMOKE_TEST_OK\n", encoding="utf-8")
         summary = Path(request.arguments[request.arguments.index("--output-last-message") + 1])
         summary.write_text("implemented bounded fixture", encoding="utf-8")

@@ -115,6 +115,19 @@ class CodexSmokeRootCauseRecord:
 
 
 @dataclass(frozen=True)
+class WindowsPermissionIncidentRecord:
+    operation_id: str
+    scratch_id: str
+    identity_category: str
+    acl_classification: str
+    inaccessible_paths: tuple[str, ...]
+    likely_acl_source: str
+    content_safely_inspectable: bool
+    incident_state: str
+    recorded_at: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
 class PilotTask:
     task_id: str
     title: str
@@ -252,6 +265,12 @@ class PilotRecordStore:
 
     def save_codex_root_cause(self, record: CodexSmokeRootCauseRecord) -> Path:
         return self._save_json("codex-smoke-root-cause.json", asdict(record))
+
+    def save_windows_permission_incident(
+            self, record: WindowsPermissionIncidentRecord) -> Path:
+        safe_operation = record.operation_id.replace("/", "-")
+        return self._save_json(
+            f"windows-permission-incident-{safe_operation}.json", asdict(record))
 
     def _save_json(self, name: str, value: object) -> Path:
         target = self.root / PROJECT_ID / "pilots" / PILOT_ID / name

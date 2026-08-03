@@ -15,6 +15,7 @@ from runtime.coding_providers import (
     CodexCliCodingProvider, CodexCliProviderConfiguration, ContextLimits,
     ControlledPatchApplier, ProviderOperationStore,
     CodexScratchCodingProvider, CodexScratchConfiguration,
+    ScratchWorkspaceSecurityMode, ScratchWorkspaceSecurityPolicy,
 )
 from runtime.integrations.git.models import GitStatus
 from runtime.managed_execution import ChangePolicy
@@ -177,7 +178,10 @@ def run_live_fixture(state_root: str | Path) -> dict[str, object]:
 
 def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
     """Run the one authorized disposable-workspace mutation smoke test."""
-    with TemporaryDirectory(prefix="ascos-codex-scratch-") as directory:
+    state = Path(state_root).resolve()
+    state.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix="workspace-", dir=state,
+                            ignore_cleanup_errors=True) as directory:
         root = Path(directory).resolve()
         source, scratch = root / "approved-baseline", root / "scratch"
         source.mkdir()
@@ -188,7 +192,8 @@ def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
             if key in os.environ
         }
         runner = LocalCommandRunner(
-            root, allowed_executables={"codex.cmd", "git"}, allowed_environment=set(),
+            root, allowed_executables={"codex.cmd", "git", "icacls"},
+            allowed_environment=set(),
             max_output_bytes=128_000, base_environment=allowed_environment)
         for arguments in (
             ("init", "-b", "agent/codex-scratch-smoke"),
@@ -203,7 +208,6 @@ def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
             if runner.execute(CommandRequest(
                     "git", commit_arguments, source, {}, 30)).exit_code:
                 raise RuntimeError("Could not commit scratch fixture baseline")
-        state = Path(state_root).resolve()
         store = ProviderOperationStore(state)
         manifests, effects = [], []
 
@@ -215,16 +219,23 @@ def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
             effects.append(value)
             _persist_json(state / "scratch-effects", value.operation_id, value)
 
+        def acl_reader(path):
+            result = runner.execute(CommandRequest("icacls", (str(path),), root, {}, 30))
+            return result.stdout if result.exit_code == 0 else "ACL_READ_FAILED"
+
         provider = CodexScratchCodingProvider(CodexScratchConfiguration(
             enabled=True, source_workspace=str(source), scratch_root=str(scratch)),
             runner=runner,
             response_sink=lambda receipt, result: (
                 store.save_result(receipt.project_id, receipt.provider_operation_id, result),
                 store.save_receipt(receipt)),
-            manifest_sink=manifest_sink, effect_sink=effect_sink)
+            manifest_sink=manifest_sink, effect_sink=effect_sink,
+            security_policy=ScratchWorkspaceSecurityPolicy(
+                ScratchWorkspaceSecurityMode.WINDOWS_CURRENT_USER,
+                acl_reader=acl_reader))
         registry = CodingProviderRegistry((provider,))
         plan = SimpleNamespace(
-            project_id="codex-live-fixture", execution_plan_id="codex-scratch-smoke-v3",
+            project_id="codex-live-fixture", execution_plan_id="codex-scratch-smoke-v4",
             version=1, workspace_identity="codex-scratch-final-workspace",
             feature_branch="agent/codex-scratch-smoke")
         task = SimpleNamespace(
@@ -236,7 +247,7 @@ def run_live_scratch_fixture(state_root: str | Path) -> dict[str, object]:
             allowed_commands=(), candidate_files=("README.md",),
             allows_no_change_success=False, allows_deletions=False)
         coding_request = SimpleNamespace(
-            external_task_id="codex-scratch-smoke-v3-create-file-attempt-1",
+            external_task_id="codex-scratch-smoke-v4-create-file-attempt-1",
             timeout_seconds=600)
         observer = RunnerGitObserver(source, runner)
         service = CodingProviderService(

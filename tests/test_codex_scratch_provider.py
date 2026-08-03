@@ -50,7 +50,7 @@ class FakeRunner:
         root = Path(request.working_directory)
         if self.mutation in {"valid", "extra", "binary", "symlink"}:
             target = root / "docs" / "ascos-codex-smoke.txt"
-            target.parent.mkdir()
+            target.parent.mkdir(exist_ok=True)
             if self.mutation == "binary":
                 target.write_bytes(b"ok\0bad")
             elif self.mutation == "symlink":
@@ -148,3 +148,32 @@ def test_prompt_forbids_privileged_external_effects(tmp_path):
     for word in ("commit", "push", "PR", "merge", "approval", "deployment", "credentials"):
         assert word in prompt
     assert 'approval_policy="never"' in invocation.arguments
+
+
+def test_windows_policy_precreates_parent_and_preserves_observer_access(tmp_path):
+    from runtime.coding_providers import (
+        ScratchWorkspaceSecurityMode, ScratchWorkspaceSecurityPolicy,
+    )
+    root = tmp_path / "workspace"
+    (root / ".git").mkdir(parents=True)
+    policy = ScratchWorkspaceSecurityPolicy(
+        ScratchWorkspaceSecurityMode.WINDOWS_CURRENT_USER,
+        acl_reader=lambda _: "inherited-current-user-read")
+    if __import__("os").name != "nt":
+        with pytest.raises(Exception, match="requires Windows"):
+            policy.prepare_and_check(root, ("docs/file.txt",), create_parents=True)
+        return
+    snapshot = policy.prepare_and_check(root, ("docs/file.txt",), create_parents=True)
+    assert snapshot.root_accessible and snapshot.git_accessible
+    assert snapshot.approved_parents_accessible and snapshot.probe_passed
+    assert not snapshot.explicit_deny_detected
+    assert (root / "docs").is_dir()
+
+
+def test_explicit_deny_is_classified_without_acl_mutation(tmp_path):
+    from runtime.coding_providers import ScratchWorkspaceSecurityPolicy
+    root = tmp_path / "workspace"
+    (root / ".git").mkdir(parents=True)
+    policy = ScratchWorkspaceSecurityPolicy(acl_reader=lambda _: "identity:(DENY_OBSERVER)(W)")
+    snapshot = policy.prepare_and_check(root, ("docs/file.txt",), create_parents=True)
+    assert snapshot.explicit_deny_detected

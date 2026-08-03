@@ -10,6 +10,7 @@ from runtime.pilots.first_managed_product import (
     learner_web_shell_request,
     pilot_tasks,
     validate_task_graph,
+    WindowsPermissionIncidentRecord,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "PilotRecordStore", "PilotStatus",
     "RepositoryBaseline", "learner_web_shell_request", "pilot_tasks",
     "validate_task_graph",
+    "WindowsPermissionIncidentRecord",
 ]

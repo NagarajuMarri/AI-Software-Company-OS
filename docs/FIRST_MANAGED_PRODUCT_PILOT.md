@@ -100,3 +100,16 @@ No manifest, converted result, or accepted receipt was created. The scratch
 identity and baseline evidence were retained at `OBSERVATION_STARTED` and then
 classified `RECONCILIATION_REQUIRED`. Per policy, Milestone 7 did not start and
 the pilot remains `CODEX_LIVE_SMOKE_TEST_REQUIRED`.
+
+The retained V3 workspace could not be safely reopened with an observer-only
+read grant or targeted deny removal. Its incident is `MANUAL_CLEANUP_REQUIRED`;
+it remains retained and was never reused. Evidence shows the Codex child and
+ASCOS observer execute across distinct Windows security boundaries, with sandbox
+ACLs inherited or added on child paths.
+
+The fresh V4 attempt used `WINDOWS_CURRENT_USER`, an ASCOS-controlled state root,
+pre-created `docs/`, and successful root/`.git`/parent/probe preflight checks.
+Codex created the required Git-visible path, but the resulting file was not
+readable by the ASCOS observer, so content hashing and manifest construction
+were rejected. The scratch remains `RECONCILIATION_REQUIRED`; no receipt,
+conversion, acceptance, cleanup, or Milestone 7 work occurred.

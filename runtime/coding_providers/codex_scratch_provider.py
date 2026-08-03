@@ -40,6 +40,74 @@ class ScratchStage(str, Enum):
     FAILED = "FAILED"
 
 
+class ScratchWorkspaceSecurityMode(str, Enum):
+    PORTABLE_BASELINE = "PORTABLE_BASELINE"
+    WINDOWS_CURRENT_USER = "WINDOWS_CURRENT_USER"
+    POSIX_RESTRICTIVE = "POSIX_RESTRICTIVE"
+    CUSTOM = "CUSTOM"
+
+
+@dataclass(frozen=True)
+class ScratchAccessSnapshot:
+    mode: ScratchWorkspaceSecurityMode
+    root_accessible: bool
+    git_accessible: bool
+    approved_parents_accessible: bool
+    probe_passed: bool
+    explicit_deny_detected: bool
+    reparse_detected: bool
+    acl_digest: str
+
+
+class ScratchWorkspaceSecurityPolicy:
+    """Platform-aware observer access checks; never broadens native ACLs."""
+
+    def __init__(self, mode=ScratchWorkspaceSecurityMode.PORTABLE_BASELINE,
+                 *, acl_reader=None):
+        self.mode = mode
+        self.acl_reader = acl_reader or (lambda path: "")
+
+    def prepare_and_check(self, root, approved_paths, *, create_parents=False):
+        root = Path(root).resolve()
+        parents = tuple(sorted({(root / path).parent for path in approved_paths}, key=str))
+        if create_parents:
+            for parent in parents:
+                secure_destination(root, parent.relative_to(root).as_posix())
+                parent.mkdir(parents=True, exist_ok=True)
+        reparse = any(path.is_symlink() for path in (root, root / ".git", *parents))
+        root_ok = self._enumerable(root)
+        git_ok = self._enumerable(root / ".git")
+        parents_ok = all(self._enumerable(parent) for parent in parents)
+        probe_ok = False
+        control = root / ".ascos-observer-control"
+        try:
+            control.mkdir(exist_ok=False)
+            probe = control / f"probe-{secrets.token_hex(6)}"
+            probe.write_text("observer", encoding="utf-8")
+            probe_ok = probe.read_text(encoding="utf-8") == "observer"
+            probe.unlink(); control.rmdir()
+        except OSError:
+            probe_ok = False
+        acl_values = tuple(self.acl_reader(path) for path in (root, root / ".git", *parents))
+        deny = any("(DENY_OBSERVER)" in value.upper() for value in acl_values)
+        acl_digest = hashlib.sha256("\n".join(acl_values).encode()).hexdigest()
+        snapshot = ScratchAccessSnapshot(
+            self.mode, root_ok, git_ok, parents_ok, probe_ok, deny, reparse, acl_digest)
+        if not all((root_ok, git_ok, parents_ok, probe_ok)) or reparse:
+            raise ProviderStateError("Scratch workspace access pre/postflight failed")
+        if self.mode == ScratchWorkspaceSecurityMode.WINDOWS_CURRENT_USER and os.name != "nt":
+            raise ProviderConfigurationError("Windows policy requires Windows")
+        return snapshot
+
+    @staticmethod
+    def _enumerable(path):
+        try:
+            tuple(Path(path).iterdir())
+            return True
+        except OSError:
+            return False
+
+
 @dataclass(frozen=True)
 class ObservedCodexFile:
     path: str
@@ -116,12 +184,14 @@ class CodexScratchConfiguration:
 class CodexScratchCodingProvider:
     provider_id = "codex-cli-scratch"
 
-    def __init__(self, configuration, *, runner, response_sink, manifest_sink, effect_sink):
+    def __init__(self, configuration, *, runner, response_sink, manifest_sink, effect_sink,
+                 security_policy=None):
         self.configuration = configuration
         self.runner = runner
         self.response_sink = response_sink
         self.manifest_sink = manifest_sink
         self.effect_sink = effect_sink
+        self.security_policy = security_policy or ScratchWorkspaceSecurityPolicy()
         self.cli_version = None
         self._validated = False
         self._tasks = {}
@@ -165,6 +235,8 @@ class CodexScratchCodingProvider:
         scratch, identity = self._prepare(request)
         baseline_commit = self._git(scratch, "rev-parse", "HEAD").stdout.strip()
         baseline_tree = self._tree_digest(scratch)
+        preflight = self.security_policy.prepare_and_check(
+            scratch, request.context.allowed_paths, create_parents=True)
         effect = ScratchEffect(
             request.provider_operation_id, identity, str(scratch),
             str(Path(self.configuration.source_workspace).resolve()), request.request_digest,
@@ -190,6 +262,18 @@ class CodexScratchCodingProvider:
         if command.exit_code:
             self.effect_sink(replace(exited, stage=ScratchStage.FAILED))
             raise ProviderStateError("Codex scratch process exited non-zero")
+        try:
+            postflight = self.security_policy.prepare_and_check(
+                scratch, request.context.allowed_paths, create_parents=False)
+        except Exception:
+            self.effect_sink(replace(
+                exited, stage=ScratchStage.RECONCILIATION_REQUIRED,
+                updated_at=datetime.now(timezone.utc)))
+            raise
+        if (preflight.mode == ScratchWorkspaceSecurityMode.WINDOWS_CURRENT_USER
+                and postflight.explicit_deny_detected):
+            self.effect_sink(replace(exited, stage=ScratchStage.RECONCILIATION_REQUIRED))
+            raise ProviderStateError("Windows postflight detected an explicit deny ACL")
         self.effect_sink(replace(exited, stage=ScratchStage.OBSERVATION_STARTED))
         try:
             manifest, operations = self._observe(

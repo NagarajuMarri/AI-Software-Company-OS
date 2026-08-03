@@ -4,7 +4,8 @@ from runtime.coding_providers.codex_cli_provider import (
 )
 from runtime.coding_providers.codex_scratch_provider import (
     CodexScratchCodingProvider, CodexScratchConfiguration,
-    ObservedCodexPatchManifest, ScratchEffect, ScratchStage,
+    ObservedCodexPatchManifest, ScratchAccessSnapshot, ScratchEffect, ScratchStage,
+    ScratchWorkspaceSecurityMode, ScratchWorkspaceSecurityPolicy,
 )
 from runtime.coding_providers.deterministic_provider import DeterministicCodingProvider
 from runtime.coding_providers.errors import (
@@ -26,6 +27,8 @@ __all__ = [
     "CodingContextBuilder", "CodexCliCodingProvider", "CodexCliProviderConfiguration",
     "CodexScratchCodingProvider", "CodexScratchConfiguration",
     "ObservedCodexPatchManifest", "ScratchEffect", "ScratchStage",
+    "ScratchAccessSnapshot", "ScratchWorkspaceSecurityMode",
+    "ScratchWorkspaceSecurityPolicy",
     "DeterministicCodingProvider",
     "CodingProviderError", "ProviderConfigurationError", "ProviderPolicyError",
     "ProviderReconciliationError", "ProviderRegistryError", "ProviderStateError",
