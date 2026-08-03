@@ -28,4 +28,3 @@ governance; it must not claim ASCOS originally implemented that work.
 Failed or missing gates prevent review and PR attachment. Successful intake
 stops at `WAITING_FOR_HUMAN_REVIEW`; it provides no automatic approval, merge,
 deployment, branch rewrite, or branch deletion path.
-

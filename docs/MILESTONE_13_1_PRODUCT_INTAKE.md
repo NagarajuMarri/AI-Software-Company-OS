@@ -18,4 +18,3 @@ fails as a complete load and cannot partially replace a valid live record.
 
 The deterministic example uses a temporary Git repository and stops at
 `WAITING_FOR_HUMAN_REVIEW`.
-

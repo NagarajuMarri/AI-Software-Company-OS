@@ -216,4 +216,3 @@ class ExistingProductIntakeService:
         if value.tzinfo is None or value.utcoffset() is None:
             raise ExistingProductIntakeError("Timestamps must be timezone-aware")
         return value.astimezone(timezone.utc)
-

@@ -89,4 +89,3 @@ class ExistingProductDashboard:
     latest_commit: str
     pending_actions: tuple[str, ...]
     progress: int
-

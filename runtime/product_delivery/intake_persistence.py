@@ -111,4 +111,3 @@ def _deserialize(value: dict[str, object]) -> HumanReviewedProductDelivery:
     for field_name in ("verification_requirements", "known_limitations"):
         data[field_name] = tuple(cast(list[str], data.get(field_name, [])))
     return HumanReviewedProductDelivery(**data)  # type: ignore[arg-type]
-
