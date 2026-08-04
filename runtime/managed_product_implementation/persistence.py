@@ -119,7 +119,7 @@ def _task(data: dict) -> ManagedProductTask:
     data["resume_from"] = (
         ImplementationState(data["resume_from"]) if data.get("resume_from") else None
     )
-    for name in ("allowed_paths", "pending_actions"):
+    for name in ("allowed_paths", "pending_actions", "requirement_ids"):
         data[name] = tuple(data.get(name, ()))
     for name in ("created_at", "updated_at", "completed_at"):
         data[name] = _dt(data.get(name))

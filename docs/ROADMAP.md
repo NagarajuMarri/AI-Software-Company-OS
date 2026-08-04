@@ -1,5 +1,13 @@
 # Runtime Roadmap
 
+# Milestone 14.0
+
+Product Requirements Management adds first-class requirements and PRDs with controlled lifecycle,
+versioning, approval, locking, supersession, revision history, deterministic diffs, validation,
+roadmap derivation, decision logs, atomic persistence, and requirement-to-release traceability. The
+Spoken English AI PRD v1.0 is the locked product baseline. Future implementation milestones must
+resolve approved requirement IDs before materialisation.
+
 # Milestone 12.4
 
 Add the controlled coding-provider boundary and prepare Personalised Daily
