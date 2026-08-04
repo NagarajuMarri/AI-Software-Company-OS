@@ -33,6 +33,8 @@ def main() -> None:
         approved = service.approve(reviewed, "human-reviewer", NOW)
         locked = service.lock(approved, "human-reviewer", NOW)
         roadmap = service.roadmap(locked)
+        revised = service.revise(locked, "2.0", "product-owner", "Add capability", NOW)
+        comparison = service.diff(locked, revised)
         trace = service.trace_implementation(locked, ImplementationTrace(
             "trace-1", "demo-req-1", "task-1", "a" * 40,
             "https://example.test/pull/1", "release-1", NOW,
@@ -41,7 +43,15 @@ def main() -> None:
         print(f"approve PRD: {approved.status.value}")
         print(f"lock PRD: {locked.status.value}")
         print(f"generate roadmap: {roadmap[0].milestone}")
+        print(f"compare versions: {comparison.from_version} -> {comparison.to_version}")
         print(f"trace implementation: {trace.requirement_id} -> {trace.release_id}")
+        decision = DecisionLogEntry(
+            "decision-1", DecisionType.PRODUCT, "Accessible practice", "Keep keyboard fallback",
+            "Learners need an operable fallback", "product-owner", ("demo-req-1",), NOW,
+            "demo-product", "human-reviewer",
+        )
+        service.record_decision("demo-product", decision)
+        print(f"query decision history: {service.decision_history('demo-product')[0].decision_id}")
 
 
 if __name__ == "__main__":

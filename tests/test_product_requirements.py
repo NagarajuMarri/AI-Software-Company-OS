@@ -45,7 +45,7 @@ def test_requirement_model_supports_all_categories_and_metadata():
 
 def test_lifecycle_has_exact_controlled_states():
     assert [item.value for item in RequirementStatus] == [
-        "DRAFT", "REVIEW", "APPROVED", "LOCKED", "IMPLEMENTED", "SUPERSEDED", "ARCHIVED"]
+        "DRAFT", "UNDER_REVIEW", "APPROVED", "LOCKED", "IMPLEMENTED", "SUPERSEDED", "ARCHIVED"]
 
 
 def test_valid_lifecycle_approval_and_lock(service):
@@ -53,7 +53,7 @@ def test_valid_lifecycle_approval_and_lock(service):
     approved=service.approve(reviewed,"reviewer",LATER); locked=service.lock(approved,"reviewer",LATER)
     assert locked.status is RequirementStatus.LOCKED
     assert locked.requirements[0].status is RequirementStatus.LOCKED
-    assert [item.action for item in locked.revision_history][-3:] == ["REVIEW", "APPROVED", "LOCKED"]
+    assert [item.action for item in locked.revision_history][-3:] == ["UNDER_REVIEW", "APPROVED", "LOCKED"]
 
 
 def test_invalid_lifecycle_is_rejected():
@@ -138,7 +138,7 @@ def test_trace_requires_full_commit_sha(sha):
 
 def test_decision_log_supports_all_types(service):
     for index,kind in enumerate(DecisionType):
-        service.record_decision("product",DecisionLogEntry(f"d-{index}",kind,"Title","Decision","Reason","actor",("req-1",),NOW))
+        service.record_decision("product",DecisionLogEntry(f"d-{index}",kind,"Title","Decision","Reason","actor",("req-1",),NOW,"product","reviewer"))
     assert {item.decision_type for item in service.store.list_decisions("product")} == set(DecisionType)
 
 
@@ -150,14 +150,68 @@ def test_storage_rejects_traversal(tmp_path):
 def test_official_spoken_english_prd_is_locked_complete_and_frozen():
     value=load_prd_artifact("product_requirements/spoken-english-ai/prd-v1.0.json")
     assert value.version == "1.0" and value.status is RequirementStatus.LOCKED
-    assert len(value.requirements) == 22
+    assert len(value.requirements) == 29
     assert not validate_prd(value)
     titles={item.title for item in value.requirements}
     assert {"Installable PWA","Payments","Indian English only","Animated 2D avatars"} <= titles
-    assert {"Parent Portal","Native iOS app","IELTS"} <= set(value.explicit_exclusions)
+    assert {"Parent Portal","Native iOS implementation","IELTS"} <= set(value.explicit_exclusions)
     assert {"3D avatars","Video avatars","Interview Coach"} <= set(value.future_roadmap)
 
 
 def test_official_artifact_is_valid_json():
     data=json.loads(open("product_requirements/spoken-english-ai/prd-v1.0.json",encoding="utf-8").read())
     assert data["schema_version"] == 1
+
+
+def test_requirement_groups_and_approval_history_round_trip(service):
+    grouped = prd(
+        requirement_groups=(RequirementGroup("core", "Core", ("req-1",), "Core scope"),),
+        approval_history=(RequirementApproval("approval-1", ("req-1",), "reviewer", "APPROVE", "Ready", NOW),),
+    )
+    service.create_prd(grouped)
+    assert service.store.load_prd("product", "prd", "1.0") == grouped
+
+
+def test_circular_superseding_is_detected():
+    one = requirement(supersedes="req-2")
+    two = replace(requirement(), requirement_id="req-2", title="Second", supersedes="req-1")
+    assert {issue.code for issue in validate_superseding((one, two))} == {"CIRCULAR_SUPERSEDING"}
+
+
+def test_change_request_and_restart_recovery(service, tmp_path):
+    service.create_prd(prd())
+    request = RequirementChangeRequest("change-1", "product", ("req-1",), "owner", "Improve", "Add criterion")
+    service.create_change_request(request)
+    restarted = ProductRequirementsService(ProductRequirementsStore(tmp_path))
+    assert restarted.store.list_change_requests("product") == (request,)
+
+
+def test_bidirectional_trace_queries(service):
+    reviewed = service.submit_for_review(service.create_prd(prd()), "owner", LATER)
+    locked = service.lock(service.approve(reviewed, "reviewer", LATER), "reviewer", LATER)
+    trace = ImplementationTrace("trace-1", "req-1", "task-1", "a"*40,
+                                "https://example.test/pr/1", "release-1", LATER, "impl-1")
+    service.trace_implementation(locked, trace)
+    assert service.query_traces("product", requirement_id="req-1") == (trace,)
+    assert service.query_traces("product", task_id="task-1", commit_sha="a"*40) == (trace,)
+    assert service.query_traces("product", pull_request_url="https://example.test/pr/1", release_id="release-1") == (trace,)
+
+
+def test_unlocked_implementation_request_is_rejected(service):
+    with pytest.raises(ValueError, match="LOCKED"):
+        service.validate_implementation_request(prd(), ("req-1",))
+
+
+def test_roadmap_items_are_derived_only_from_governed_requirements(service):
+    assert service.roadmap_items(prd()) == ()
+    reviewed = service.submit_for_review(service.create_prd(prd()), "owner", LATER)
+    approved = service.approve(reviewed, "reviewer", LATER)
+    assert service.roadmap_items(approved)[0].requirement_ids == ("req-1",)
+
+
+def test_decision_history_queries_by_requirement(service):
+    first = DecisionLogEntry("decision-1", DecisionType.SECURITY, "Secure", "Use boundary", "Protect data",
+                             "architect", ("req-1",), NOW, "product", "reviewer")
+    service.record_decision("product", first)
+    assert service.decision_history("product", "req-1") == (first,)
+    assert service.decision_history("product", "missing") == ()

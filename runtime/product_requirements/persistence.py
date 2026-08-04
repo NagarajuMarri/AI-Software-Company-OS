@@ -37,8 +37,24 @@ class ProductRequirementsStore:
         values = [self.load_prd(product_id, prd_id, path.stem[1:]) for path in sorted(folder.glob("v*.json"))]
         return tuple(value for value in values if value is not None)
 
+    def list_product_prds(self, product_id: str) -> tuple[ProductRequirementsDocument, ...]:
+        folder = self._safe(product_id) / "prds"
+        if not folder.exists(): return ()
+        return tuple(_prd(json.loads(path.read_text(encoding="utf-8"))) for path in sorted(folder.glob("*/v*.json")))
+
     def save_trace(self, product_id: str, trace: ImplementationTrace) -> None:
         self._write(self._safe(product_id) / "traces" / f"{self._safe_name(trace.trace_id)}.json", trace)
+
+    def list_traces(self, product_id: str) -> tuple[ImplementationTrace, ...]:
+        folder = self._safe(product_id) / "traces"
+        return tuple(_trace(json.loads(path.read_text(encoding="utf-8"))) for path in sorted(folder.glob("*.json"))) if folder.exists() else ()
+
+    def save_change_request(self, request: RequirementChangeRequest) -> None:
+        self._write(self._safe(request.product_id) / "change_requests" / f"{self._safe_name(request.change_request_id)}.json", request)
+
+    def list_change_requests(self, product_id: str) -> tuple[RequirementChangeRequest, ...]:
+        folder = self._safe(product_id) / "change_requests"
+        return tuple(_change_request(json.loads(path.read_text(encoding="utf-8"))) for path in sorted(folder.glob("*.json"))) if folder.exists() else ()
 
     def load_trace(self, product_id: str, trace_id: str) -> ImplementationTrace | None:
         target = self._safe(product_id) / "traces" / f"{self._safe_name(trace_id)}.json"
@@ -76,6 +92,7 @@ def _requirement(data: dict) -> ProductRequirement:
     for name in ("acceptance_criteria", "affected_products", "tags", "conflicts_with"): data[name] = tuple(data.get(name, ()))
     data["priority"] = RequirementPriority(data["priority"]); data["status"] = RequirementStatus(data["status"]); data["category"] = RequirementCategory(data["category"])
     for name in ("created_at", "updated_at"): data[name] = datetime.fromisoformat(data[name])
+    if data.get("locked_at"): data["locked_at"] = datetime.fromisoformat(data["locked_at"])
     return ProductRequirement(**data)
 
 
@@ -85,6 +102,15 @@ def _prd(data: dict) -> ProductRequirementsDocument:
     data["status"] = RequirementStatus(data["status"]); data["requirements"] = tuple(_requirement(x) for x in data["requirements"])
     data["explicit_exclusions"] = tuple(data["explicit_exclusions"]); data["future_roadmap"] = tuple(data["future_roadmap"])
     data["revision_history"] = tuple(RevisionRecord(x["version"], x["actor"], x["action"], x["reason"], datetime.fromisoformat(x["timestamp"])) for x in data["revision_history"])
+    data["requirement_groups"] = tuple(
+        RequirementGroup(**{**x, "requirement_ids": tuple(x["requirement_ids"])})
+        for x in data.get("requirement_groups", ())
+    )
+    data["approval_history"] = tuple(
+        RequirementApproval(**{**x, "requirement_ids": tuple(x["requirement_ids"]),
+                               "timestamp": datetime.fromisoformat(x["timestamp"])})
+        for x in data.get("approval_history", ())
+    )
     for name in ("created_at", "updated_at", "locked_at"): data[name] = datetime.fromisoformat(data[name]) if data.get(name) else None
     return ProductRequirementsDocument(**data)
 
@@ -100,3 +126,9 @@ def _trace(data: dict) -> ImplementationTrace:
 
 def _decision(data: dict) -> DecisionLogEntry:
     data["decision_type"] = DecisionType(data["decision_type"]); data["affected_requirements"] = tuple(data["affected_requirements"]); data["timestamp"] = datetime.fromisoformat(data["timestamp"]); return DecisionLogEntry(**data)
+
+
+def _change_request(data: dict) -> RequirementChangeRequest:
+    data["requirement_ids"] = tuple(data["requirement_ids"])
+    data["created_at"] = datetime.fromisoformat(data["created_at"])
+    return RequirementChangeRequest(**data)

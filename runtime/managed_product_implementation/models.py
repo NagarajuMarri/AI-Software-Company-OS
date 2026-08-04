@@ -217,6 +217,8 @@ class ManagedProductTask:
     milestone: str
     implementation_request: str
     provider: str
+    requirement_ids: tuple[str, ...] = ()
+    roadmap_item_id: str | None = None
     base_branch: str = "main"
     allowed_paths: tuple[str, ...] = ()
     implementation_actor: str | None = None
@@ -265,6 +267,7 @@ class ManagedProductTask:
         ):
             raise ValueError("Expected commit SHA must be a 40-character hexadecimal SHA")
         _paths(self.allowed_paths, "allowed paths")
+        _bounded_tuple(self.requirement_ids, "requirement IDs")
         _utc(self.created_at, "created_at")
         _utc(self.updated_at, "updated_at")
         if self.completed_at is not None:

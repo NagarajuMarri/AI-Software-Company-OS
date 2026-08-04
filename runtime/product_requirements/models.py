@@ -13,7 +13,8 @@ def utc_now() -> datetime:
 
 class RequirementStatus(str, Enum):
     DRAFT = "DRAFT"
-    REVIEW = "REVIEW"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    REVIEW = "UNDER_REVIEW"  # Backward-compatible API alias.
     APPROVED = "APPROVED"
     LOCKED = "LOCKED"
     IMPLEMENTED = "IMPLEMENTED"
@@ -44,7 +45,9 @@ class RequirementPriority(str, Enum):
 class DecisionType(str, Enum):
     PRODUCT = "PRODUCT"
     ARCHITECTURE = "ARCHITECTURE"
-    REVIEW = "REVIEW"
+    SECURITY = "SECURITY"
+    HUMAN_REVIEW = "HUMAN_REVIEW"
+    REVIEW = "HUMAN_REVIEW"  # Backward-compatible API alias.
     COMMERCIAL = "COMMERCIAL"
 
 
@@ -75,7 +78,10 @@ class ProductRequirement:
     affected_products: tuple[str, ...]
     tags: tuple[str, ...]
     category: RequirementCategory
+    product_id: str = ""
+    locked_at: datetime | None = None
     supersedes: str | None = None
+    superseded_by: str | None = None
     conflicts_with: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
@@ -84,6 +90,8 @@ class ProductRequirement:
                             (self.author, "author")):
             _text(value, name)
         _utc(self.created_at); _utc(self.updated_at)
+        if self.locked_at is not None: _utc(self.locked_at)
+        if self.product_id: _text(self.product_id, "product ID")
         for values, name in ((self.acceptance_criteria, "acceptance criteria"),
                              (self.affected_products, "affected products"),
                              (self.tags, "tags"), (self.conflicts_with, "conflicts")):
@@ -107,6 +115,8 @@ class ProductRequirementsDocument:
     updated_at: datetime
     supersedes_version: str | None = None
     locked_at: datetime | None = None
+    requirement_groups: tuple["RequirementGroup", ...] = ()
+    approval_history: tuple["RequirementApproval", ...] = ()
 
     def __post_init__(self) -> None:
         for value in (self.prd_id, self.product_id, self.title, self.version, self.author):
@@ -120,6 +130,58 @@ class ProductRequirementsDocument:
             raise ValueError("PRD requirement IDs must be unique")
         if self.status is RequirementStatus.LOCKED and (not self.approver or not self.locked_at):
             raise ValueError("Locked PRD requires approver and lock timestamp")
+        grouped = {item for group in self.requirement_groups for item in group.requirement_ids}
+        if grouped - set(ids):
+            raise ValueError("Requirement groups must reference requirements in the PRD")
+
+
+@dataclass(frozen=True)
+class RequirementGroup:
+    group_id: str
+    title: str
+    requirement_ids: tuple[str, ...]
+    description: str = ""
+
+
+@dataclass(frozen=True)
+class RequirementVersion:
+    requirement_id: str
+    version: str
+    previous_version: str | None
+    changed_by: str
+    rationale: str
+    timestamp: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
+class RequirementApproval:
+    approval_id: str
+    requirement_ids: tuple[str, ...]
+    approver: str
+    decision: str
+    rationale: str
+    timestamp: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
+class RequirementLock:
+    lock_id: str
+    prd_id: str
+    version: str
+    locked_by: str
+    timestamp: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
+class RequirementChangeRequest:
+    change_request_id: str
+    product_id: str
+    requirement_ids: tuple[str, ...]
+    requested_by: str
+    rationale: str
+    proposed_changes: str
+    status: str = "OPEN"
+    created_at: datetime = field(default_factory=utc_now)
 
 
 @dataclass(frozen=True)
@@ -147,6 +209,15 @@ class RoadmapMilestone:
 
 
 @dataclass(frozen=True)
+class RoadmapItem:
+    roadmap_item_id: str
+    product_id: str
+    milestone: str
+    requirement_ids: tuple[str, ...]
+    status: str = "PLANNED"
+
+
+@dataclass(frozen=True)
 class ImplementationTrace:
     trace_id: str
     requirement_id: str
@@ -155,6 +226,7 @@ class ImplementationTrace:
     pull_request_url: str
     release_id: str
     recorded_at: datetime = field(default_factory=utc_now)
+    implementation_id: str = ""
 
     def __post_init__(self) -> None:
         for value in (self.trace_id, self.requirement_id, self.implementation_task_id,
@@ -175,6 +247,8 @@ class DecisionLogEntry:
     actor: str
     affected_requirements: tuple[str, ...]
     timestamp: datetime = field(default_factory=utc_now)
+    product_id: str = ""
+    approver: str = ""
 
     def __post_init__(self) -> None:
         for value in (self.decision_id, self.title, self.decision, self.rationale, self.actor):

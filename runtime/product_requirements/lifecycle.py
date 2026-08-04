@@ -6,8 +6,8 @@ from datetime import datetime
 from runtime.product_requirements.models import ProductRequirement, RequirementStatus, RevisionRecord
 
 TRANSITIONS = {
-    RequirementStatus.DRAFT: (RequirementStatus.REVIEW,),
-    RequirementStatus.REVIEW: (RequirementStatus.DRAFT, RequirementStatus.APPROVED),
+    RequirementStatus.DRAFT: (RequirementStatus.UNDER_REVIEW,),
+    RequirementStatus.UNDER_REVIEW: (RequirementStatus.DRAFT, RequirementStatus.APPROVED),
     RequirementStatus.APPROVED: (RequirementStatus.LOCKED, RequirementStatus.SUPERSEDED),
     RequirementStatus.LOCKED: (RequirementStatus.IMPLEMENTED, RequirementStatus.SUPERSEDED),
     RequirementStatus.IMPLEMENTED: (RequirementStatus.SUPERSEDED, RequirementStatus.ARCHIVED),
@@ -21,7 +21,8 @@ def transition_requirement(requirement: ProductRequirement, target: RequirementS
     if target not in TRANSITIONS[requirement.status]:
         raise ValueError(f"Invalid requirement transition: {requirement.status.value} -> {target.value}")
     approver = actor if target in {RequirementStatus.APPROVED, RequirementStatus.LOCKED} else requirement.approver
-    return replace(requirement, status=target, approver=approver, updated_at=now)
+    locked_at = now if target is RequirementStatus.LOCKED else requirement.locked_at
+    return replace(requirement, status=target, approver=approver, locked_at=locked_at, updated_at=now)
 
 
 def revision(version: str, actor: str, action: str, reason: str, now: datetime) -> RevisionRecord:

@@ -35,9 +35,28 @@ def validate_requirements(requirements: tuple[ProductRequirement, ...]) -> tuple
 
 def validate_prd(prd: ProductRequirementsDocument) -> tuple[ValidationIssue, ...]:
     issues = list(validate_requirements(prd.requirements))
+    issues.extend(validate_superseding(prd.requirements))
     if prd.status in {RequirementStatus.APPROVED, RequirementStatus.LOCKED} and not prd.approver:
         issues.append(ValidationIssue("MISSING_PRD_APPROVAL", "Approved PRD requires an approver"))
     return tuple(sorted(issues, key=lambda issue: (issue.code, issue.requirement_ids)))
+
+
+def validate_superseding(requirements: tuple[ProductRequirement, ...]) -> tuple[ValidationIssue, ...]:
+    """Detect cycles in the requirement superseding graph."""
+    links = {item.requirement_id: item.supersedes for item in requirements if item.supersedes}
+    issues: list[ValidationIssue] = []
+    for start in sorted(links):
+        seen: list[str] = []
+        current: str | None = start
+        while current in links:
+            if current in seen:
+                cycle = tuple(seen[seen.index(current):] + [current])
+                issues.append(ValidationIssue("CIRCULAR_SUPERSEDING", "Requirement superseding graph is circular", cycle))
+                break
+            seen.append(current)
+            current = links[current]
+    unique = {(item.code, item.requirement_ids): item for item in issues}
+    return tuple(unique[key] for key in sorted(unique))
 
 
 def _normal(value: str) -> str:

@@ -25,6 +25,8 @@ class ManagedProductImplementationPipeline:
         pull_requests: PullRequestService,
         steps: tuple[VerificationStep, ...],
         cleanup_policy: CleanupPolicy = CleanupPolicy.KEEP,
+        requirements_service=None,
+        requirements_document=None,
     ) -> None:
         self.store, self.workspace_manager, self.provider = store, workspace_manager, provider
         self.verification_service, self.commit_service, self.push_service = (
@@ -33,6 +35,8 @@ class ManagedProductImplementationPipeline:
             push,
         )
         self.pull_requests, self.steps, self.cleanup_policy = pull_requests, steps, cleanup_policy
+        self.requirements_service = requirements_service
+        self.requirements_document = requirements_document
 
     def request(self, task: ManagedProductTask) -> ManagedProductTask:
         if task.provider != self.provider.provider_id:
@@ -41,6 +45,12 @@ class ManagedProductImplementationPipeline:
             raise ValueError("Task already exists")
         if task.state is not ImplementationState.REQUESTED:
             raise ValueError("New task must be REQUESTED")
+        if self.requirements_service is not None:
+            if self.requirements_document is None or not task.roadmap_item_id:
+                raise ValueError("Governed implementations require a PRD and roadmap item")
+            self.requirements_service.validate_implementation_request(
+                self.requirements_document, task.requirement_ids
+            )
         self.store.save(task)
         return task
 

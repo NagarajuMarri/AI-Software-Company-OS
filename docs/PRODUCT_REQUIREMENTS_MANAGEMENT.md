@@ -8,29 +8,34 @@ and implementation traceability.
 
 ## Governance
 
-The lifecycle is `DRAFT → REVIEW → APPROVED → LOCKED → IMPLEMENTED → SUPERSEDED → ARCHIVED`.
-Review may return to draft; implemented or locked requirements may be superseded, and superseded
-requirements may be archived. Invalid transitions are rejected. A PRD cannot be approved or locked
-without a named human approver, and locked versions are immutable except for an explicit superseding
-transition.
+The lifecycle is `DRAFT -> UNDER_REVIEW -> APPROVED -> LOCKED -> IMPLEMENTED -> SUPERSEDED ->
+ARCHIVED`. Review may return to draft. Invalid transitions fail. Locked released versions are
+immutable, while changes proceed through a persisted change request and a new PRD version.
 
-Implementation planning must resolve requirement IDs from an approved, locked, or implemented PRD.
-The trace record then binds requirement → implementation task → full commit SHA → pull request →
-release. Roadmaps contain only governed requirements and group them by milestone.
+Implementation planning must resolve requirement IDs from a locked PRD and a derived roadmap item.
+The trace binds requirement -> task -> implementation -> commit -> pull request -> release. Queries
+can start from any link and resolve the chain in either direction. Roadmaps contain only approved or
+locked requirements and group them by milestone.
+
+The domain persists requirement groups, approvals, locks, version evidence, change requests,
+decision records, and roadmap items. The managed-product pipeline can enforce PRD and roadmap
+references before workspace preparation. The service verifies products through the project registry
+and emits PRD create, approve, and lock events through the runtime event publisher. Atomic,
+provider-neutral files support restart recovery and checkpoint-safe reconstruction.
 
 ## Validation
 
-Validation reports stable issue codes for duplicate normalized titles, explicit requirement
-conflicts, missing acceptance criteria, rationale, milestone, approval, and unknown conflict targets.
-Stores use safe identifiers and atomic UTF-8 JSON replacement. Every PRD version has a distinct
-path and locked versions cannot be silently rewritten.
+Validation reports stable issue codes for duplicate normalized titles, explicit conflicts, circular
+superseding, missing acceptance criteria, rationale, milestone or approval, unlocked implementation
+requests, and unknown conflict targets. Stores use safe identifiers and atomic UTF-8 JSON
+replacement.
 
 ## Official Spoken English baseline
 
-The official frozen artifact is
-`product_requirements/spoken-english-ai/prd-v1.0.json`. It is version `1.0`, status `LOCKED`, and
-contains the approved MVP requirements, explicit exclusions, and future roadmap. Product Milestone
-9 remains planning-only; this milestone does not modify the Spoken English product repository.
+The official frozen artifact is `product_requirements/spoken-english-ai/prd-v1.0.json`. It is
+version `1.0`, status `LOCKED`, and contains the approved MVP requirements, explicit exclusions,
+requirement groups, approval evidence, and future roadmap. Product Milestone 9 remains
+planning-only; this milestone does not modify the Spoken English product repository.
 
 Run `python examples/product_requirements_management.py` for a deterministic create, review,
-approve, lock, roadmap, and trace walkthrough.
+approve, lock, compare, roadmap, trace, and decision-history walkthrough.
