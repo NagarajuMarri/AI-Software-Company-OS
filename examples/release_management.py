@@ -20,7 +20,8 @@ def main() -> None:
         created=service.create(planned)
         candidate=service.create_candidate(created,ReleaseCandidate("rc-1",Version.parse("1.0.0-rc.1"),"a"*40,"release-manager",NOW),NOW)
         reviewed=service.submit(candidate,NOW)
-        approved=service.approve(reviewed,ReleaseApproval("approval-1","human-reviewer","APPROVE","Verified",NOW),NOW)
+        digest=service.evidence_digest(reviewed)
+        approved=service.approve(reviewed,ReleaseApproval("approval-1","human-reviewer","APPROVE","Verified",NOW,digest),NOW)
         documented=service.attach_notes(approved)
         assert documented.notes is not None
         published=service.publish(documented,NOW)

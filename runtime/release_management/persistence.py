@@ -24,6 +24,8 @@ class ReleaseStore:
             if existing.status in {ReleaseStatus.RELEASED, ReleaseStatus.ROLLED_BACK,
                                    ReleaseStatus.SUPERSEDED, ReleaseStatus.ARCHIVED}:
                 raise ValueError("Released history is immutable")
+            if release.approvals[:len(existing.approvals)] != existing.approvals:
+                raise ValueError("Approval history is immutable")
         self._write(target, release)
         self._write(self.root / self._safe(release.release_id) / "current.json", release)
         return target

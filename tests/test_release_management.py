@@ -32,14 +32,17 @@ def test_invalid_semantic_versions_fail(text):
 
 
 def candidate(): return ReleaseCandidate("rc-1",Version.parse("1.2.0-rc.1"),"a"*40,"owner",NOW)
-def approval(): return ReleaseApproval("approval-1","reviewer","APPROVE","Verified",LATER)
+def approval(value=None):
+    value=value or release()
+    return ReleaseApproval("approval-1","reviewer","APPROVE","Verified",LATER,
+                           ReleaseManagementService.evidence_digest(value))
 
 
 def approved(service):
     value=service.create(release())
     value=service.create_candidate(value,candidate(),LATER)
     value=service.submit(value,LATER)
-    return service.approve(value,approval(),LATER)
+    return service.approve(value,approval(value),LATER)
 
 
 def test_exact_release_lifecycle():
@@ -53,7 +56,7 @@ def test_invalid_transition_fails():
 
 def test_candidate_review_and_approval(service):
     value=approved(service)
-    assert value.status is ReleaseStatus.APPROVED and value.approvals==(approval(),)
+    assert value.status is ReleaseStatus.APPROVED and value.approvals==(approval(replace(value,approvals=())),)
 
 
 def test_candidate_requires_rc_version(service):
@@ -107,6 +110,12 @@ def test_released_snapshot_is_immutable(service):
 
 def test_superseding_preserves_history(service):
     value=service.publish(service.attach_notes(approved(service)),LATER)
+    successor=release(release_id="release-2",version=Version.parse("1.3.0"),title="Release 1.3")
+    successor=service.create(successor)
+    rc=replace(candidate(),candidate_id="rc-2",version=Version.parse("1.3.0-rc.1"))
+    successor=service.submit(service.create_candidate(successor,rc,LATER),LATER)
+    successor=service.approve(successor,approval(successor),LATER)
+    service.publish(service.attach_notes(successor),LATER)
     superseded=service.supersede(value,"release-2",LATER)
     assert superseded.status is ReleaseStatus.SUPERSEDED and superseded.superseded_by=="release-2"
 
@@ -122,3 +131,46 @@ def test_release_supports_artifacts_decisions_deployments_and_hotfix():
 def test_release_rejects_unsafe_ids_and_bad_commits(tmp_path):
     with pytest.raises(ValueError): ReleaseStore(tmp_path).load("../escape")
     with pytest.raises(ValueError): release(commit_shas=("short",))
+
+
+def test_duplicate_versions_are_rejected(service):
+    service.create(release())
+    with pytest.raises(ValueError,match="version already exists"):
+        service.create(release(release_id="release-2"))
+
+
+def test_self_and_stale_approval_are_rejected(service):
+    value=service.submit(service.create_candidate(service.create(release()),candidate(),LATER),LATER)
+    stale=replace(approval(value),evidence_digest="0"*64)
+    with pytest.raises(ValueError,match="stale"): service.approve(value,stale,LATER)
+    self_approval=replace(approval(value),approver="owner")
+    with pytest.raises(ValueError,match="self-approve"): service.approve(value,self_approval,LATER)
+
+
+def test_rejection_requires_reason_and_records_history(service):
+    value=service.submit(service.create_candidate(service.create(release()),candidate(),LATER),LATER)
+    bad=ReleaseApproval("review-1","reviewer","REJECT","",LATER)
+    with pytest.raises(ValueError,match="requires a reason"): service.reject(value,bad,LATER)
+    decision=replace(bad,rationale="Verification failed")
+    returned=service.reject(value,decision,LATER)
+    assert returned.status is ReleaseStatus.RELEASE_CANDIDATE and returned.approvals==(decision,)
+
+
+def test_notes_deduplicate_and_reverse_queries(service):
+    value=release(requirement_ids=("req-1","req-1"),commit_shas=("a"*40,"a"*40),
+                  pull_request_urls=("https://example.test/pr/1","https://example.test/pr/1"))
+    service.create(value)
+    assert service.generate_notes(value).requirements == ("req-1",)
+    assert service.commits_for("1.2.0") == value.commit_shas
+    assert service.releases_for_requirement("req-1") == (value,)
+    assert service.releases_for_pull_request("https://example.test/pr/1") == (value,)
+
+
+def test_stable_version_has_higher_precedence_than_candidate():
+    assert Version.parse("1.0.0-rc.2") < Version.parse("1.0.0") < Version.parse("1.0.1")
+
+
+def test_release_requires_utc_timestamps():
+    from datetime import timedelta
+    non_utc=datetime(2026,1,1,tzinfo=timezone(timedelta(hours=1)))
+    with pytest.raises(ValueError,match="UTC"): release(created_at=non_utc)
