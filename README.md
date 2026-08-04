@@ -40,6 +40,10 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+Milestone 14.1 adds first-class Release Management with semantic versions, release candidates,
+approvals, deterministic release notes, immutable rollback history, and end-to-end release
+traceability. See `docs/RELEASE_MANAGEMENT.md`.
+
 Milestone 14.0 adds governed Product Requirements Management: immutable requirements, versioned and
 lockable PRDs, validation, roadmaps, decision logs, and requirement-to-release traceability. The
 official frozen Spoken English AI PRD is
