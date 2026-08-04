@@ -40,6 +40,12 @@ This repository now contains governance architecture, organizational architectur
 
 ## Repository map
 
+Milestone 14.0 adds governed Product Requirements Management: immutable requirements, versioned and
+lockable PRDs, validation, roadmaps, decision logs, and requirement-to-release traceability. The
+official frozen Spoken English AI PRD is
+`product_requirements/spoken-english-ai/prd-v1.0.json`; see
+`docs/PRODUCT_REQUIREMENTS_MANAGEMENT.md`.
+
 - [docs/MANAGED_PRODUCT_PLANNING.md](docs/MANAGED_PRODUCT_PLANNING.md) —
   reviewed change requests, bounded planning context, proposals, approval, and
   safe project-manager materialisation.
