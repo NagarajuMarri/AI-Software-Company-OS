@@ -1,5 +1,11 @@
 # Runtime Roadmap
 
+# Milestone 14.1
+
+Release Management adds governed semantic versions, candidates, approvals, release notes,
+changelogs, artifacts, decisions, deployments, rollback history, comparisons, and release queries.
+Release history is immutable and traceable to products, requirements, commits, and pull requests.
+
 # Milestone 14.0
 
 Product Requirements Management adds first-class requirements and PRDs with controlled lifecycle,
