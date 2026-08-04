@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "plan_id": "spoken-english-ai-product-milestone-10-v1",
+  "title": "Product Milestone 10 — Commercial Subscriptions, Payments and Entitlements",
+  "project_id": "spoken-english-ai",
+  "repository": "NagarajuMarri/spoken-english-ai",
+  "baseline_sha": "24c2f497ea544f161fdb84b8f6144a09dc02fc6f",
+  "prd": {"prd_id": "spoken-english-ai-prd", "version": "1.0", "status": "LOCKED", "requirement_ids": ["SEA-PRD-017", "SEA-PRD-019", "SEA-PRD-020", "SEA-PRD-023", "SEA-PRD-024"]},
+  "status": "PLANNED_NOT_IMPLEMENTED",
+  "implementation_authorized": false,
+  "objective": "Plan provider-neutral subscriptions, verified payment events, server-side entitlements, usage limits, and learner-safe lifecycle handling without activating a payment provider.",
+  "epics": [
+    {"epic_id": "PM10-E1", "title": "Commercial plans and entitlements", "task_ids": ["PM10-T01", "PM10-T02"]},
+    {"epic_id": "PM10-E2", "title": "Payment provider boundary", "task_ids": ["PM10-T03", "PM10-T04"]},
+    {"epic_id": "PM10-E3", "title": "Subscription lifecycle", "task_ids": ["PM10-T05", "PM10-T06"]},
+    {"epic_id": "PM10-E4", "title": "Usage and access enforcement", "task_ids": ["PM10-T07", "PM10-T08"]},
+    {"epic_id": "PM10-E5", "title": "Privacy, terms and human review", "task_ids": ["PM10-T09", "PM10-T10"]}
+  ],
+  "tasks": [
+    {"task_id": "PM10-T01", "title": "Define versioned commercial plans", "dependencies": [], "acceptance_criteria": ["Plan IDs, prices, billing periods, availability and superseding rules are provider-neutral and versioned."]},
+    {"task_id": "PM10-T02", "title": "Define server-side entitlements", "dependencies": ["PM10-T01"], "acceptance_criteria": ["Learning access resolves from auditable entitlements rather than client or provider state."]},
+    {"task_id": "PM10-T03", "title": "Specify payment provider adapter", "dependencies": ["PM10-T01"], "acceptance_criteria": ["Provider API, checkout and webhook boundaries expose no payment data to learning services."]},
+    {"task_id": "PM10-T04", "title": "Specify verified idempotent events", "dependencies": ["PM10-T03"], "acceptance_criteria": ["Signature verification, replay defense, idempotency and ordering policies are defined before activation."]},
+    {"task_id": "PM10-T05", "title": "Model subscription lifecycle", "dependencies": ["PM10-T02", "PM10-T04"], "acceptance_criteria": ["Trial, active, grace, past-due, cancelled, expired and superseded transitions are explicit."]},
+    {"task_id": "PM10-T06", "title": "Plan recovery and reconciliation", "dependencies": ["PM10-T05"], "acceptance_criteria": ["Missed, duplicate and out-of-order events have deterministic reconciliation and audit behavior."]},
+    {"task_id": "PM10-T07", "title": "Define entitlement-aware usage limits", "dependencies": ["PM10-T02"], "acceptance_criteria": ["Request, token and audio limits are enforced at trusted server boundaries with learner-safe responses."]},
+    {"task_id": "PM10-T08", "title": "Plan cost and access observability", "dependencies": ["PM10-T06", "PM10-T07"], "acceptance_criteria": ["Metrics distinguish estimated AI cost, payment state and entitlement consumption without exposing credentials."]},
+    {"task_id": "PM10-T09", "title": "Plan terms, privacy and retention", "dependencies": ["PM10-T03"], "acceptance_criteria": ["Versioned terms acceptance, minimization, retention and deletion responsibilities are reviewable."]},
+    {"task_id": "PM10-T10", "title": "Create commercial human decision gate", "dependencies": ["PM10-T06", "PM10-T08", "PM10-T09"], "acceptance_criteria": ["No payment provider, deployment or public release can activate without explicit human approval."]}
+  ],
+  "provider_decisions": {"status": "UNSELECTED", "payment_provider": null, "live_credentials_allowed": false},
+  "exclusions": ["implementation", "live payment provider activation", "production billing", "deployment", "public release", "credential creation or exposure", "live AI provider activation"],
+  "safety": {"product_repository_modified": false, "payment_work_performed": false, "deployment_performed": false, "public_release_created": false, "credentials_persisted": false},
+  "human_gate": {"required": true, "implementation_authority": false, "status": "WAITING_FOR_HUMAN_SCOPE_LOCK"}
+}
