@@ -1,0 +1,17 @@
+{
+  "package_id": "spoken-english-ai-milestone-10-commercial-human-decision-v1",
+  "planning_id": "spoken-english-ai-product-milestone-10-v1",
+  "status": "WAITING_FOR_HUMAN_APPROVAL",
+  "recommendations": {
+    "launch_plan": "Launch FREE, PREMIUM_MONTHLY and PREMIUM_YEARLY for individual learners only after legal, pricing and provider approvals.",
+    "payment_provider": "Razorpay for India launch, subject to commercial, privacy, recurring-payment and technical diligence; UPI and cards as payment methods.",
+    "pricing_scenario": "SCENARIO_B (BALANCED), with all prices supplied by approved configuration after sensitivity review.",
+    "trial_duration": "Time-bounded trial duration to be chosen by the human reviewer after cohort modeling; no default is activated.",
+    "fair_use_policy": "Premium conversations remain subject to configurable request, token, voice-duration and AI-cost guardrails with warnings before restriction.",
+    "launch_limits": "Use configurable per-day and per-month request, voice, token and AI-cost ceilings; exact values require human approval."
+  },
+  "decisions_required": ["launch plans", "payment provider", "configured prices", "trial duration", "fair-use thresholds", "launch limits", "legal text and effective versions"],
+  "implementation_authorized": false,
+  "provider_activation_authorized": false,
+  "deployment_authorized": false
+}
