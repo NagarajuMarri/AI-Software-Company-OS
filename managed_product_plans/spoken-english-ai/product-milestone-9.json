@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "plan_id": "spoken-english-ai-product-milestone-9-v1",
+  "request": {
+    "request_id": "spoken-english-ai-pm9-change-request",
+    "project_id": "spoken-english-ai",
+    "title": "Product Milestone 9 — Production Provider Sandbox Evaluation and Pilot Readiness",
+    "objective": "Validate production-capable provider integrations safely before enabling them for paying users.",
+    "priority": "HIGH",
+    "requested_by": "NagarajuMarri",
+    "target_milestone_id": "product-milestone-9",
+    "preferred_base_branch": "main",
+    "implementation_authorized": false
+  },
+  "prd": {
+    "prd_id": "spoken-english-ai-prd",
+    "version": "1.0",
+    "status": "LOCKED",
+    "requirement_ids": ["SEA-PRD-001", "SEA-PRD-007", "SEA-PRD-008", "SEA-PRD-011", "SEA-PRD-017", "SEA-PRD-020", "SEA-PRD-021", "SEA-PRD-022", "SEA-PRD-023", "SEA-PRD-028", "SEA-PRD-029"]
+  },
+  "status": "PLANNED_NOT_IMPLEMENTED",
+  "epics": [
+    {"epic_id":"PM9-E1","title":"LLM provider evaluation","task_ids":["PM9-T01","PM9-T02","PM9-T03"]},
+    {"epic_id":"PM9-E2","title":"Speech-to-text evaluation","task_ids":["PM9-T04","PM9-T05","PM9-T06"]},
+    {"epic_id":"PM9-E3","title":"Text-to-speech evaluation","task_ids":["PM9-T07","PM9-T08","PM9-T09"]},
+    {"epic_id":"PM9-E4","title":"Avatar synchronization","task_ids":["PM9-T10","PM9-T11","PM9-T12"]},
+    {"epic_id":"PM9-E5","title":"Provider sandbox controls","task_ids":["PM9-T13","PM9-T14","PM9-T15"]},
+    {"epic_id":"PM9-E6","title":"Pilot readiness","task_ids":["PM9-T16","PM9-T17","PM9-T18"]},
+    {"epic_id":"PM9-E7","title":"Evidence, cost and decisions","task_ids":["PM9-T19","PM9-T20","PM9-T21"]},
+    {"epic_id":"PM9-E8","title":"Human go/no-go review","task_ids":["PM9-T22","PM9-T23","PM9-T24"]}
+  ],
+  "tasks": [
+    {"task_id":"PM9-T01","title":"Define OpenAI-compatible LLM evaluation contract","dependencies":[],"acceptance_criteria":["Contract covers model configuration, structured response validation, privacy-safe prompts and credential redaction."]},
+    {"task_id":"PM9-T02","title":"Design LLM reliability and measurement protocol","dependencies":["PM9-T01"],"acceptance_criteria":["Protocol measures latency, tokens, usage, estimated cost, timeouts, bounded retry and fallback behavior."]},
+    {"task_id":"PM9-T03","title":"Evaluate LLM evidence without selecting a provider","dependencies":["PM9-T02","PM9-T13"],"acceptance_criteria":["Comparable evidence is recorded for approved candidates; no provider is selected without human approval."]},
+    {"task_id":"PM9-T04","title":"Define Indian-English STT corpus and consent protocol","dependencies":[],"acceptance_criteria":["Corpus plan covers Indian English and Telugu-accented English with explicit consent and no unrestricted customer audio."]},
+    {"task_id":"PM9-T05","title":"Design STT quality, limit and latency evaluation","dependencies":["PM9-T04"],"acceptance_criteria":["Matrix covers formats, duration, size, latency, confidence, transcription quality, errors and bounded retries."]},
+    {"task_id":"PM9-T06","title":"Approve raw-audio handling protocol","dependencies":["PM9-T04","PM9-T20"],"acceptance_criteria":["Retention, deletion, access and audit controls are approved before any sandbox audio evaluation."]},
+    {"task_id":"PM9-T07","title":"Define Indian-English TTS voice evaluation","dependencies":[],"acceptance_criteria":["Evaluation is limited to one female and one male Indian-English voice candidate per provider."]},
+    {"task_id":"PM9-T08","title":"Measure TTS quality and playback behavior","dependencies":["PM9-T07","PM9-T13"],"acceptance_criteria":["Evidence covers clarity, naturalness, rate, latency, formats, cancellation and fallback voice behavior."]},
+    {"task_id":"PM9-T09","title":"Prepare voice decision evidence","dependencies":["PM9-T08"],"acceptance_criteria":["Male and female voice placeholders remain unresolved until comparative evidence passes human review."]},
+    {"task_id":"PM9-T10","title":"Specify TTS timing and viseme boundary","dependencies":["PM9-T07"],"acceptance_criteria":["Provider timing and provider-neutral viseme events map to the existing avatar state machine."]},
+    {"task_id":"PM9-T11","title":"Design approximate lip-sync fallback","dependencies":["PM9-T10"],"acceptance_criteria":["Deterministic approximate synchronization works when provider timing is unavailable and makes no photorealism claim."]},
+    {"task_id":"PM9-T12","title":"Define avatar cancellation and recovery tests","dependencies":["PM9-T10","PM9-T11"],"acceptance_criteria":["Listening, thinking and speaking transitions recover safely after cancellation, timeout or provider failure."]},
+    {"task_id":"PM9-T13","title":"Design isolated non-production provider sandbox","dependencies":[],"acceptance_criteria":["Only test accounts, bounded credentials and non-production endpoints are permitted."]},
+    {"task_id":"PM9-T14","title":"Define usage, cost and access ceilings","dependencies":["PM9-T13","PM9-T19"],"acceptance_criteria":["Per-user limits, monthly ceiling, alerts and automatic stop controls prevent unrestricted access or production billing activation."]},
+    {"task_id":"PM9-T15","title":"Specify health, circuit-breaker and audit controls","dependencies":["PM9-T13"],"acceptance_criteria":["Health checks, circuit breaker, privacy-safe audit logs and credential redaction are testable before provider calls."]},
+    {"task_id":"PM9-T16","title":"Define internal pilot cohort and notices","dependencies":["PM9-T06","PM9-T14"],"acceptance_criteria":["Named internal cohort receives consent, privacy and supported-use notices before access."]},
+    {"task_id":"PM9-T17","title":"Define browser, microphone, latency and quality gates","dependencies":["PM9-T05","PM9-T08","PM9-T12"],"acceptance_criteria":["Supported browsers, microphone compatibility, response latency and transcription quality thresholds are explicit decisions."]},
+    {"task_id":"PM9-T18","title":"Define pilot fallback and incident process","dependencies":["PM9-T15","PM9-T16"],"acceptance_criteria":["Provider failure falls back to text and has an owner, incident path and support runbook."]},
+    {"task_id":"PM9-T19","title":"Build estimated sandbox cost model","dependencies":[],"acceptance_criteria":["Model separates LLM tokens, STT minutes, TTS characters, avatar timing, fixed fees and contingency without inventing prices."]},
+    {"task_id":"PM9-T20","title":"Collect required decision evidence","dependencies":["PM9-T02","PM9-T05","PM9-T08","PM9-T19"],"acceptance_criteria":["All ten decision placeholders contain comparable evidence, source date and reviewer-ready rationale."]},
+    {"task_id":"PM9-T21","title":"Complete provider evaluation matrix","dependencies":["PM9-T03","PM9-T06","PM9-T09","PM9-T15"],"acceptance_criteria":["Every candidate is scored using the same verified criteria; missing evidence is marked unknown, never inferred."]},
+    {"task_id":"PM9-T22","title":"Run privacy, security and commercial review","dependencies":["PM9-T14","PM9-T18","PM9-T20","PM9-T21"],"acceptance_criteria":["Review explicitly approves or rejects retention, credentials, budget, access and incident controls."]},
+    {"task_id":"PM9-T23","title":"Complete pilot go/no-go checklist","dependencies":["PM9-T17","PM9-T18","PM9-T22"],"acceptance_criteria":["All mandatory checklist items have evidence and an accountable reviewer; unknowns force NO_GO."]},
+    {"task_id":"PM9-T24","title":"Record human milestone decision","dependencies":["PM9-T23"],"acceptance_criteria":["Named human records GO, NO_GO or REQUEST_CHANGES; planning never authorizes implementation automatically."]}
+  ],
+  "provider_decision_placeholders": [
+    "chosen LLM provider/model", "chosen STT provider/model", "chosen male TTS voice", "chosen female TTS voice", "monthly sandbox budget", "per-user pilot limit", "audio retention duration", "supported browsers", "acceptable response latency", "acceptable transcription quality"
+  ],
+  "provider_evaluation_matrix": {
+    "status":"AWAITING_EVIDENCE",
+    "candidates":[],
+    "criteria":["Indian-English quality","privacy and retention","structured output","latency","reliability","bounded retry","fallback","usage metering","estimated cost","formats","cancellation","provider health","contract portability"],
+    "selection_rule":"No selection until comparable evidence is complete and human-approved."
+  },
+  "estimated_sandbox_cost_model": {
+    "status":"FORMULA_DEFINED_PRICES_PENDING_EVIDENCE",
+    "currency":"UNDECIDED",
+    "formula":"LLM input tokens + LLM output tokens + STT audio minutes + TTS characters + optional timing fees + fixed sandbox fees + contingency",
+    "controls":["monthly hard ceiling","per-user pilot limit","daily alert threshold","automatic stop at ceiling","no production billing activation"]
+  },
+  "risks": [
+    {"risk_id":"PM9-R01","risk":"Indian-English quality below threshold","mitigation":"Representative consented corpus and human scoring."},
+    {"risk_id":"PM9-R02","risk":"Latency harms conversation flow","mitigation":"Measure end-to-end percentiles and require text fallback."},
+    {"risk_id":"PM9-R03","risk":"Sandbox cost overrun","mitigation":"Hard ceilings, per-user limits, alerts and automatic stop."},
+    {"risk_id":"PM9-R04","risk":"Credential or prompt leakage","mitigation":"Secret isolation, redaction tests and privacy-safe persistence."},
+    {"risk_id":"PM9-R05","risk":"Raw audio retained too long","mitigation":"Human-approved retention and verified deletion protocol."},
+    {"risk_id":"PM9-R06","risk":"Provider lock-in","mitigation":"Evaluate only through provider-neutral boundaries and portable contracts."},
+    {"risk_id":"PM9-R07","risk":"Lip sync overclaims capability","mitigation":"Label approximate fallback and exclude photorealistic/video avatars."},
+    {"risk_id":"PM9-R08","risk":"Unsupported browser or microphone","mitigation":"Publish tested support matrix and preflight compatibility checks."},
+    {"risk_id":"PM9-R09","risk":"Provider outage affects pilot","mitigation":"Health checks, circuit breaker, cancellation and text fallback."},
+    {"risk_id":"PM9-R10","risk":"Insufficient incident readiness","mitigation":"Named owners, support process and NO_GO gate."}
+  ],
+  "go_no_go_checklist": [
+    "provider decisions have comparative evidence", "privacy and consent approved", "audio retention approved", "credentials cannot enter logs or persistence", "sandbox and user cost ceilings enforced", "supported browsers and microphones verified", "latency criteria met", "transcription criteria met", "male and female Indian-English voices approved", "text fallback verified", "incident and support owners assigned", "human reviewer records GO"
+  ],
+  "exclusions": ["payments implementation","production deployment","public customer release","Parent Portal","Teacher Portal","Corporate Portal","non-Indian accents","native mobile apps","photorealistic avatars","video avatars"],
+  "human_approval_gate": {
+    "required": true,
+    "allowed_decisions":["GO","NO_GO","REQUEST_CHANGES"],
+    "default":"NO_GO",
+    "implementation_authority":false
+  },
+  "safety": {
+    "product_repository_modified":false,
+    "product_branch_created":false,
+    "live_provider_invoked":false,
+    "payment_work_performed":false,
+    "deployment_performed":false,
+    "credentials_persisted":false
+  }
+}
