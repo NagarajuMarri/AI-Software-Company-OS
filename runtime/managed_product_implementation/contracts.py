@@ -27,7 +27,15 @@ class WorkspaceManager(Protocol):
 
 
 class PushServicePort(Protocol):
-    def push(self, workspace: Path, branch: str, remote: str = "origin") -> PushResult: ...
+    def push(
+        self,
+        workspace: Path,
+        branch: str,
+        remote: str = "origin",
+        *,
+        expected_repository: str | None = None,
+        expected_commit_sha: str | None = None,
+    ) -> PushResult: ...
 
 
 class PullRequestService(Protocol):

@@ -23,15 +23,26 @@ class DisposableWorkspaceManager:
         self.remove_remotes = remove_remotes
 
     def prepare(self, task: ManagedProductTask) -> WorkspaceResult:
+        if self.root.exists() and self.root.is_symlink():
+            raise WorkspacePreparationError("Workspace root cannot be a symlink or reparse point")
         target = self.root / task.project_id / task.task_id
+        resolved_parent = target.parent.resolve()
+        if self.root != resolved_parent and self.root not in resolved_parent.parents:
+            raise WorkspacePreparationError("Workspace path escapes configured root")
         if target.exists():
+            if target.is_symlink():
+                raise WorkspacePreparationError("Existing workspace cannot be a symlink")
             self._remove(target)
         target.parent.mkdir(parents=True, exist_ok=True)
         env = {
             "PATH": os.environ.get("PATH", ""),
             "GIT_TERMINAL_PROMPT": "0",
             "HOME": str(target.parent),
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
         }
+        if os.name == "nt":
+            env["SYSTEMROOT"] = os.environ.get("SYSTEMROOT", "C:\\Windows")
         self._run(
             (
                 "git",
@@ -54,7 +65,7 @@ class DisposableWorkspaceManager:
             for remote in self._run(("git", "remote"), target, env).splitlines():
                 self._run(("git", "remote", "remove", remote), target, env)
         return WorkspaceResult(
-            task.task_id,
+            f"{task.project_id}:{task.task_id}:{actual[:12]}",
             str(target),
             task.repository,
             task.branch,
@@ -65,7 +76,12 @@ class DisposableWorkspaceManager:
 
     def cleanup(self, workspace: WorkspaceResult) -> None:
         path = Path(workspace.path).resolve()
-        if self.root != path and self.root in path.parents and path.exists():
+        if (
+            self.root != path
+            and self.root in path.parents
+            and path.exists()
+            and not path.is_symlink()
+        ):
             self._remove(path)
 
     @staticmethod

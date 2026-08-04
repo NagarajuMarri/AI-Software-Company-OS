@@ -1,5 +1,6 @@
 """Offline Milestone 13.2 flow: request through mandatory review stop."""
 
+import hashlib
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -41,19 +42,33 @@ class Verify:
     def run(self, workspace, steps):
         return (
             VerificationStepResult(
-                "pytest", VerificationStatus.PASS, ("pytest",), 0, "passed", utc_now(), utc_now()
+                "pytest",
+                VerificationStatus.PASS,
+                ("pytest",),
+                0,
+                "passed",
+                utc_now(),
+                utc_now(),
+                "0" * 40,
+                hashlib.sha256(b"").hexdigest(),
             ),
         )
 
 
 class Commit:
-    def commit(self, workspace, paths, milestone):
+    def commit(self, workspace, paths, milestone, *, approved_paths=()):
         return CommitResult("a" * 40, f"Implement {milestone}", paths)
 
 
 class Push:
-    def push(self, workspace, branch, remote="origin"):
-        return PushResult(True, branch, remote, f"origin/{branch}")
+    def push(self, workspace, branch, remote="origin", **kwargs):
+        return PushResult(
+            True,
+            branch,
+            remote,
+            f"origin/{branch}",
+            remote_head_sha=kwargs.get("expected_commit_sha"),
+        )
 
 
 def main() -> None:

@@ -19,8 +19,8 @@ class InMemoryManagedProductTaskStore:
         self.values: dict[str, ManagedProductTask] = {}
 
     def save(self, task: ManagedProductTask) -> None:
-        if task.task_id in self.values and self.values[task.task_id].state.terminal:
-            raise ValueError("Completed tasks are immutable")
+        current = self.values.get(task.task_id)
+        _validate_replacement(current, task)
         self.values[task.task_id] = task
 
     def load(self, task_id: str) -> ManagedProductTask | None:
@@ -33,8 +33,7 @@ class JsonManagedProductTaskStore:
 
     def save(self, task: ManagedProductTask) -> None:
         current = self.load(task.task_id)
-        if current is not None and current.state.terminal:
-            raise ValueError("Completed tasks are immutable")
+        _validate_replacement(current, task)
         self.root.mkdir(parents=True, exist_ok=True)
         target = self._target(task.task_id)
         temporary = target.with_suffix(".tmp")
@@ -69,6 +68,33 @@ def _dt(value: str | None) -> datetime | None:
     return datetime.fromisoformat(value) if value else None
 
 
+def _validate_replacement(
+    current: ManagedProductTask | None, replacement: ManagedProductTask
+) -> None:
+    if current is None:
+        return
+    if current.state.terminal:
+        raise ValueError("Completed tasks are immutable")
+    immutable = (
+        "task_id",
+        "project_id",
+        "repository",
+        "branch",
+        "base_branch",
+        "expected_commit_sha",
+        "milestone",
+        "implementation_request",
+        "provider",
+        "allowed_paths",
+        "implementation_actor",
+        "created_at",
+    )
+    if any(getattr(current, name) != getattr(replacement, name) for name in immutable):
+        raise ValueError("Managed product task identity and approved scope are immutable")
+    if replacement.updated_at < current.updated_at:
+        raise ValueError("Task timestamps cannot move backwards")
+
+
 def _required_dt(value: str) -> datetime:
     return datetime.fromisoformat(value)
 
@@ -82,6 +108,8 @@ def _step(value: dict) -> VerificationStepResult:
         value["output"],
         _required_dt(value["started_at"]),
         _required_dt(value["completed_at"]),
+        value.get("workspace_commit_sha", ""),
+        value.get("diff_digest", ""),
     )
 
 
@@ -91,11 +119,16 @@ def _task(data: dict) -> ManagedProductTask:
     data["resume_from"] = (
         ImplementationState(data["resume_from"]) if data.get("resume_from") else None
     )
+    for name in ("allowed_paths", "pending_actions"):
+        data[name] = tuple(data.get(name, ()))
     for name in ("created_at", "updated_at", "completed_at"):
         data[name] = _dt(data.get(name))
     if data.get("workspace"):
         value = data["workspace"]
         value["created_at"] = _dt(value["created_at"])
+        value["disposition"] = WorkspaceDisposition(
+            value.get("disposition", WorkspaceDisposition.ACTIVE.value)
+        )
         data["workspace"] = WorkspaceResult(**value)
     data["verification"] = tuple(_step(v) for v in data.get("verification", []))
     for name, kind in (
