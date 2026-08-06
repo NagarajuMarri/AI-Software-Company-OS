@@ -1,0 +1,3 @@
+{
+  "package_id":"spoken-english-ai-milestone-12-launch-readiness-human-review-v1","planning_id":"spoken-english-ai-product-milestone-12-v1","status":"IMPLEMENTATION_AUTHORIZED_STOP_AT_HUMAN_REVIEW","locked_scope":"Individual-learner installable PWA beta and Version 1.0 launch readiness","constraints":["No deployment","No public release","No real charges","Razorpay test mode only","OpenAI-first","No parent or teacher portals"],"final_decisions_required":["production brand","legal text","pricing","domain and DNS","beta cohort","RC1 go/no-go"]
+}

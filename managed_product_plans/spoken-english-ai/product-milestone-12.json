@@ -1,0 +1,23 @@
+{
+  "schema_version":1,"planning_id":"spoken-english-ai-product-milestone-12-v1","title":"Product Milestone 12 — Beta, Legal, Branding and Commercial Launch Readiness","project_id":"spoken-english-ai","repository":"NagarajuMarri/spoken-english-ai","baseline_sha":"e9575eb544bd5b9288d64eec4e0b115bcd671b83","status":"LOCKED_NOT_IMPLEMENTED",
+  "scope":{"delivery":"installable PWA","audience":"individual learners","tutors":"male and female Indian-English animated 2D","providers":"OpenAI-first","payments":"Razorpay test mode only","excluded":["parent portal","teacher portal","photorealistic avatar","public deployment","real charges","app-store claims"]},
+  "epics":[
+    {"epic_id":"PM12-E1","title":"Brand and acquisition","tasks":[1,2,3,4,5]},
+    {"epic_id":"PM12-E2","title":"Onboarding and commerce","tasks":[6,7,8,9]},
+    {"epic_id":"PM12-E3","title":"Legal and support","tasks":[10,11,12,13,14,15,16]},
+    {"epic_id":"PM12-E4","title":"Controlled beta","tasks":[17,18,19,20]},
+    {"epic_id":"PM12-E5","title":"Production readiness","tasks":[21,22,23,24,25]},
+    {"epic_id":"PM12-E6","title":"Release operations","tasks":[26,27,28,29,30,31,32]}
+  ],
+  "tasks":[
+    {"id":1,"title":"Product branding","depends_on":[]},{"id":2,"title":"Production name and version","depends_on":[1]},{"id":3,"title":"Logo, icons and app metadata placeholders","depends_on":[1]},{"id":4,"title":"Landing page","depends_on":[1]},{"id":5,"title":"Pricing presentation","depends_on":[4]},
+    {"id":6,"title":"Registration and onboarding polish","depends_on":[4]},{"id":7,"title":"Tutor-selection onboarding","depends_on":[6]},{"id":8,"title":"Trial and subscription UX","depends_on":[5]},{"id":9,"title":"Razorpay test-mode acceptance","depends_on":[8]},
+    {"id":10,"title":"Privacy Policy","depends_on":[]},{"id":11,"title":"Terms of Service","depends_on":[]},{"id":12,"title":"Refund and Cancellation Policy","depends_on":[9]},{"id":13,"title":"Voice and microphone consent","depends_on":[10]},{"id":14,"title":"Data-retention and deletion policy","depends_on":[10]},{"id":15,"title":"Support/contact workflow","depends_on":[10,11]},{"id":16,"title":"FAQ","depends_on":[15]},
+    {"id":17,"title":"Closed-beta controls","depends_on":[6]},{"id":18,"title":"Invite or controlled-access boundary","depends_on":[17]},{"id":19,"title":"Beta feedback collection","depends_on":[17]},{"id":20,"title":"Founder/admin launch dashboard","depends_on":[19]},
+    {"id":21,"title":"Production environment checklist","depends_on":[]},{"id":22,"title":"DNS, HTTPS and domain checklist","depends_on":[21]},{"id":23,"title":"Monitoring and alert checklist","depends_on":[21]},{"id":24,"title":"Backup and restore confirmation","depends_on":[21]},{"id":25,"title":"Cost ceiling and OpenAI usage controls","depends_on":[21]},
+    {"id":26,"title":"Customer support runbook","depends_on":[15]},{"id":27,"title":"Incident and rollback runbook","depends_on":[23,24]},{"id":28,"title":"Release Candidate process","depends_on":[20,27]},{"id":29,"title":"RC1 acceptance","depends_on":[28]},{"id":30,"title":"Final human go/no-go review","depends_on":[29]},{"id":31,"title":"Version 1.0 release package","depends_on":[30]},{"id":32,"title":"Post-launch monitoring plan","depends_on":[31]}
+  ],
+  "acceptance_criteria":["Every task has deterministic evidence in the implementation decision package.","Core learner flows are accessible and installable as a PWA.","Closed-beta, entitlement, consent and support boundaries fail safely.","Legal text is labelled for final human/legal approval.","No deployment, public release, real charge or production Razorpay activation occurs."],
+  "risks":[{"risk":"unreviewed legal text","mitigation":"final human/legal approval gate"},{"risk":"accidental charges","mitigation":"test-mode fail-closed configuration"},{"risk":"OpenAI cost overrun","mitigation":"server-side cost ceilings"},{"risk":"uncontrolled access","mitigation":"server-side beta gate"},{"risk":"data loss","mitigation":"restore rehearsal gate"}],
+  "human_decision_package_id":"spoken-english-ai-milestone-12-launch-readiness-human-review-v1","implementation_authorized":true,"deployment_authorized":false,"public_release_authorized":false,"real_charges_authorized":false
+}

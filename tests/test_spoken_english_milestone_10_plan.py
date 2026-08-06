@@ -33,8 +33,8 @@ def test_dependencies_and_human_gate_are_complete():
 
 def test_baseline_records_completion_and_estimate_classification():
     baseline = load(BASELINE_PATH)
-    assert baseline["managed_baseline_sha"] == "24c2f497ea544f161fdb84b8f6144a09dc02fc6f"
-    assert baseline["milestone_id"] == "product-milestone-9-5"
+    assert baseline["managed_baseline_sha"] == "e9575eb544bd5b9288d64eec4e0b115bcd671b83"
+    assert baseline["milestone_id"] == "product-milestone-11"
     assert baseline["milestone_completion"]["status"] == "COMPLETED"
     estimate = baseline["architectural_estimates"][0]
     assert estimate["value_percent"] == 55
