@@ -1,3 +1,15 @@
 {
-  "package_id":"spoken-english-ai-milestone-12-launch-readiness-human-review-v1","planning_id":"spoken-english-ai-product-milestone-12-v1","status":"IMPLEMENTATION_AUTHORIZED_STOP_AT_HUMAN_REVIEW","locked_scope":"Individual-learner installable PWA beta and Version 1.0 launch readiness","constraints":["No deployment","No public release","No real charges","Razorpay test mode only","OpenAI-first","No parent or teacher portals"],"final_decisions_required":["production brand","legal text","pricing","domain and DNS","beta cohort","RC1 go/no-go"]
+  "package_id": "spoken-english-ai-milestone-12-launch-readiness-human-review-v2",
+  "planning_id": "spoken-english-ai-product-milestone-12-v1",
+  "status": "MILESTONE_COMPLETED_WAITING_FOR_PRODUCTION_RELEASE_APPROVAL",
+  "decision": "APPROVED",
+  "rc_audit_decision": "RC1_READY",
+  "blocking_issues": [],
+  "approved_head_sha": "c6bc504088c1ef84bb523426a865e791162698df",
+  "merge_commit_sha": "3dad461647c51987484247f5b3249b266370cbb3",
+  "managed_baseline_sha": "0cfacaba2135d8acc246c4862e93eae1b247a16a",
+  "release_tag": "v1.0.0-rc1",
+  "locked_scope": "Individual-learner installable PWA beta and Version 1.0 launch readiness",
+  "constraints": ["No deployment", "No public release", "No real charges", "Razorpay test mode only", "OpenAI-first", "No parent or teacher portals"],
+  "remaining_decisions_required": ["production release approval", "deployment approval", "public publication approval", "Razorpay production-mode approval"]
 }

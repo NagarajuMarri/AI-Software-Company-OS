@@ -1,5 +1,5 @@
 {
-  "schema_version":1,"planning_id":"spoken-english-ai-product-milestone-12-v1","title":"Product Milestone 12 — Beta, Legal, Branding and Commercial Launch Readiness","project_id":"spoken-english-ai","repository":"NagarajuMarri/spoken-english-ai","baseline_sha":"e9575eb544bd5b9288d64eec4e0b115bcd671b83","status":"LOCKED_NOT_IMPLEMENTED",
+  "schema_version":1,"planning_id":"spoken-english-ai-product-milestone-12-v1","title":"Product Milestone 12 — Beta, Legal, Branding and Commercial Launch Readiness","project_id":"spoken-english-ai","repository":"NagarajuMarri/spoken-english-ai","baseline_sha":"0cfacaba2135d8acc246c4862e93eae1b247a16a","status":"COMPLETED",
   "scope":{"delivery":"installable PWA","audience":"individual learners","tutors":"male and female Indian-English animated 2D","providers":"OpenAI-first","payments":"Razorpay test mode only","excluded":["parent portal","teacher portal","photorealistic avatar","public deployment","real charges","app-store claims"]},
   "epics":[
     {"epic_id":"PM12-E1","title":"Brand and acquisition","tasks":[1,2,3,4,5]},
@@ -19,5 +19,5 @@
   ],
   "acceptance_criteria":["Every task has deterministic evidence in the implementation decision package.","Core learner flows are accessible and installable as a PWA.","Closed-beta, entitlement, consent and support boundaries fail safely.","Legal text is labelled for final human/legal approval.","No deployment, public release, real charge or production Razorpay activation occurs."],
   "risks":[{"risk":"unreviewed legal text","mitigation":"final human/legal approval gate"},{"risk":"accidental charges","mitigation":"test-mode fail-closed configuration"},{"risk":"OpenAI cost overrun","mitigation":"server-side cost ceilings"},{"risk":"uncontrolled access","mitigation":"server-side beta gate"},{"risk":"data loss","mitigation":"restore rehearsal gate"}],
-  "human_decision_package_id":"spoken-english-ai-milestone-12-launch-readiness-human-review-v1","implementation_authorized":true,"deployment_authorized":false,"public_release_authorized":false,"real_charges_authorized":false
+  "human_decision_package_id":"spoken-english-ai-milestone-12-launch-readiness-human-review-v2","implementation_authorized":true,"completion":{"status":"COMPLETED","human_approved":true,"rc_audit_decision":"RC1_READY","managed_baseline_sha":"0cfacaba2135d8acc246c4862e93eae1b247a16a","pull_request":12,"merge_commit_sha":"3dad461647c51987484247f5b3249b266370cbb3","release_tag":"v1.0.0-rc1"},"deployment_authorized":false,"public_release_authorized":false,"real_charges_authorized":false
 }
