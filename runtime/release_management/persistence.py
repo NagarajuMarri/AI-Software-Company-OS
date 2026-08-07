@@ -67,7 +67,8 @@ def _dt(value: str | None) -> datetime | None:
 def _release(data: dict) -> Release:
     data["version"] = Version.parse(data["version"] if isinstance(data["version"], str) else _version_text(data["version"]))
     data["kind"] = ReleaseKind(data["kind"]); data["status"] = ReleaseStatus(data["status"])
-    for name in ("product_ids","requirement_ids","milestone_ids","commit_shas","pull_request_urls","decision_ids"):
+    for name in ("product_ids","requirement_ids","milestone_ids","commit_shas","pull_request_urls","decision_ids",
+                 "locked_capability_ids","runtime_acceptance_run_ids"):
         data[name] = tuple(data.get(name, ()))
     for name in ("created_at","updated_at","released_at"): data[name] = _dt(data.get(name))
     data["candidates"] = tuple(ReleaseCandidate(**{**x,"version":Version.parse(_version_text(x["version"])),"created_at":_dt(x["created_at"])}) for x in data.get("candidates",()))

@@ -1,5 +1,18 @@
 # Runtime Persistence Acceptance Criteria
 
+# Milestone 15 acceptance
+
+No locked customer-facing capability may advance from automated verification to acceptance without
+exact-commit runtime evidence for every required customer journey. Code, automated tests, migrations,
+service startup/readiness, browser execution, console/network capture, and screenshot artifacts are
+mandatory. Capability-specific contracts must additionally prove persistence, security, PWA, or the
+deterministic audio/STT/LLM/TTS/playback/avatar chain as applicable.
+
+Authentication completeness includes registration, login, logout, session restoration, password
+recovery, and partial-failure/error paths. Voice completeness includes a repeated audible browser
+turn. Human UX gates require a named, current-commit, current-evidence decision. Release review,
+approval, and publication must reject missing, stale, incomplete, or pre-runtime acceptance runs.
+
 # Milestone 12.4 acceptance
 
 Managed provider execution requires typed capabilities, secret-safe injected

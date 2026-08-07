@@ -14,6 +14,9 @@ Each release must include:
 - security review evidence
 - rollback and incident response readiness
 - release note summary
+- exact-commit runtime acceptance for every locked customer-facing capability
+- browser console/network evidence and screenshots for customer journeys
+- explicit human UX acceptance where the capability contract requires it
 
 ## Release gate
 
@@ -22,3 +25,5 @@ A release is considered ready only when the evidence package is complete and rev
 ## Operation rule
 
 If a release cannot produce verifiable evidence, it must be treated as unready for production.
+Implementation or automated-test evidence alone never makes a locked customer-facing capability
+release-ready.

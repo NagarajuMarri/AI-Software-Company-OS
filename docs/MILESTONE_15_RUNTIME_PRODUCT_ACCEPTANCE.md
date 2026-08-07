@@ -1,0 +1,77 @@
+# Milestone 15 — Runtime Product Acceptance & Feature Quality Gates
+
+Milestone 15 makes customer-runtime evidence a first-class ASCOS release control. Implementation
+and unit-test success no longer imply that a managed product feature works. A locked capability must
+complete this lifecycle:
+
+`PLANNED → IMPLEMENTED → AUTOMATED_VERIFIED → RUNTIME_VERIFIED →`
+`HUMAN_ACCEPTANCE_REQUIRED` (when applicable) `→ ACCEPTED → COMPLETED`.
+
+## Runtime acceptance aggregate
+
+`runtime.runtime_acceptance` owns versioned capability contracts, customer journeys, exact-commit
+evidence, journey results, human decisions, completeness reports, atomic persistence, and runtime
+orchestration. Evidence and decisions are append-only. A completed run is immutable.
+
+Every evidence artifact binds:
+
+- managed product and acceptance run;
+- locked capability and customer journey;
+- full Git commit SHA;
+- evidence kind and pass/fail outcome;
+- artifact URI and SHA-256 digest;
+- UTC observation time and bounded metadata.
+
+Code and automated-test evidence are required before runtime verification. Actual runtime acceptance
+also requires service-startup, readiness, migration, browser, browser-console, browser-network, and
+screenshot evidence for customer-facing capabilities. Journey contracts add capability-specific
+requirements such as persistence, security, deterministic audio, STT, LLM, TTS, audible playback,
+avatar synchronization, and PWA behavior.
+
+## Managed product orchestration
+
+`RuntimeAcceptanceOrchestrator` drives an explicit product adapter in this order:
+
+1. verify the checked-out commit;
+2. verify migrations;
+3. start services;
+4. wait for readiness;
+5. run browser journeys and collect console/network/screenshots;
+6. run capability journeys;
+7. inspect persistence;
+8. verify PWA behavior;
+9. stop services, including after probe failure.
+
+The adapter boundary permits Playwright or another approved browser provider without coupling ASCOS
+to a product framework. Deterministic audio fixtures carry a hashed media artifact and expected
+transcript; production credentials and raw secrets are never evidence metadata.
+
+## Completeness locks
+
+Completeness is evaluated against a locked capability version, not against whichever paths happened
+to pass. The included SpeakMate V1 regression profile defines:
+
+- `AUTHENTICATION`: registration, login, logout, session restoration, password recovery, and secure
+  error/partial-failure paths;
+- `VOICE`: capture, STT, conversation, LLM, TTS, audible playback, avatar synchronization, and a
+  repeated turn;
+- `PWA`: installation, standalone launch, refresh, and offline-shell behavior.
+
+This prevents the founder-observed `registration 503 → retry 409 → login 503` sequence from being
+hidden by register/login-only tests, and prevents Authentication from being accepted without secure
+password recovery. Voice cannot be accepted from mocked STT/TTS tests when audible browser playback,
+avatar synchronization, or the next turn lacks evidence.
+
+## Release governance
+
+A release lists its locked capability IDs and completed runtime-acceptance run IDs. Before a release
+candidate can enter review, be approved, or be published, `ReleaseManagementService` verifies that:
+
+- every referenced run exists and belongs to a release product;
+- its full commit SHA equals the candidate commit;
+- its lifecycle is `COMPLETED`;
+- its evidence digest is valid and its capability set is complete;
+- every locked release capability is covered.
+
+Missing, stale, `IMPLEMENTED`, `AUTOMATED_VERIFIED`, rejected-human, or incomplete evidence blocks the
+release. Human acceptance remains a separate named decision and never merges or deploys code.

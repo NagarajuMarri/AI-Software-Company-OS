@@ -1,5 +1,12 @@
 # Runtime Roadmap
 
+# Milestone 15
+
+Runtime Product Acceptance adds exact-commit feature and capability gates, managed service and
+migration orchestration, browser/console/network/screenshot evidence, deterministic audio and voice
+round-trip contracts, persistence and PWA verification, explicit human UX acceptance, completeness
+locks, and release-candidate blocking when runtime evidence is missing or incomplete.
+
 # Milestone 14.1
 
 Release Management adds governed semantic versions, candidates, approvals, release notes,

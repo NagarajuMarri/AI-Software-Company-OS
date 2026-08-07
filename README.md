@@ -1,5 +1,11 @@
 # AI-Software-Company-OS (ASCOS)
 
+Milestone 15 adds first-class Runtime Product Acceptance. Locked capabilities now require complete,
+exact-commit customer journeys with service, migration, browser, console/network, screenshot,
+persistence, PWA, voice round-trip, and explicit human UX evidence as applicable. Release candidates
+cannot enter review while a locked capability is only implemented or automatically verified. See
+`docs/MILESTONE_15_RUNTIME_PRODUCT_ACCEPTANCE.md`.
+
 Milestone 12.4 adds a typed durable coding-provider boundary, a fully offline
 deterministic provider, and an optional explicitly authorized OpenAI Responses
 API adapter. It defines the first Spoken English AI managed pilot without
@@ -39,6 +45,10 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MILESTONE_15_RUNTIME_PRODUCT_ACCEPTANCE.md](docs/MILESTONE_15_RUNTIME_PRODUCT_ACCEPTANCE.md) —
+  feature acceptance gates, capability completeness, managed runtime orchestration, and release
+  blocking.
 
 Milestone 14.1 adds first-class Release Management with semantic versions, release candidates,
 approvals, deterministic release notes, immutable rollback history, and end-to-end release
