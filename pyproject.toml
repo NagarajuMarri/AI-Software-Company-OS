@@ -16,6 +16,9 @@ dev = [
   "ruff>=0.6",
 ]
 
+[tool.setuptools.packages.find]
+include = ["runtime", "runtime.*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
