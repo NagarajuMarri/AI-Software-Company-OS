@@ -14,7 +14,8 @@ validation gates.
 Validation occurs before the first gate: the command must be a non-empty
 immutable argument array, its executable must be allow-listed, shell
 interpreters are rejected, and timeout is bounded. The child environment is
-built only from explicitly allowed supplied values; unrestricted process
+built from the runner's minimal platform base (`PATH`, plus `SYSTEMROOT` on
+Windows) and explicitly allowed supplied values; unrestricted process
 environment is not inherited. Profile redactions, allowed environment values,
 and standard token/secret/password/API-key/credential forms are scrubbed, and
 stdout/stderr are bounded before persistence.

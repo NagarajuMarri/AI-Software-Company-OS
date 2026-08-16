@@ -322,7 +322,7 @@ class CodexScratchCodingProvider:
         def writable(function, target, error):
             os.chmod(target, 0o700)
             function(target)
-        shutil.rmtree(path, onexc=writable)
+        shutil.rmtree(path, onerror=writable)
 
     def _prepare(self, request):
         root = Path(self.configuration.scratch_root).resolve()
