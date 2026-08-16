@@ -10,8 +10,11 @@ deterministic audio/STT/LLM/TTS/playback/avatar chain as applicable.
 
 Authentication completeness includes registration, login, logout, session restoration, password
 recovery, and partial-failure/error paths. Voice completeness includes a repeated audible browser
-turn. Human UX gates require a named, current-commit, current-evidence decision. Release review,
-approval, and publication must reject missing, stale, incomplete, or pre-runtime acceptance runs.
+turn. Failed evidence must remain durable and force a new acceptance run. Human UX gates require a
+named, current-commit decision bound to passing human-UX evidence and the complete current evidence
+digest. Locked contracts, journey definitions, evidence/result histories, and run identity cannot be
+rewritten after planning. Release review, approval, and publication must reject missing, stale,
+incomplete, or pre-runtime acceptance runs.
 
 # Milestone 12.4 acceptance
 

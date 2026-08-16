@@ -11,7 +11,10 @@ complete this lifecycle:
 
 `runtime.runtime_acceptance` owns versioned capability contracts, customer journeys, exact-commit
 evidence, journey results, human decisions, completeness reports, atomic persistence, and runtime
-orchestration. Evidence and decisions are append-only. A completed run is immutable.
+orchestration. Evidence and decisions are append-only. A completed run is immutable. The capability
+contract, journey definitions, run identity, and creation time are immutable after planning. Failed
+automated or customer-runtime evidence remains release-blocking audit history; retry after a failed
+observation requires a new exact-commit acceptance run.
 
 Every evidence artifact binds:
 
@@ -21,6 +24,10 @@ Every evidence artifact binds:
 - evidence kind and pass/fail outcome;
 - artifact URI and SHA-256 digest;
 - UTC observation time and bounded metadata.
+
+The evidence digest covers the complete locked capability and journey definitions, journey-result
+timestamps, and every artifact's capability/journey ownership. Secret-bearing metadata keys are
+rejected before persistence.
 
 Code and automated-test evidence are required before runtime verification. Actual runtime acceptance
 also requires service-startup, readiness, migration, browser, browser-console, browser-network, and
@@ -74,4 +81,6 @@ candidate can enter review, be approved, or be published, `ReleaseManagementServ
 - every locked release capability is covered.
 
 Missing, stale, `IMPLEMENTED`, `AUTOMATED_VERIFIED`, rejected-human, or incomplete evidence blocks the
-release. Human acceptance remains a separate named decision and never merges or deploys code.
+release. A named human decision must bind passing `HUMAN_UX_EVIDENCE` for that exact capability and
+evidence digest. Release candidates must also belong to the planned version and use a commit declared
+by the release. Human acceptance remains separate and never merges or deploys code.

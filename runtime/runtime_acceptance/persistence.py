@@ -31,14 +31,50 @@ class RuntimeAcceptanceStore:
         if target.exists():
             existing = self.load(run.product_id, run.run_id)
             if existing is not None:
-                if existing.commit_sha != run.commit_sha:
-                    raise ValueError("Runtime acceptance commit identity is immutable")
+                immutable_contract = (
+                    existing.run_id,
+                    existing.product_id,
+                    existing.version,
+                    existing.commit_sha,
+                    existing.capabilities,
+                    existing.journeys,
+                    existing.created_at,
+                )
+                candidate_contract = (
+                    run.run_id,
+                    run.product_id,
+                    run.version,
+                    run.commit_sha,
+                    run.capabilities,
+                    run.journeys,
+                    run.created_at,
+                )
+                if immutable_contract != candidate_contract:
+                    raise ValueError(
+                        "Runtime acceptance identity and locked contract are immutable"
+                    )
                 if existing.stage is AcceptanceStage.COMPLETED and existing != run:
                     raise ValueError("Completed runtime acceptance evidence is immutable")
+                if run.updated_at < existing.updated_at:
+                    raise ValueError("Runtime acceptance timestamps cannot move backwards")
+                if run.stage is not existing.stage:
+                    from runtime.runtime_acceptance.lifecycle import TRANSITIONS
+
+                    if run.stage not in TRANSITIONS[existing.stage]:
+                        raise ValueError("Runtime acceptance lifecycle cannot be skipped")
                 if run.evidence[: len(existing.evidence)] != existing.evidence:
                     raise ValueError("Runtime evidence history is immutable")
+                if (
+                    run.journey_results[: len(existing.journey_results)]
+                    != existing.journey_results
+                ):
+                    raise ValueError("Journey result history is immutable")
                 if run.human_acceptances[: len(existing.human_acceptances)] != existing.human_acceptances:
                     raise ValueError("Human acceptance history is immutable")
+                if existing == run:
+                    return target
+        elif run.stage is not AcceptanceStage.PLANNED:
+            raise ValueError("New runtime acceptance persistence starts PLANNED")
         snapshot = directory / "snapshots" / (
             f"{len(run.evidence):04d}-{len(run.journey_results):04d}-"
             f"{len(run.human_acceptances):04d}-{run.stage.value.lower()}.json"
@@ -149,6 +185,7 @@ def _run(data: dict) -> RuntimeAcceptanceRun:
             **{
                 **item,
                 "accepted_at": _dt(item["accepted_at"]),
+                "evidence_ids": tuple(item.get("evidence_ids", ())),
             }
         )
         for item in data.get("human_acceptances", ())

@@ -27,6 +27,12 @@ class ReleaseManagementService:
 
     def create_candidate(self, release: Release, candidate: ReleaseCandidate, now: datetime) -> Release:
         if candidate.version.release_candidate is None: raise ValueError("Candidate version requires -rc.N")
+        if candidate.version.precedence()[:3] != release.version.precedence()[:3]:
+            raise ValueError("Candidate version must belong to the planned release")
+        if candidate.commit_sha not in release.commit_shas:
+            raise ValueError("Candidate commit must be declared by the release")
+        if any(item.candidate_id == candidate.candidate_id for item in release.candidates):
+            raise ValueError("Release candidate identity must be unique")
         value=transition(replace(release,candidates=release.candidates+(candidate,)),ReleaseStatus.RELEASE_CANDIDATE,now)
         self.store.save(value); return value
 

@@ -15,7 +15,8 @@ which requirements shipped, and which pull requests belong to the release. Relea
 inputs to managed product IDs without invoking deployment providers or modifying managed products.
 
 Milestone 15 strengthens the candidate boundary. Releases with `locked_capability_ids` must reference
-completed, digest-valid runtime acceptance runs for the candidate's exact commit. Submission for
-review, approval, and publication are blocked if a capability is merely implemented, automatically
+completed, digest-valid runtime acceptance runs for the candidate's exact commit. The candidate must
+belong to the planned release version and its full commit SHA must be declared by the release.
+Submission for review, approval, and publication are blocked if a capability is merely implemented, automatically
 verified, runtime-incomplete, awaiting human acceptance, stale, or absent. Releases without locked
 customer-facing capabilities retain the existing provider-neutral lifecycle.

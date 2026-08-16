@@ -71,8 +71,13 @@ def artifact(kind, journey_id="authentication.full", capability_id="AUTHENTICATI
     )
 
 
-def automated_evidence():
-    return (artifact(EvidenceKind.CODE), artifact(EvidenceKind.AUTOMATED_TEST))
+def automated_evidence(
+    journey_id="authentication.full", capability_id="AUTHENTICATION"
+):
+    return (
+        artifact(EvidenceKind.CODE, journey_id, capability_id),
+        artifact(EvidenceKind.AUTOMATED_TEST, journey_id, capability_id),
+    )
 
 
 def runtime_evidence(target=journey()):
@@ -97,11 +102,19 @@ def completed_acceptance(store, *, human=False):
     service = RuntimeAcceptanceService(store)
     value = service.plan(run(capabilities=(contract(human=human),)))
     value = service.mark_implemented(value.product_id, value.run_id, NOW)
-    value = service.record_automated_verification(value.product_id, value.run_id, automated_evidence(), NOW)
+    value = service.record_automated_verification(
+        value.product_id, value.run_id, automated_evidence(), NOW
+    )
     evidence, result = runtime_evidence()
     value = service.record_runtime_verification(value.product_id, value.run_id, evidence, (result,), NOW)
     if human:
         value = service.request_human_acceptance(value.product_id, value.run_id, NOW)
+        human_evidence = artifact(EvidenceKind.HUMAN_UX)
+        human_evidence_value = replace(
+            value,
+            evidence=value.evidence + (human_evidence,),
+            evidence_digest="",
+        )
         value = service.record_human_acceptance(
             value.product_id,
             value.run_id,
@@ -111,9 +124,11 @@ def completed_acceptance(store, *, human=False):
                 "ACCEPT",
                 "Browser journey accepted",
                 SHA,
-                evidence_digest(value),
+                evidence_digest(human_evidence_value),
                 NOW,
+                (human_evidence.evidence_id,),
             ),
+            (human_evidence,),
         )
     value = service.accept(value.product_id, value.run_id, NOW)
     return service.complete(value.product_id, value.run_id, LATER)
@@ -177,7 +192,44 @@ def test_human_ux_gate_is_explicit_and_persisted(tmp_path):
     store = RuntimeAcceptanceStore(tmp_path)
     value = completed_acceptance(store, human=True)
     assert value.human_acceptances[0].reviewer == "founder"
+    assert value.human_acceptances[0].evidence_ids
+    assert any(item.kind is EvidenceKind.HUMAN_UX for item in value.evidence)
     assert store.load(value.product_id, value.run_id) == value
+
+
+def test_human_acceptance_requires_exact_passing_ux_evidence(tmp_path):
+    store = RuntimeAcceptanceStore(tmp_path)
+    service = RuntimeAcceptanceService(store)
+    value = service.plan(run(capabilities=(contract(human=True),)))
+    value = service.mark_implemented(value.product_id, value.run_id, NOW)
+    value = service.record_automated_verification(
+        value.product_id, value.run_id, automated_evidence(), NOW
+    )
+    evidence, result = runtime_evidence()
+    value = service.record_runtime_verification(
+        value.product_id, value.run_id, evidence, (result,), NOW
+    )
+    value = service.request_human_acceptance(value.product_id, value.run_id, NOW)
+    ux = artifact(EvidenceKind.HUMAN_UX)
+    with_ux = replace(
+        value,
+        evidence=value.evidence + (ux,),
+        evidence_digest="",
+    )
+    decision = HumanAcceptance(
+        "AUTHENTICATION",
+        "founder",
+        "ACCEPT",
+        "Reviewed the complete browser journey",
+        SHA,
+        evidence_digest(with_ux),
+        NOW,
+        (ux.evidence_id,),
+    )
+    with pytest.raises(RuntimeAcceptanceError, match="human UX evidence"):
+        service.record_human_acceptance(
+            value.product_id, value.run_id, decision, ()
+        )
 
 
 def test_stale_runtime_evidence_is_rejected(tmp_path):
@@ -192,14 +244,133 @@ def test_stale_runtime_evidence_is_rejected(tmp_path):
         )
 
 
+def test_failed_automated_evidence_is_retained_and_requires_a_new_run(tmp_path):
+    store = RuntimeAcceptanceStore(tmp_path)
+    service = RuntimeAcceptanceService(store)
+    value = service.mark_implemented(
+        "spoken-english-ai", service.plan(run()).run_id, NOW
+    )
+    failed = replace(artifact(EvidenceKind.AUTOMATED_TEST), outcome=EvidenceOutcome.FAIL)
+    with pytest.raises(RuntimeAcceptanceError, match="blocks advancement"):
+        service.record_automated_verification(
+            value.product_id,
+            value.run_id,
+            (artifact(EvidenceKind.CODE), failed),
+            NOW,
+        )
+    persisted = store.load(value.product_id, value.run_id)
+    assert persisted is not None
+    assert persisted.stage is AcceptanceStage.IMPLEMENTED
+    assert failed in persisted.evidence
+    assert "FAILED_AUTOMATED_VERIFICATION" in persisted.blockers
+    with pytest.raises(RuntimeAcceptanceError, match="new acceptance run"):
+        service.record_automated_verification(
+            value.product_id,
+            value.run_id,
+            (
+                artifact(EvidenceKind.CODE, index=1),
+                artifact(EvidenceKind.AUTOMATED_TEST, index=1),
+            ),
+            NOW,
+        )
+
+
+def test_evidence_must_bind_a_declared_capability_and_journey(tmp_path):
+    service = RuntimeAcceptanceService(RuntimeAcceptanceStore(tmp_path))
+    value = service.mark_implemented(
+        "spoken-english-ai", service.plan(run()).run_id, NOW
+    )
+    unknown = artifact(
+        EvidenceKind.CODE,
+        journey_id="authentication.unknown",
+    )
+    with pytest.raises(RuntimeAcceptanceError, match="declared capability and journey"):
+        service.record_automated_verification(
+            value.product_id,
+            value.run_id,
+            (unknown, artifact(EvidenceKind.AUTOMATED_TEST)),
+            NOW,
+        )
+
+
+def test_evidence_digest_binds_locked_contract_and_journey_definition():
+    value = run()
+    original = evidence_digest(value)
+    changed_contract = replace(
+        value,
+        capabilities=(
+            replace(value.capabilities[0], requirement_ids=("SEA-PRD-018",)),
+        ),
+    )
+    changed_journey = replace(
+        value,
+        journeys=(
+            replace(
+                value.journeys[0],
+                required_evidence=value.journeys[0].required_evidence
+                + (EvidenceKind.HUMAN_UX,),
+            ),
+        ),
+    )
+    assert original != evidence_digest(changed_contract)
+    assert original != evidence_digest(changed_journey)
+    with_evidence = replace(value, evidence=(artifact(EvidenceKind.CODE),))
+    rebound = replace(
+        with_evidence,
+        evidence=(
+            replace(with_evidence.evidence[0], capability_id="OTHER_CAPABILITY"),
+        ),
+    )
+    assert evidence_digest(with_evidence) != evidence_digest(rebound)
+
+
+def test_secret_bearing_evidence_metadata_is_rejected():
+    with pytest.raises(ValueError, match="Secret-bearing"):
+        replace(
+            artifact(EvidenceKind.CODE),
+            metadata=(("access-token", "must-not-be-persisted"),),
+        )
+
+
 def test_global_startup_readiness_migration_and_browser_artifacts_are_required(tmp_path):
     service = RuntimeAcceptanceService(RuntimeAcceptanceStore(tmp_path))
     value = service.mark_implemented("spoken-english-ai", service.plan(run()).run_id, NOW)
-    value = service.record_automated_verification(value.product_id, value.run_id, automated_evidence(), NOW)
+    value = service.record_automated_verification(
+        value.product_id, value.run_id, automated_evidence(), NOW
+    )
     values = tuple(artifact(kind) for kind in journey().required_evidence)
     result = JourneyResult("authentication.full", EvidenceOutcome.PASS, tuple(x.evidence_id for x in values), NOW)
     with pytest.raises(RuntimeAcceptanceError, match="MISSING_GLOBAL"):
         service.record_runtime_verification(value.product_id, value.run_id, values, (result,), NOW)
+
+
+def test_failed_customer_runtime_evidence_is_durable_and_release_blocking(tmp_path):
+    store = RuntimeAcceptanceStore(tmp_path)
+    service = RuntimeAcceptanceService(store)
+    value = service.mark_implemented(
+        "spoken-english-ai", service.plan(run()).run_id, NOW
+    )
+    value = service.record_automated_verification(
+        value.product_id, value.run_id, automated_evidence(), NOW
+    )
+    evidence, result = runtime_evidence()
+    failed = replace(evidence[0], outcome=EvidenceOutcome.FAIL)
+    failed_evidence = (failed,) + evidence[1:]
+    with pytest.raises(RuntimeAcceptanceError, match="Failed runtime journey"):
+        service.record_runtime_verification(
+            value.product_id,
+            value.run_id,
+            failed_evidence,
+            (result,),
+            NOW,
+        )
+    persisted = store.load(value.product_id, value.run_id)
+    assert persisted is not None
+    assert failed in persisted.evidence
+    assert any(
+        blocker.startswith("FAILED_EVIDENCE:")
+        for blocker in service.report(value.product_id, value.run_id).blockers
+    )
 
 
 def test_completed_evidence_is_immutable_after_restart(tmp_path):
@@ -209,6 +380,25 @@ def test_completed_evidence_is_immutable_after_restart(tmp_path):
     assert restarted.load(value.product_id, value.run_id) == value
     with pytest.raises(ValueError, match="immutable"):
         restarted.save(replace(value, blockers=("tampered",)))
+
+
+def test_locked_contract_and_journey_history_cannot_be_rewritten(tmp_path):
+    store = RuntimeAcceptanceStore(tmp_path)
+    value = RuntimeAcceptanceService(store).plan(run())
+    with pytest.raises(ValueError, match="locked contract"):
+        store.save(
+            replace(
+                value,
+                capabilities=(replace(value.capabilities[0], title="Weaker scope"),),
+            )
+        )
+
+
+def test_runtime_store_rejects_lifecycle_skips(tmp_path):
+    store = RuntimeAcceptanceStore(tmp_path)
+    value = RuntimeAcceptanceService(store).plan(run())
+    with pytest.raises(ValueError, match="cannot be skipped"):
+        store.save(replace(value, stage=AcceptanceStage.RUNTIME_VERIFIED))
 
 
 def release(**changes):
@@ -232,6 +422,23 @@ def release(**changes):
 
 def candidate():
     return ReleaseCandidate("rc-1", Version.parse("1.0.0-rc.1"), SHA, "owner", NOW)
+
+
+def test_release_candidate_must_bind_the_planned_version_and_declared_commit(tmp_path):
+    service = ReleaseManagementService(ReleaseStore(tmp_path / "releases"))
+    planned = service.create(release())
+    with pytest.raises(ValueError, match="planned release"):
+        service.create_candidate(
+            planned,
+            replace(candidate(), version=Version.parse("2.0.0-rc.1")),
+            NOW,
+        )
+    with pytest.raises(ValueError, match="declared by the release"):
+        service.create_candidate(
+            planned,
+            replace(candidate(), commit_sha="b" * 40),
+            NOW,
+        )
 
 
 def test_release_candidate_review_is_blocked_without_runtime_acceptance(tmp_path):
@@ -320,7 +527,12 @@ def test_speakmate_authentication_cannot_pass_with_only_register_and_login(tmp_p
     service = RuntimeAcceptanceService(RuntimeAcceptanceStore(tmp_path))
     value = service.plan(run(capabilities=(auth,), journeys=journeys))
     value = service.mark_implemented(value.product_id, value.run_id, NOW)
-    value = service.record_automated_verification(value.product_id, value.run_id, automated_evidence(), NOW)
+    value = service.record_automated_verification(
+        value.product_id,
+        value.run_id,
+        automated_evidence(journeys[0].journey_id, journeys[0].capability_id),
+        NOW,
+    )
     selected = journeys[:2]
     values = tuple(item for index, target in enumerate(selected) for item in evidence_for(target, index))
     results = tuple(
@@ -347,7 +559,10 @@ def test_speakmate_partial_registration_failure_path_is_release_blocking(tmp_pat
     value = service.plan(run(capabilities=(auth,), journeys=journeys))
     value = service.mark_implemented(value.product_id, value.run_id, NOW)
     value = service.record_automated_verification(
-        value.product_id, value.run_id, automated_evidence(), NOW
+        value.product_id,
+        value.run_id,
+        automated_evidence(journeys[0].journey_id, journeys[0].capability_id),
+        NOW,
     )
     values = tuple(
         item
@@ -375,7 +590,12 @@ def test_speakmate_voice_requires_capture_to_repeat_turn_chain(tmp_path):
     service = RuntimeAcceptanceService(RuntimeAcceptanceStore(tmp_path))
     value = service.plan(run(capabilities=(voice,), journeys=journeys))
     value = service.mark_implemented(value.product_id, value.run_id, NOW)
-    value = service.record_automated_verification(value.product_id, value.run_id, automated_evidence(), NOW)
+    value = service.record_automated_verification(
+        value.product_id,
+        value.run_id,
+        automated_evidence(journeys[0].journey_id, journeys[0].capability_id),
+        NOW,
+    )
     selected = journeys[:-1]
     values = tuple(item for index, target in enumerate(selected) for item in evidence_for(target, index))
     results = tuple(

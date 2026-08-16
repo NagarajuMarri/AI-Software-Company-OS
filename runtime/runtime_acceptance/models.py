@@ -122,6 +122,23 @@ class EvidenceArtifact:
         _utc(self.observed_at, "observed_at")
         if len(set(key for key, _ in self.metadata)) != len(self.metadata):
             raise ValueError("Evidence metadata keys must be unique")
+        for key, value in self.metadata:
+            _text(key, "evidence metadata key")
+            _text(value, "evidence metadata value")
+            normalized = key.casefold().replace("-", "_")
+            if any(
+                marker in normalized
+                for marker in (
+                    "authorization",
+                    "api_key",
+                    "password",
+                    "secret",
+                    "session_cookie",
+                    "access_token",
+                    "refresh_token",
+                )
+            ):
+                raise ValueError("Secret-bearing evidence metadata is prohibited")
 
 
 @dataclass(frozen=True)
@@ -146,6 +163,7 @@ class HumanAcceptance:
     commit_sha: str
     evidence_digest: str
     accepted_at: datetime
+    evidence_ids: tuple[str, ...]
 
     def __post_init__(self) -> None:
         for value, label in (
@@ -159,6 +177,7 @@ class HumanAcceptance:
         _sha(self.commit_sha)
         _digest(self.evidence_digest)
         _utc(self.accepted_at, "accepted_at")
+        _unique_text(self.evidence_ids, "human UX evidence IDs")
 
 
 @dataclass(frozen=True)
@@ -215,6 +234,13 @@ class RuntimeAcceptanceRun:
         _utc(self.updated_at, "updated_at")
         if self.completed_at is not None:
             _utc(self.completed_at, "completed_at")
+        if self.updated_at < self.created_at:
+            raise ValueError("updated_at cannot precede created_at")
+        if self.stage is AcceptanceStage.COMPLETED:
+            if self.completed_at is None or self.completed_at != self.updated_at:
+                raise ValueError("Completed acceptance requires its exact completion time")
+        elif self.completed_at is not None:
+            raise ValueError("Only completed acceptance may have completed_at")
         if not self.capabilities:
             raise ValueError("Runtime acceptance requires capabilities")
         _unique_text(
@@ -233,6 +259,8 @@ class RuntimeAcceptanceRun:
         )
         if self.evidence_digest:
             _digest(self.evidence_digest)
+            if self.evidence_digest != evidence_digest(self):
+                raise ValueError("Stored runtime evidence digest does not match the run")
 
 
 @dataclass(frozen=True)
@@ -253,7 +281,11 @@ def evidence_digest(run: RuntimeAcceptanceRun) -> str:
             {
                 "id": item.capability_id,
                 "version": item.version,
+                "title": item.title,
                 "journeys": sorted(item.required_journey_ids),
+                "requirements": sorted(item.requirement_ids),
+                "locked": item.locked,
+                "customer_facing": item.customer_facing,
                 "human": item.human_acceptance_required,
             }
             for item in sorted(run.capabilities, key=lambda item: item.capability_id)
@@ -261,14 +293,29 @@ def evidence_digest(run: RuntimeAcceptanceRun) -> str:
         "journeys": [
             {
                 "id": item.journey_id,
+                "capability_id": item.capability_id,
+                "title": item.title,
+                "required_evidence": sorted(
+                    kind.value for kind in item.required_evidence
+                ),
+                "customer_facing": item.customer_facing,
+            }
+            for item in sorted(run.journeys, key=lambda item: item.journey_id)
+        ],
+        "journey_results": [
+            {
+                "id": item.journey_id,
                 "outcome": item.outcome.value,
                 "evidence": sorted(item.evidence_ids),
+                "completed_at": item.completed_at.isoformat(),
             }
             for item in sorted(run.journey_results, key=lambda item: item.journey_id)
         ],
         "evidence": [
             {
                 "id": item.evidence_id,
+                "capability_id": item.capability_id,
+                "journey_id": item.journey_id,
                 "kind": item.kind.value,
                 "outcome": item.outcome.value,
                 "commit": item.commit_sha,

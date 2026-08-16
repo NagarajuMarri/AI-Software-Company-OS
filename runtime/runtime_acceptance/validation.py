@@ -17,6 +17,24 @@ def validate_completeness(run: RuntimeAcceptanceRun) -> CompletenessReport:
     results = {item.journey_id: item for item in run.journey_results}
     evidence = {item.evidence_id: item for item in run.evidence}
 
+    for declared_result in run.journey_results:
+        if declared_result.journey_id not in journeys:
+            blockers.append(
+                f"UNDECLARED_JOURNEY_RESULT:{declared_result.journey_id}"
+            )
+
+    for artifact in run.evidence:
+        capability = capabilities.get(artifact.capability_id)
+        journey = journeys.get(artifact.journey_id)
+        if capability is None:
+            blockers.append(f"EVIDENCE_UNKNOWN_CAPABILITY:{artifact.evidence_id}")
+        if journey is None:
+            blockers.append(f"EVIDENCE_UNKNOWN_JOURNEY:{artifact.evidence_id}")
+        elif journey.capability_id != artifact.capability_id:
+            blockers.append(f"EVIDENCE_CAPABILITY_MISMATCH:{artifact.evidence_id}")
+        if artifact.outcome is EvidenceOutcome.FAIL:
+            blockers.append(f"FAILED_EVIDENCE:{artifact.evidence_id}")
+
     global_kinds = {item.kind for item in run.evidence if item.outcome is EvidenceOutcome.PASS}
     for kind in (
         EvidenceKind.CODE,
@@ -100,10 +118,28 @@ def validate_completeness(run: RuntimeAcceptanceRun) -> CompletenessReport:
         if item.decision == "ACCEPT"
         and item.commit_sha == run.commit_sha
         and item.evidence_digest == evidence_digest(run)
+        and item.evidence_ids
+        and all(
+            evidence.get(evidence_id) is not None
+            and evidence[evidence_id].kind is EvidenceKind.HUMAN_UX
+            and evidence[evidence_id].outcome is EvidenceOutcome.PASS
+            and evidence[evidence_id].capability_id == item.capability_id
+            for evidence_id in item.evidence_ids
+        )
     }
-    if run.stage in {AcceptanceStage.ACCEPTED, AcceptanceStage.COMPLETED}:
+    if run.stage in {
+        AcceptanceStage.HUMAN_ACCEPTANCE_REQUIRED,
+        AcceptanceStage.ACCEPTED,
+        AcceptanceStage.COMPLETED,
+    }:
         for capability_id in sorted(required_human - accepted_human):
             blockers.append(f"MISSING_HUMAN_ACCEPTANCE:{capability_id}")
+
+    for acceptance in run.human_acceptances:
+        if acceptance.capability_id not in required_human:
+            blockers.append(
+                f"UNEXPECTED_HUMAN_ACCEPTANCE:{acceptance.capability_id}"
+            )
 
     unique = tuple(sorted(set(blockers)))
     return CompletenessReport(

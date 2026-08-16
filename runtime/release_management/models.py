@@ -65,6 +65,22 @@ class ReleaseCandidate:
     created_by: str
     created_at: datetime
 
+    def __post_init__(self) -> None:
+        if not self.candidate_id.strip() or not self.created_by.strip():
+            raise ValueError("Release candidate identity is required")
+        if len(self.commit_sha) != 40 or any(
+            character not in "0123456789abcdef"
+            for character in self.commit_sha.lower()
+        ):
+            raise ValueError("Release candidate requires a full hexadecimal commit SHA")
+        offset = self.created_at.utcoffset()
+        if (
+            self.created_at.tzinfo is None
+            or offset is None
+            or offset.total_seconds() != 0
+        ):
+            raise ValueError("Release candidate timestamp must use UTC")
+
 
 @dataclass(frozen=True)
 class ReleaseApproval:
