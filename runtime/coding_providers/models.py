@@ -21,6 +21,8 @@ class ProviderCapability(str, Enum):
     IDEMPOTENT_SUBMISSION = "IDEMPOTENT_SUBMISSION"
     CANCELLATION = "CANCELLATION"
     RESULT_ARTIFACTS = "RESULT_ARTIFACTS"
+    REFACTORING = "REFACTORING"
+    FRONTEND_IMPLEMENTATION = "FRONTEND_IMPLEMENTATION"
 
 
 class ProviderOperationState(str, Enum):
@@ -122,6 +124,8 @@ class CodingContextPackage:
     evidence: tuple[str, ...]
     context_digest: str
     byte_count: int
+    allows_no_change_success: bool = False
+    allows_deletions: bool = False
 
 
 @dataclass(frozen=True)
@@ -147,6 +151,7 @@ class FileOperation:
     kind: FileOperationKind
     path: str
     content: str | None = None
+    expected_prior_digest: str | None = None
 
 
 @dataclass(frozen=True)
@@ -158,6 +163,7 @@ class ProviderUsage:
     model: str | None = None
     reported_cost: float | None = None
     currency: str | None = None
+    total_units: int | None = None
 
 
 @dataclass(frozen=True)
@@ -236,6 +242,14 @@ class ProviderResponseReceipt:
     received_at: datetime
     usage: ProviderUsage = field(default_factory=ProviderUsage)
     schema_version: int = 1
+    provider_mechanism: str | None = None
+    provider_version: str | None = None
+    model: str | None = None
+    structured_result_digest: str | None = None
+    changed_paths: tuple[str, ...] = ()
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    terminal_status: str | None = None
 
 
 @dataclass(frozen=True)

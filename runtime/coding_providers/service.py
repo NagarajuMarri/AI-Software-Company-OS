@@ -134,7 +134,7 @@ class CodingProviderService:
                 reconciliation_details=redact(str(error)),
                 updated_at=datetime.now(timezone.utc)))
             raise
-        if operation.provider_id == "openai-codex":
+        if operation.provider_id in {"openai-codex", "codex-cli", "codex-cli-scratch"}:
             try:
                 receipt = self.store.load_receipt(project_id, operation_id)
                 result = self.store.load_result(project_id, operation_id)
@@ -232,16 +232,20 @@ class CodingProviderService:
         ):
             raise ProviderPolicyError("Provider cost budget exceeded")
         response_digest = hashlib.sha256(serialized).hexdigest()
-        receipt = ProviderResponseReceipt(
-            operation.provider_operation_id, result.provider_task_id,
-            result.external_task_id, operation.provider_id, operation.project_id,
-            operation.execution_plan_id, operation.plan_version,
-            operation.managed_task_id, operation.workspace_id, operation.branch,
-            operation.request_digest, operation.context_digest,
-            operation.provider_idempotency_key, response_digest,
-            datetime.now(timezone.utc), result.usage)
-        self.store.save_result(project_id, operation_id, result)
-        self.store.save_receipt(receipt)
+        if operation.provider_id in {"openai-codex", "codex-cli", "codex-cli-scratch"}:
+            receipt = self.store.load_receipt(project_id, operation_id)
+            self._verify_receipt(operation, receipt, result, response_digest)
+        else:
+            receipt = ProviderResponseReceipt(
+                operation.provider_operation_id, result.provider_task_id,
+                result.external_task_id, operation.provider_id, operation.project_id,
+                operation.execution_plan_id, operation.plan_version,
+                operation.managed_task_id, operation.workspace_id, operation.branch,
+                operation.request_digest, operation.context_digest,
+                operation.provider_idempotency_key, response_digest,
+                datetime.now(timezone.utc), result.usage)
+            self.store.save_result(project_id, operation_id, result)
+            self.store.save_receipt(receipt)
         self.store.save_operation(replace(
             operation, result_reference=operation_id, usage=result.usage,
             updated_at=datetime.now(timezone.utc)))

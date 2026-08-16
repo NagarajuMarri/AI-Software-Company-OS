@@ -64,7 +64,8 @@ class ProviderOperationStore:
             **value,
             "status": ProviderResultStatus(value["status"]),
             "file_operations": tuple(FileOperation(
-                FileOperationKind(item["kind"]), item["path"], item["content"])
+                FileOperationKind(item["kind"]), item["path"], item["content"],
+                item.get("expected_prior_digest"))
                 for item in value["file_operations"]),
             "executed_activity": tuple(value["executed_activity"]),
             "artifacts": tuple(value["artifacts"]),
@@ -84,6 +85,11 @@ class ProviderOperationStore:
             **value,
             "received_at": datetime.fromisoformat(value["received_at"]),
             "usage": ProviderUsage(**value["usage"]),
+            "changed_paths": tuple(value.get("changed_paths", ())),
+            "started_at": datetime.fromisoformat(value["started_at"])
+            if value.get("started_at") else None,
+            "completed_at": datetime.fromisoformat(value["completed_at"])
+            if value.get("completed_at") else None,
         })
 
     def save_patch_effect(self, value):
