@@ -1,5 +1,10 @@
+from runtime.persistence.postgresql.connection import to_jsonb
+from runtime.persistence.postgresql.exceptions import PostgreSQLVersionConflictError
+
+
 class PostgreSQLProviderHealthRepository:
-    def __init__(self, connection_factory): self.connection_factory = connection_factory
+    def __init__(self, connection_factory):
+        self.connection_factory = connection_factory
 
     def save(self, state, *, expected_version, canonical_state):
         connection = self.connection_factory()
@@ -11,11 +16,13 @@ class PostgreSQLProviderHealthRepository:
                     "version=version+1 WHERE provider_id=%s AND capability=%s "
                     "AND version=%s RETURNING version",
                     (
-                        state.status.value, canonical_state, state.provider_id,
+                        state.status.value, to_jsonb(canonical_state), state.provider_id,
                         state.capability, expected_version,
                     ),
                 )
                 row = cursor.fetchone()
-                if row is None: raise RuntimeError("Provider health version conflict")
+                if row is None:
+                    raise PostgreSQLVersionConflictError("Provider health version conflict")
                 return row[0]
-        finally: connection.close()
+        finally:
+            connection.close()

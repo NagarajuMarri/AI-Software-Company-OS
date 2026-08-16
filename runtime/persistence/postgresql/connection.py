@@ -21,7 +21,28 @@ def connect(configuration, resolver):
     """Resolve the actual DSN at the last responsible moment, without echoing it."""
     try:
         dsn = resolver(configuration.connection_reference)
+        if not isinstance(dsn, str) or not dsn:
+            raise ValueError("Connection resolver returned no DSN")
         import psycopg
+
         return psycopg.connect(dsn)
-    except Exception as error:
-        raise PostgreSQLConnectionError("PostgreSQL connection failed") from error
+    except Exception:
+        # Fall through before raising the mapped error. Raising inside this
+        # block would retain the driver/resolver error in ``__context__``, where
+        # a resolved connection string (including credentials) could survive.
+        pass
+    raise PostgreSQLConnectionError("PostgreSQL connection failed")
+
+
+def to_jsonb(value):
+    """Adapt a Python JSON value for Psycopg without importing the driver eagerly."""
+    try:
+        from psycopg.types.json import Jsonb
+    except ModuleNotFoundError as error:
+        if error.name != "psycopg":
+            raise
+        # Database-free unit tests use small fake connection objects. A real
+        # PostgreSQL connection is always created through ``connect()``, which
+        # fails closed when the optional driver is absent.
+        return value
+    return Jsonb(value)

@@ -1,5 +1,20 @@
 # Runtime Roadmap
 
+# Day 4 PostgreSQL validation increment
+
+Day 4 adds always-scheduled PostgreSQL 16 CI for the bounded experimental adapter. It
+validates real migrations, independent-connection claiming and fencing, optimistic
+conflicts, expired-claim recovery, and restart readback. This closes the earlier
+unit-only PostgreSQL verification gap; it does not complete a production database
+provider.
+
+Remaining PostgreSQL work includes full `PersistenceProvider` and durable-outbox
+contract conformance, composition-root integration, deployment configuration and
+security, backup/restore and point-in-time recovery, failover, capacity testing, and
+sustained contention/soak testing. Until those items are implemented and accepted,
+PostgreSQL remains an experimental adapter rather than a supported production runtime
+backend.
+
 # Milestone 14.1
 
 Release Management adds governed semantic versions, candidates, approvals, release notes,
@@ -65,7 +80,8 @@ lifecycle transition services, and database persistence remain future work.
 Milestone 11.3E adds durable outbox repositories, fenced worker claims,
 idempotent dispatch/application, deterministic retry, dead-letter controls,
 reconciliation, crash recovery, supervisor health, and safe metrics. A future
-milestone may add real worker processes and PostgreSQL locking verification.
+milestone may add real worker processes. Day 4 verifies the bounded PostgreSQL
+adapter's locking behavior, while full provider composition remains future work.
 
 Milestone 11.3D establishes safe local execution, workspace and Git isolation,
 offline GitHub contracts, coding-agent provider selection, durable external
@@ -74,8 +90,9 @@ distributed queues, and a supported production Codex/OpenAI adapter remain
 future milestones.
 
 Milestone 11.3C delivers transactional SQLite checkpoints/events, optimistic
-concurrency, runtime leases, fencing, and restart recovery. PostgreSQL remains
-a future provider behind the same contracts.
+concurrency, runtime leases, fencing, and restart recovery. Day 4 adds real-server
+validation for a bounded PostgreSQL adapter; PostgreSQL remains a future full provider
+behind the same contracts.
 
 - 11.3A: deterministic end-to-end software delivery workflow.
 - 11.3B: provider-neutral persistence, file checkpoints, and restart recovery.
@@ -89,6 +106,7 @@ runtime.
 
 Process worker lifecycle, durable registration and heartbeat, provider health,
 circuit breaking, deterministic routing, and an optional PostgreSQL concurrency
-adapter are implemented. A future milestone may add deployment-specific composition
-and broader real-PostgreSQL soak testing; it must not weaken explicit-start,
-operator-control, idempotency, or fencing guarantees.
+adapter are implemented. Day 4 adds PostgreSQL 16 migration, concurrency, and recovery
+CI for that adapter. A future milestone must still add deployment-specific composition,
+complete provider contracts, and broader real-PostgreSQL soak testing; it must not
+weaken explicit-start, operator-control, idempotency, or fencing guarantees.

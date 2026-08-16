@@ -49,17 +49,32 @@ MIGRATIONS = (
     )),
 )
 
+POSTGRESQL_MIGRATION_LOCK_ID = 0x4153434F53
+
+
+def _validate_migrations(migrations):
+    versions = [migration.version for migration in migrations]
+    if versions != list(range(1, len(versions) + 1)):
+        raise ValueError("PostgreSQL migrations must be contiguous from version 1")
+    if any(not migration.statements for migration in migrations):
+        raise ValueError("PostgreSQL migrations must contain statements")
+
 
 class PostgreSQLMigrator:
-    def __init__(self, connection_factory):
+    def __init__(self, connection_factory, *, migrations=None):
         self.connection_factory = connection_factory
+        self.migrations = tuple(MIGRATIONS if migrations is None else migrations)
+        _validate_migrations(self.migrations)
 
     def upgrade(self):
         connection = self.connection_factory()
         try:
             with connection.transaction():
                 cursor = connection.cursor()
-                cursor.execute("SELECT pg_advisory_xact_lock(%s)", (113,))
+                cursor.execute(
+                    "SELECT pg_advisory_xact_lock(%s)",
+                    (POSTGRESQL_MIGRATION_LOCK_ID,),
+                )
                 cursor.execute(
                     "CREATE TABLE IF NOT EXISTS ascos_schema_version "
                     "(singleton SMALLINT PRIMARY KEY CHECK(singleton=1), version INTEGER NOT NULL)"
@@ -72,15 +87,18 @@ class PostgreSQLMigrator:
                     "SELECT version FROM ascos_schema_version WHERE singleton=1 FOR UPDATE"
                 )
                 current = cursor.fetchone()[0]
-                if current > MIGRATIONS[-1].version:
+                target = self.migrations[-1].version if self.migrations else 0
+                if current > target:
                     raise PostgreSQLSchemaError("PostgreSQL schema is newer")
-                for migration in MIGRATIONS:
-                    if migration.version <= current: continue
-                    for statement in migration.statements: cursor.execute(statement)
+                for migration in self.migrations:
+                    if migration.version <= current:
+                        continue
+                    for statement in migration.statements:
+                        cursor.execute(statement)
                     cursor.execute(
                         "UPDATE ascos_schema_version SET version=%s WHERE singleton=1",
                         (migration.version,),
                     )
-            return MIGRATIONS[-1].version
+            return target
         finally:
             connection.close()
