@@ -1,5 +1,28 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 5 acceptance
+
+Managed Product Runtime Configuration must bind one registered product to its repository, expected
+branch, lowercase full Git commit SHA, bounded argument-array service commands, service and readiness
+URLs, explicitly public environment values, opaque secret references, and an exact acceptance-profile
+identity/version/digest. Its canonical SHA-256 digest must preserve command order and change whenever
+any execution-relevant field changes.
+
+Configurations must be immutable and revisioned. Updates require an exact expected revision, retain
+all earlier revisions, reject stale writers, persist atomically, survive restart, and reject malformed,
+non-contiguous, unsupported, or digest-invalid history. Runtime-acceptance binding must require the
+same product, exact commit, and verified acceptance-profile digest and must retain the configuration
+ID, revision, and digest.
+
+Validation must reject shell mediation and control syntax, unsafe relative paths, repository or
+endpoint credentials, non-loopback plain HTTP, readiness endpoints on unrelated origins, raw secrets,
+secret-like public keys, and public/secret key conflicts. Registration must match the managed-product
+repository and operator-owned repository-host, executable, origin, environment-name, and exact or
+prefix-based secret-reference policies.
+Creating, validating, digesting, persisting, loading, revising, or binding a configuration must
+perform no Git, subprocess, network,
+secret-resolution, service-startup, browser, merge, deployment, or release action.
+
 # Milestone 15 acceptance
 
 No locked customer-facing capability may advance from automated verification to acceptance without

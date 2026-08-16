@@ -4,6 +4,7 @@ from runtime.runtime_acceptance.models import (
     AcceptanceJourney,
     CapabilityAcceptanceContract,
     EvidenceKind,
+    RuntimeAcceptanceProfile,
 )
 
 
@@ -164,4 +165,15 @@ def speakmate_v1_journeys() -> tuple[AcceptanceJourney, ...]:
             "Install, standalone launch, refresh, and offline shell operate",
             browser + (EvidenceKind.PWA, EvidenceKind.READINESS),
         ),
+    )
+
+
+def speakmate_v1_profile() -> RuntimeAcceptanceProfile:
+    """Return the versioned SpeakMate contract used by configuration binding."""
+
+    return RuntimeAcceptanceProfile(
+        profile_id="speakmate-v1",
+        version="1.0",
+        capabilities=speakmate_v1_contracts(),
+        journeys=speakmate_v1_journeys(),
     )

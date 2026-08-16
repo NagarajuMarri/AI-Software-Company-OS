@@ -1,5 +1,18 @@
 # Runtime Roadmap
 
+# Day 5 — Managed Product Runtime Configuration
+
+Add immutable, revisioned declarations for a managed product's repository, branch, exact commit SHA,
+argument-array service commands, backend/frontend/readiness endpoints, public environment bindings,
+opaque secret references, and acceptance-profile identity/version/digest. Bind runtime-acceptance
+runs to the exact configuration revision and digest. Configuration creation and persistence perform
+no Git, subprocess, network, secret-resolution, service, browser, merge, deployment, or release
+effect.
+
+Day 6 will consume this declaration to manage an isolated environment at the exact SHA. Day 7 will
+add Chrome/Playwright customer-journey execution and browser evidence. Neither capability is claimed
+by Day 5.
+
 # Milestone 15
 
 Runtime Product Acceptance adds exact-commit feature and capability gates, managed service and
