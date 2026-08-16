@@ -15,6 +15,26 @@ required before approval; protected branches deny writes by default. Operators
 must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
+
+# Managed runtime configuration boundaries
+
+Managed runtime configuration persists public environment bindings and opaque secret references,
+never resolved secret values. Secret-like keys are prohibited in public bindings, and the same key
+cannot appear in both public and secret sets. Repository and endpoint URLs cannot contain embedded
+credentials. Configuration digests cover opaque references, not secret values, so credential rotation
+does not require exposing or rewriting an accepted record.
+
+Commands are argument arrays with preserved order. Shell interpreters, shell operators, unsafe
+relative working directories, and unbounded values are rejected before persistence. Registration
+enforces operator-owned repository-host, executable, origin, environment-name, and exact or
+prefix-based opaque-secret-reference policies. Loopback HTTP is allowed only for an isolated local
+environment; non-loopback service endpoints require HTTPS, and every readiness origin must be
+explicitly allowed by the declaration.
+
+The configuration service has no Git, subprocess, socket, HTTP, secret-manager, or browser adapter.
+Day 6 and Day 7 providers must consume a verified configuration revision and remain subject to
+separate authorization, workspace containment, redaction, evidence, and shutdown controls.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

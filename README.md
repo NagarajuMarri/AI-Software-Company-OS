@@ -1,5 +1,12 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 5 adds immutable, revisioned Managed Product Runtime Configuration. A registered product can now
+declare its repository, branch, exact commit SHA, argument-array service commands, endpoints, public
+environment, opaque secret references, and exact acceptance-profile binding before any runtime action
+is authorized. This configuration boundary performs no Git, process, network, secret-resolution,
+service, browser, merge, deployment, or release operation. See
+`docs/MANAGED_PRODUCT_RUNTIME_CONFIGURATION.md`.
+
 Milestone 15 adds first-class Runtime Product Acceptance. Locked capabilities now require complete,
 exact-commit customer journeys with service, migration, browser, console/network, screenshot,
 persistence, PWA, voice round-trip, and explicit human UX evidence as applicable. Release candidates
@@ -45,6 +52,10 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MANAGED_PRODUCT_RUNTIME_CONFIGURATION.md](docs/MANAGED_PRODUCT_RUNTIME_CONFIGURATION.md) —
+  immutable exact-SHA runtime declarations, revision history, secret-safe environment policy, and
+  acceptance-profile binding.
 
 - [docs/MILESTONE_15_RUNTIME_PRODUCT_ACCEPTANCE.md](docs/MILESTONE_15_RUNTIME_PRODUCT_ACCEPTANCE.md) —
   feature acceptance gates, capability completeness, managed runtime orchestration, and release

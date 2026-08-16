@@ -39,6 +39,12 @@ class RuntimeAcceptanceStore:
                     existing.capabilities,
                     existing.journeys,
                     existing.created_at,
+                    existing.runtime_configuration_id,
+                    existing.runtime_configuration_revision,
+                    existing.runtime_configuration_digest,
+                    existing.acceptance_profile_id,
+                    existing.acceptance_profile_version,
+                    existing.acceptance_profile_digest,
                 )
                 candidate_contract = (
                     run.run_id,
@@ -48,6 +54,12 @@ class RuntimeAcceptanceStore:
                     run.capabilities,
                     run.journeys,
                     run.created_at,
+                    run.runtime_configuration_id,
+                    run.runtime_configuration_revision,
+                    run.runtime_configuration_digest,
+                    run.acceptance_profile_id,
+                    run.acceptance_profile_version,
+                    run.acceptance_profile_digest,
                 )
                 if immutable_contract != candidate_contract:
                     raise ValueError(

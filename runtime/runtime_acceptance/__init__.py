@@ -13,6 +13,7 @@ from runtime.runtime_acceptance.profiles import (
     VOICE_JOURNEYS,
     speakmate_v1_contracts,
     speakmate_v1_journeys,
+    speakmate_v1_profile,
 )
 from runtime.runtime_acceptance.service import (
     RuntimeAcceptanceError,

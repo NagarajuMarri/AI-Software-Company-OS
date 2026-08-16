@@ -7,6 +7,10 @@ from datetime import datetime, timezone
 from enum import Enum
 import hashlib
 import json
+import re
+
+
+_IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
 
 def utc_now() -> datetime:
@@ -62,8 +66,11 @@ class AcceptanceJourney:
         _text(self.journey_id, "journey ID")
         _text(self.capability_id, "capability ID")
         _text(self.title, "journey title")
-        if not self.required_evidence or len(set(self.required_evidence)) != len(
-            self.required_evidence
+        if (
+            not isinstance(self.required_evidence, tuple)
+            or not self.required_evidence
+            or any(not isinstance(item, EvidenceKind) for item in self.required_evidence)
+            or len(set(self.required_evidence)) != len(self.required_evidence)
         ):
             raise ValueError("Journey requires unique evidence kinds")
 
@@ -86,10 +93,65 @@ class CapabilityAcceptanceContract:
             (self.title, "capability title"),
         ):
             _text(value, label)
+        if not isinstance(self.required_journey_ids, tuple) or not isinstance(
+            self.requirement_ids, tuple
+        ):
+            raise ValueError("Capability journey and requirement IDs must be tuples")
         if self.locked and not self.required_journey_ids:
             raise ValueError("Locked capability requires customer journeys")
         _unique_text(self.required_journey_ids, "required journey IDs")
         _unique_text(self.requirement_ids, "requirement IDs", allow_empty=True)
+
+
+@dataclass(frozen=True)
+class RuntimeAcceptanceProfile:
+    """Stable identity and digest for a locked capability/journey contract."""
+
+    profile_id: str
+    version: str
+    capabilities: tuple[CapabilityAcceptanceContract, ...]
+    journeys: tuple[AcceptanceJourney, ...]
+
+    def __post_init__(self) -> None:
+        _identifier(self.profile_id, "acceptance profile ID")
+        _text(self.version, "acceptance profile version")
+        if (
+            not isinstance(self.capabilities, tuple)
+            or not isinstance(self.journeys, tuple)
+            or not self.capabilities
+            or not self.journeys
+            or any(
+                not isinstance(item, CapabilityAcceptanceContract)
+                for item in self.capabilities
+            )
+            or any(not isinstance(item, AcceptanceJourney) for item in self.journeys)
+        ):
+            raise ValueError("Acceptance profile requires capabilities and journeys")
+        _unique_text(
+            tuple(item.capability_id for item in self.capabilities), "capability IDs"
+        )
+        _unique_text(tuple(item.journey_id for item in self.journeys), "journey IDs")
+        journey_by_id = {item.journey_id: item for item in self.journeys}
+        referenced: set[str] = set()
+        for capability in self.capabilities:
+            for journey_id in capability.required_journey_ids:
+                journey = journey_by_id.get(journey_id)
+                if journey is None or journey.capability_id != capability.capability_id:
+                    raise ValueError(
+                        "Acceptance profile journeys must match their capability contract"
+                    )
+                referenced.add(journey_id)
+        if referenced != set(journey_by_id):
+            raise ValueError("Acceptance profile cannot contain unreferenced journeys")
+
+    @property
+    def digest(self) -> str:
+        return acceptance_profile_digest(
+            self.profile_id,
+            self.version,
+            self.capabilities,
+            self.journeys,
+        )
 
 
 @dataclass(frozen=True)
@@ -221,6 +283,12 @@ class RuntimeAcceptanceRun:
     completed_at: datetime | None = None
     evidence_digest: str = ""
     blockers: tuple[str, ...] = field(default_factory=tuple)
+    runtime_configuration_id: str = ""
+    runtime_configuration_revision: int = 0
+    runtime_configuration_digest: str = ""
+    acceptance_profile_id: str = ""
+    acceptance_profile_version: str = ""
+    acceptance_profile_digest: str = ""
 
     def __post_init__(self) -> None:
         for value, label in (
@@ -241,7 +309,26 @@ class RuntimeAcceptanceRun:
                 raise ValueError("Completed acceptance requires its exact completion time")
         elif self.completed_at is not None:
             raise ValueError("Only completed acceptance may have completed_at")
-        if not self.capabilities:
+        if (
+            not isinstance(self.capabilities, tuple)
+            or not self.capabilities
+            or any(
+                not isinstance(item, CapabilityAcceptanceContract)
+                for item in self.capabilities
+            )
+            or not isinstance(self.journeys, tuple)
+            or any(not isinstance(item, AcceptanceJourney) for item in self.journeys)
+            or not isinstance(self.evidence, tuple)
+            or any(not isinstance(item, EvidenceArtifact) for item in self.evidence)
+            or not isinstance(self.journey_results, tuple)
+            or any(not isinstance(item, JourneyResult) for item in self.journey_results)
+            or not isinstance(self.human_acceptances, tuple)
+            or any(
+                not isinstance(item, HumanAcceptance)
+                for item in self.human_acceptances
+            )
+            or not isinstance(self.blockers, tuple)
+        ):
             raise ValueError("Runtime acceptance requires capabilities")
         _unique_text(
             tuple(item.capability_id for item in self.capabilities), "capability IDs"
@@ -257,6 +344,42 @@ class RuntimeAcceptanceRun:
             "journey result IDs",
             allow_empty=True,
         )
+        binding = (
+            self.runtime_configuration_id,
+            self.runtime_configuration_revision,
+            self.runtime_configuration_digest,
+            self.acceptance_profile_id,
+            self.acceptance_profile_version,
+            self.acceptance_profile_digest,
+        )
+        if any(binding):
+            if not all(binding):
+                raise ValueError("Runtime acceptance configuration binding must be complete")
+            _identifier(self.runtime_configuration_id, "runtime configuration ID")
+            if (
+                isinstance(self.runtime_configuration_revision, bool)
+                or not isinstance(self.runtime_configuration_revision, int)
+                or self.runtime_configuration_revision < 1
+            ):
+                raise ValueError("Runtime configuration revision must be positive")
+            _canonical_digest(
+                self.runtime_configuration_digest, "runtime configuration digest"
+            )
+            _identifier(self.acceptance_profile_id, "acceptance profile ID")
+            _text(self.acceptance_profile_version, "acceptance profile version")
+            _canonical_digest(
+                self.acceptance_profile_digest, "acceptance profile digest"
+            )
+            expected_profile = acceptance_profile_digest(
+                self.acceptance_profile_id,
+                self.acceptance_profile_version,
+                self.capabilities,
+                self.journeys,
+            )
+            if self.acceptance_profile_digest != expected_profile:
+                raise ValueError(
+                    "Runtime acceptance profile digest does not match its locked contract"
+                )
         if self.evidence_digest:
             _digest(self.evidence_digest)
             if self.evidence_digest != evidence_digest(self):
@@ -272,36 +395,13 @@ class CompletenessReport:
 
 
 def evidence_digest(run: RuntimeAcceptanceRun) -> str:
-    payload = {
+    payload: dict[str, object] = {
         "run_id": run.run_id,
         "product_id": run.product_id,
         "version": run.version,
         "commit_sha": run.commit_sha,
-        "capabilities": [
-            {
-                "id": item.capability_id,
-                "version": item.version,
-                "title": item.title,
-                "journeys": sorted(item.required_journey_ids),
-                "requirements": sorted(item.requirement_ids),
-                "locked": item.locked,
-                "customer_facing": item.customer_facing,
-                "human": item.human_acceptance_required,
-            }
-            for item in sorted(run.capabilities, key=lambda item: item.capability_id)
-        ],
-        "journeys": [
-            {
-                "id": item.journey_id,
-                "capability_id": item.capability_id,
-                "title": item.title,
-                "required_evidence": sorted(
-                    kind.value for kind in item.required_evidence
-                ),
-                "customer_facing": item.customer_facing,
-            }
-            for item in sorted(run.journeys, key=lambda item: item.journey_id)
-        ],
+        "capabilities": _capabilities_payload(run.capabilities),
+        "journeys": _journeys_payload(run.journeys),
         "journey_results": [
             {
                 "id": item.journey_id,
@@ -328,13 +428,98 @@ def evidence_digest(run: RuntimeAcceptanceRun) -> str:
             for item in sorted(run.evidence, key=lambda item: item.evidence_id)
         ],
     }
+    if run.runtime_configuration_id:
+        payload["runtime_configuration"] = {
+            "id": run.runtime_configuration_id,
+            "revision": run.runtime_configuration_revision,
+            "digest": run.runtime_configuration_digest,
+            "acceptance_profile_id": run.acceptance_profile_id,
+            "acceptance_profile_version": run.acceptance_profile_version,
+            "acceptance_profile_digest": run.acceptance_profile_digest,
+        }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(encoded).hexdigest()
 
 
+def acceptance_contract_digest(
+    capabilities: tuple[CapabilityAcceptanceContract, ...],
+    journeys: tuple[AcceptanceJourney, ...],
+) -> str:
+    """Hash a capability/journey contract independently of a run."""
+
+    payload = {
+        "capabilities": _capabilities_payload(capabilities),
+        "journeys": _journeys_payload(journeys),
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def acceptance_profile_digest(
+    profile_id: str,
+    profile_version: str,
+    capabilities: tuple[CapabilityAcceptanceContract, ...],
+    journeys: tuple[AcceptanceJourney, ...],
+) -> str:
+    """Hash profile identity together with its immutable contract."""
+
+    _identifier(profile_id, "acceptance profile ID")
+    _text(profile_version, "acceptance profile version")
+    payload = {
+        "profile_id": profile_id,
+        "profile_version": profile_version,
+        "contract_digest": acceptance_contract_digest(capabilities, journeys),
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _capabilities_payload(
+    capabilities: tuple[CapabilityAcceptanceContract, ...],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "id": item.capability_id,
+            "version": item.version,
+            "title": item.title,
+            "journeys": sorted(item.required_journey_ids),
+            "requirements": sorted(item.requirement_ids),
+            "locked": item.locked,
+            "customer_facing": item.customer_facing,
+            "human": item.human_acceptance_required,
+        }
+        for item in sorted(capabilities, key=lambda item: item.capability_id)
+    ]
+
+
+def _journeys_payload(
+    journeys: tuple[AcceptanceJourney, ...],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "id": item.journey_id,
+            "capability_id": item.capability_id,
+            "title": item.title,
+            "required_evidence": sorted(kind.value for kind in item.required_evidence),
+            "customer_facing": item.customer_facing,
+        }
+        for item in sorted(journeys, key=lambda item: item.journey_id)
+    ]
+
+
 def _text(value: str, label: str) -> None:
-    if not isinstance(value, str) or not value.strip() or len(value) > 20_000:
+    if (
+        not isinstance(value, str)
+        or not value.strip()
+        or len(value) > 20_000
+        or any(ord(character) < 32 or ord(character) == 127 for character in value)
+    ):
         raise ValueError(f"{label} is required and bounded")
+
+
+def _identifier(value: str, label: str) -> None:
+    if not isinstance(value, str) or not _IDENTIFIER.fullmatch(value):
+        raise ValueError(f"{label} must be a safe identifier")
 
 
 def _unique_text(values: tuple[str, ...], label: str, *, allow_empty: bool = False) -> None:
@@ -345,7 +530,12 @@ def _unique_text(values: tuple[str, ...], label: str, *, allow_empty: bool = Fal
 
 
 def _sha(value: str) -> None:
-    if len(value) != 40 or any(character not in "0123456789abcdef" for character in value.lower()):
+    if (
+        not isinstance(value, str)
+        or len(value) != 40
+        or value != value.lower()
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
         raise ValueError("Runtime evidence requires a full hexadecimal commit SHA")
 
 
@@ -355,6 +545,16 @@ def _digest(value: str) -> None:
         character not in "0123456789abcdef" for character in candidate.lower()
     ):
         raise ValueError("Evidence requires a SHA-256 digest")
+
+
+def _canonical_digest(value: str, label: str) -> None:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or value != value.lower()
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ValueError(f"{label} requires a lowercase SHA-256 digest")
 
 
 def _utc(value: datetime, label: str) -> None:
