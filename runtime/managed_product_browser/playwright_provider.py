@@ -181,6 +181,7 @@ class PlaywrightChromiumProvider:
         network_entries: list[dict[str, object]] = []
         policy_violations: list[str] = []
         step_results: list[dict[str, str]] = []
+        successful_requests: set[object] = set()
         console_failed = False
         network_failed = False
         failure_code: str | None = None
@@ -235,6 +236,8 @@ class PlaywrightChromiumProvider:
             status = int(response.status)
             if status >= 400:
                 network_failed = True
+            else:
+                successful_requests.add(response.request)
             add_network(
                 {
                     "method": response.request.method,
@@ -251,7 +254,8 @@ class PlaywrightChromiumProvider:
             # the network boundary. Preserve the diagnostic entry without turning
             # that browser-local request into a network-policy failure.
             browser_local = _browser_local_url(request.url)
-            if not browser_local:
+            received_success = request in successful_requests
+            if not browser_local and not received_success:
                 network_failed = True
             add_network(
                 {
@@ -262,7 +266,11 @@ class PlaywrightChromiumProvider:
                     "failure": (
                         "BROWSER_LOCAL_REQUEST_ABORTED"
                         if browser_local
-                        else "REQUEST_FAILED"
+                        else (
+                            "REQUEST_ABORTED_AFTER_RESPONSE"
+                            if received_success
+                            else "REQUEST_FAILED"
+                        )
                     ),
                 }
             )
