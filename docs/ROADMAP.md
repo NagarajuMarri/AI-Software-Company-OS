@@ -1,5 +1,17 @@
 # Runtime Roadmap
 
+# Day 9 — Voice and Media End-User Verification
+
+Bind all eight locked Voice journeys to immutable exact-commit authority. Verify content-addressed
+input/output WAVs, byte-identical product delivery, PCM dimensions and non-silent signal, exact
+deterministic STT/response/TTS boundaries, persisted conversation turns, completed unmuted Chromium
+playback, avatar speaking-to-idle state, and a second turn in the same session. Upload eight masked
+screenshots, both playable WAVs, and a safe integrity manifest for founder inspection.
+
+Day 9 uses deterministic credential-free providers and does not claim production-provider, physical
+microphone/speaker, or human listening acceptance. Day 10 adds PWA evidence and safe aggregate
+submission. Merge, deployment, and release remain unavailable.
+
 # Day 8 — Authentication Persistence and Security Evidence
 
 Bind the six locked Authentication journeys to a write-once verification plan and derive persistence

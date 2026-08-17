@@ -1,5 +1,12 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 9 adds deterministic Voice/media end-user verification. ASCOS now binds all eight locked Voice
+journeys to exact input/output WAV digests, verifies the bytes served by the exact-SHA product,
+measures non-silent signal, requires Chromium to complete unmuted media playback, verifies avatar
+speaking-to-idle state and a second persisted turn, and produces a founder-safe pack with eight
+screenshots and two playable WAVs. Production providers, PWA aggregation, human acceptance, merge,
+deployment, and release remain unavailable. See `docs/MANAGED_PRODUCT_VOICE.md`.
+
 Day 8 adds immutable authentication persistence and security verification. ASCOS now derives locked
 authentication claims from exact-SHA, digest-verified browser assertions and mandatory Chromium CI
 proves all six customer journeys against a real SQLite-backed product fixture. A downloadable,
@@ -73,6 +80,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MANAGED_PRODUCT_VOICE.md](docs/MANAGED_PRODUCT_VOICE.md) — exact-fixture Voice-chain,
+  non-silent media, browser playback, avatar, and repeated-turn evidence.
 
 - [docs/MANAGED_PRODUCT_AUTHENTICATION.md](docs/MANAGED_PRODUCT_AUTHENTICATION.md) — locked
   authentication persistence/security claims and real end-user verification evidence.

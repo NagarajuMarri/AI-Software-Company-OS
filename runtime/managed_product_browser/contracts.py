@@ -50,6 +50,8 @@ class BrowserArtifactStore(Protocol):
 
     def read_json(self, artifact_uri: str, expected_digest: str) -> object: ...
 
+    def read_bytes(self, artifact_uri: str, expected_digest: str) -> bytes: ...
+
 
 @runtime_checkable
 class ManagedProductBrowserProvider(Protocol):

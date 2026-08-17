@@ -33,7 +33,7 @@ from runtime.runtime_acceptance.models import (
 
 
 _SAFE_IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
-_ARTIFACT_FILENAME = re.compile(r"^[0-9a-f]{64}\.(json|png)$")
+_ARTIFACT_FILENAME = re.compile(r"^[0-9a-f]{64}\.(json|png|wav)$")
 
 
 class InMemoryBrowserJourneyPlanStore:
@@ -225,7 +225,7 @@ class ContentAddressedBrowserArtifactStore:
     ) -> tuple[str, str]:
         if not isinstance(content, bytes) or not content or len(content) > self.maximum_bytes:
             raise BrowserArtifactError("Browser artifact is empty or outside size policy")
-        if extension not in {"json", "png"}:
+        if extension not in {"json", "png", "wav"}:
             raise BrowserArtifactError("Browser artifact extension is unsupported")
         if extension == "png" and not content.startswith(b"\x89PNG\r\n\x1a\n"):
             raise BrowserArtifactError("Browser screenshot is not a PNG artifact")
@@ -234,6 +234,8 @@ class ContentAddressedBrowserArtifactStore:
                 json.loads(content)
             except (UnicodeDecodeError, json.JSONDecodeError) as error:
                 raise BrowserArtifactError("Browser JSON artifact is invalid") from error
+        if extension == "wav" and not content.startswith(b"RIFF"):
+            raise BrowserArtifactError("Browser audio artifact is not a WAV file")
         directory = self._directory(product_id, run_id)
         digest = hashlib.sha256(content).hexdigest()
         path = directory / f"{digest}.{extension}"
@@ -298,6 +300,15 @@ class ContentAddressedBrowserArtifactStore:
             return json.loads(path.read_bytes())
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
             raise BrowserArtifactError("Browser JSON artifact is unreadable") from error
+
+    def read_bytes(self, artifact_uri: str, expected_digest: str) -> bytes:
+        """Return one verified artifact as immutable bytes."""
+
+        self.verify(artifact_uri, expected_digest)
+        try:
+            return self.resolve(artifact_uri).read_bytes()
+        except OSError as error:
+            raise BrowserArtifactError("Browser artifact is unreadable") from error
 
     def _directory(self, product_id: str, run_id: str) -> Path:
         return _safe_directory(self.root, product_id, run_id, BrowserArtifactError)

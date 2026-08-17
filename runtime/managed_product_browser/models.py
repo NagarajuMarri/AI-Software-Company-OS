@@ -45,6 +45,7 @@ class BrowserActionKind(str, Enum):
     ASSERT_TEXT = "ASSERT_TEXT"
     ASSERT_URL_PATH = "ASSERT_URL_PATH"
     RELOAD = "RELOAD"
+    ASSERT_MEDIA_PLAYED = "ASSERT_MEDIA_PLAYED"
 
 
 class BrowserExecutionStage(str, Enum):
@@ -116,6 +117,7 @@ class BrowserStep:
             BrowserActionKind.FILL,
             BrowserActionKind.ASSERT_VISIBLE,
             BrowserActionKind.ASSERT_TEXT,
+            BrowserActionKind.ASSERT_MEDIA_PLAYED,
         }
         if (self.action in locator_actions) != (self.locator is not None):
             raise ValueError("Browser step locator does not match its action")
