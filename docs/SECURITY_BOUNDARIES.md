@@ -55,6 +55,15 @@ until a Job Object or equivalent full-process-tree adapter is implemented.
 The environment result omits raw output, secret values/references, process handles, and local paths.
 Day 6 has no browser, repository-write, merge, deployment, or release API.
 
+# Managed browser boundaries
+
+Day 7 composes the exact environment with a fresh headless Chromium context. It blocks unapproved
+origins and stores no headers, cookies, authorization, browser storage, request bodies, or response
+bodies. Recorded URLs omit credentials, query, and fragment. Console output is bounded and resolved
+values are redacted; final screenshots mask secret input locators. Browser execution shares the
+runner host and is not yet a hostile-code container/VM sandbox. It exposes no repository-write,
+human-acceptance, merge, deployment, or release operation.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

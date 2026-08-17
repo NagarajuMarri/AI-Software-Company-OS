@@ -29,6 +29,23 @@ jobs:
           done
       - run: git diff --check
 
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ASCOS_BROWSER_INTEGRATION: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,browser]"
+      - run: python -m playwright install --with-deps chromium
+      - run: python -m pytest -q tests/test_managed_product_browser.py
+
   optional-postgresql:
     if: ${{ vars.ASCOS_RUN_POSTGRES_TESTS == 'true' }}
     runs-on: ubuntu-latest

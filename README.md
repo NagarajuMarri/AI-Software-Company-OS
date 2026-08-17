@@ -1,11 +1,18 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 7 adds immutable exact-commit browser journey execution. ASCOS can now run declarative end-user
+login/session journeys in Playwright Chromium while the Day 6 environment is ready, resolve approved
+browser credentials only at invocation, block unapproved origins, and persist content-addressed
+browser, console, network, screenshot, migration, startup, and readiness evidence. Exact retries do
+not repeat effects. Production-product testing, complete capability aggregation, human acceptance,
+merge, deployment, and release remain unavailable. See `docs/MANAGED_PRODUCT_BROWSER.md`.
+
 Day 6 adds the exact-SHA Managed Product Environment lifecycle. ASCOS can now reload one persisted
 runtime configuration under current policy, create a disposable detached checkout, remove remotes,
 resolve approved secret references only at invocation, run migrations, start services without a
 shell, verify redirect-free readiness, stop processes in reverse order, and clean the workspace.
-Returned observations are bounded and secret-safe. Browser journeys, merge, deployment, and release
-remain unavailable. See `docs/MANAGED_PRODUCT_ENVIRONMENT.md`.
+Returned observations are bounded and secret-safe. Day 7 consumes this boundary for browser journeys;
+merge, deployment, and release remain unavailable. See `docs/MANAGED_PRODUCT_ENVIRONMENT.md`.
 
 Day 5 adds immutable, revisioned Managed Product Runtime Configuration. A registered product can now
 declare its repository, branch, exact commit SHA, argument-array service commands, endpoints, public

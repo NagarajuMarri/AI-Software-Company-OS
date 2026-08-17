@@ -29,6 +29,7 @@ from runtime.managed_product_environment.models import (
 )
 from runtime.managed_product_environment.service import (
     ManagedProductEnvironmentService,
+    ReadyEnvironmentExecution,
 )
 
 __all__ = [
@@ -50,6 +51,7 @@ __all__ = [
     "ManagedProductEnvironmentProvider",
     "ManagedProductEnvironmentResult",
     "ManagedProductEnvironmentService",
+    "ReadyEnvironmentExecution",
     "PreparedEnvironment",
     "RuntimeSecretResolver",
 ]
