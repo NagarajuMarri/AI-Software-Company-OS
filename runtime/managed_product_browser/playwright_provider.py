@@ -246,14 +246,24 @@ class PlaywrightChromiumProvider:
 
         def failed_observer(request) -> None:  # noqa: ANN001
             nonlocal network_failed
-            network_failed = True
+            # Chromium may report an aborted data/about resource (for example,
+            # an inline favicon) through requestfailed even though it never crossed
+            # the network boundary. Preserve the diagnostic entry without turning
+            # that browser-local request into a network-policy failure.
+            browser_local = _browser_local_url(request.url)
+            if not browser_local:
+                network_failed = True
             add_network(
                 {
                     "method": request.method,
                     "resource_type": request.resource_type,
                     "status": None,
                     "url": _safe_url(request.url),
-                    "failure": "REQUEST_FAILED",
+                    "failure": (
+                        "BROWSER_LOCAL_REQUEST_ABORTED"
+                        if browser_local
+                        else "REQUEST_FAILED"
+                    ),
                 }
             )
 
@@ -517,7 +527,7 @@ def _evidence(
 
 
 def _request_allowed(url: str, allowed_origins: set[str]) -> bool:
-    if url.startswith("data:") or url.startswith("about:"):
+    if _browser_local_url(url):
         return True
     if url.startswith("blob:"):
         url = url[5:]
@@ -529,6 +539,13 @@ def _request_allowed(url: str, allowed_origins: set[str]) -> bool:
     except (TypeError, ValueError):
         return False
     return origin in allowed_origins
+
+
+def _browser_local_url(url: str) -> bool:
+    try:
+        return urlsplit(url).scheme.casefold() in {"about", "data"}
+    except (TypeError, ValueError):
+        return False
 
 
 def _safe_url(url: str) -> str:
