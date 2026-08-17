@@ -1,5 +1,30 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 6 acceptance
+
+Managed Product Environment execution must load one exact immutable runtime-configuration revision
+by project, configuration ID, revision, and canonical digest and recheck current operator repository,
+executable, origin, environment-name, and opaque-secret-reference policy before any side effect.
+Caller-supplied or stale configuration content is not execution authority.
+
+The local provider must create a run-specific disposable clone, disable interactive Git and ambient
+Git configuration, check out the configured full SHA detached, reject any observed mismatch, remove
+all remotes before product commands run, contain every working directory and symlink, and never
+expose repository-write, push, merge, deployment, or release behavior.
+
+Secrets must be resolved only through an injected provider after authorization, injected only into
+the minimal allow-listed process environment, redacted before bounded output hashing, and absent from
+results, observations, errors, workspace identity, and persisted evidence. Migration/start/stop
+commands must remain shell-free argument arrays. Readiness must use only configured, operator-approved
+origins, inherit no proxy, follow no redirect, and remain bounded by declared timeouts.
+
+Migrations and services must execute in declaration order; shutdown must execute in reverse order
+after success or failure. A complete run must prove exact source, migrations, process startup,
+readiness, declared stop, and workspace cleanup. Unproven process termination or cleanup must retain
+the workspace and return `RECONCILIATION_REQUIRED`; other verified failures return `FAILED` without
+claiming runtime acceptance. Day 6 must perform no browser, customer-journey, merge, deployment, or
+release action.
+
 # Day 5 acceptance
 
 Managed Product Runtime Configuration must bind one registered product to its repository, expected

@@ -27,7 +27,7 @@ Every evidence artifact binds:
 
 ## Managed runtime configuration binding
 
-Day 5 adds the immutable declaration consumed by future runtime providers. A configuration revision
+Day 5 adds the immutable declaration consumed by later runtime providers. A configuration revision
 binds a registered product and repository to an expected branch, exact commit SHA, argument-array
 service commands, backend/frontend/readiness endpoints, public environment policy, opaque secret
 references, and an acceptance-profile ID, version, and digest. The complete declaration has a
@@ -40,8 +40,10 @@ digest; a later revision cannot silently redefine earlier evidence.
 
 Configuration storage is not runtime orchestration. It does not clone or inspect Git, start a
 process, resolve a secret, contact an endpoint, open a browser, merge code, deploy, or release. Day 6
-will implement exact-SHA environment lifecycle. Day 7 will implement the Chrome/Playwright browser
-provider and actual end-user journeys.
+implements the separately authorized exact-SHA environment lifecycle: disposable checkout, remote
+removal, invocation-only secret resolution, migrations, service startup, redirect-free readiness,
+reverse-order shutdown, and cleanup. Day 7 will implement the Chrome/Playwright browser provider and
+actual end-user journeys.
 
 The evidence digest covers the complete locked capability and journey definitions, journey-result
 timestamps, and every artifact's capability/journey ownership. Secret-bearing metadata keys are
@@ -55,8 +57,8 @@ avatar synchronization, and PWA behavior.
 
 ## Managed product orchestration
 
-`RuntimeAcceptanceOrchestrator` defines the explicit product-adapter sequence below. Day 5 does not
-yet provide the environment or browser adapter that executes it:
+`RuntimeAcceptanceOrchestrator` defines the explicit product-adapter sequence below. Day 6 now
+provides the environment portion; the browser and capability adapters remain incomplete:
 
 1. verify the checked-out commit;
 2. verify migrations;

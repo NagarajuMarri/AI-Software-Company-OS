@@ -1,5 +1,12 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 6 adds the exact-SHA Managed Product Environment lifecycle. ASCOS can now reload one persisted
+runtime configuration under current policy, create a disposable detached checkout, remove remotes,
+resolve approved secret references only at invocation, run migrations, start services without a
+shell, verify redirect-free readiness, stop processes in reverse order, and clean the workspace.
+Returned observations are bounded and secret-safe. Browser journeys, merge, deployment, and release
+remain unavailable. See `docs/MANAGED_PRODUCT_ENVIRONMENT.md`.
+
 Day 5 adds immutable, revisioned Managed Product Runtime Configuration. A registered product can now
 declare its repository, branch, exact commit SHA, argument-array service commands, endpoints, public
 environment, opaque secret references, and exact acceptance-profile binding before any runtime action
@@ -52,6 +59,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MANAGED_PRODUCT_ENVIRONMENT.md](docs/MANAGED_PRODUCT_ENVIRONMENT.md) — exact-SHA disposable
+  checkout, secret-safe migration/service lifecycle, readiness, shutdown, and cleanup.
 
 - [docs/MANAGED_PRODUCT_RUNTIME_CONFIGURATION.md](docs/MANAGED_PRODUCT_RUNTIME_CONFIGURATION.md) —
   immutable exact-SHA runtime declarations, revision history, secret-safe environment policy, and

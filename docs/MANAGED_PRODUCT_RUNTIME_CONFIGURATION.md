@@ -24,7 +24,8 @@ Each configuration revision binds:
   never shell text;
 - backend, frontend, and readiness URLs;
 - explicitly public environment bindings;
-- opaque secret references whose values are resolved only by a future authorized provider; and
+- opaque secret references whose values are resolved only by the separately authorized Day 6
+  environment provider; and
 - an acceptance-profile identity, version, and digest.
 
 The configuration has its own canonical SHA-256 digest. Runtime-acceptance work can therefore bind
@@ -66,8 +67,8 @@ serialization and digesting. Shell command strings, shell control operators, pat
 shell interpreter mediation are rejected. Registration also checks every executable against an
 operator-owned allow-list. A configuration may describe a command; it cannot run one.
 
-Working directories are relative, normalized paths inside the future exact-SHA workspace. The
-workspace root and resolution of each configured executable belong to the Day 6 environment provider.
+Working directories are relative, normalized paths inside the exact-SHA workspace. The workspace
+root and resolution of each configured executable belong to the Day 6 environment provider.
 
 ### Endpoints
 
@@ -139,7 +140,7 @@ Day 5 is complete when automated tests prove:
 - exact binding between a compatible runtime-acceptance run and one configuration revision; and
 - zero repository, subprocess, network, secret-resolution, service, or browser side effects.
 
-Day 5 does **not** prove that a product starts or works. Day 6 will create and manage an isolated
+Day 5 does **not** prove that a product starts or works. Day 6 creates and manages an isolated
 environment at the configured exact SHA. Day 7 will add the Chrome/Playwright customer-journey
 provider and collect real browser evidence. Human acceptance, merge, deployment, and release remain
 separate explicit controls.

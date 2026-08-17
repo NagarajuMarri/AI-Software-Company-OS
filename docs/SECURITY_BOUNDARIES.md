@@ -35,6 +35,26 @@ The configuration service has no Git, subprocess, socket, HTTP, secret-manager, 
 Day 6 and Day 7 providers must consume a verified configuration revision and remain subject to
 separate authorization, workspace containment, redaction, evidence, and shutdown controls.
 
+# Managed product environment boundaries
+
+Day 6 is the first managed-runtime side-effect boundary. It reloads an exact persisted configuration
+revision and rechecks current operator policy before resolving a secret or invoking Git. Local source
+preparation disables interactive Git and ambient system/global configuration, checks out the full SHA
+detached, removes every remote, rejects escaping symlinks and working directories, and uses a private
+run-specific workspace.
+
+Runtime commands are exact argument arrays with no shell. Processes receive only a minimal base
+environment plus exact declared public and resolved-secret bindings. Raw output is not retained;
+secret values are replaced before bounded output hashing. Readiness disables ambient proxies and
+redirects and can contact only a configuration and operator-approved origin. Every started process is
+stopped in reverse order after success or failure. Unproven process termination or cleanup fails
+closed as `RECONCILIATION_REQUIRED` and retains the workspace for explicit operator handling.
+The included local provider requires POSIX process-group control. Windows construction fails closed
+until a Job Object or equivalent full-process-tree adapter is implemented.
+
+The environment result omits raw output, secret values/references, process handles, and local paths.
+Day 6 has no browser, repository-write, merge, deployment, or release API.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

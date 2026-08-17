@@ -1,5 +1,18 @@
 # Runtime Roadmap
 
+# Day 6 — Exact-SHA Managed Product Environment Lifecycle
+
+Consume one exact persisted runtime-configuration revision under current operator policy. Prepare a
+disposable detached checkout at the configured full SHA, remove Git remotes, resolve approved opaque
+secret references only at invocation, run ordered migrations, start declared services without a
+shell, perform redirect-free readiness checks, stop services in reverse order, and clean the
+workspace. Produce bounded secret-safe lifecycle observations and retain an unsafe-to-clean
+workspace as `RECONCILIATION_REQUIRED`.
+
+Day 6 does not open a browser or claim customer-journey acceptance. Day 7 will run Chrome/Playwright
+journeys against the same exact configuration and collect browser, console, network, and screenshot
+evidence.
+
 # Day 5 — Managed Product Runtime Configuration
 
 Add immutable, revisioned declarations for a managed product's repository, branch, exact commit SHA,
@@ -9,9 +22,9 @@ runs to the exact configuration revision and digest. Configuration creation and 
 no Git, subprocess, network, secret-resolution, service, browser, merge, deployment, or release
 effect.
 
-Day 6 will consume this declaration to manage an isolated environment at the exact SHA. Day 7 will
-add Chrome/Playwright customer-journey execution and browser evidence. Neither capability is claimed
-by Day 5.
+Day 6 consumes this declaration to manage an isolated environment at the exact SHA. Day 7 will add
+Chrome/Playwright customer-journey execution and browser evidence. Neither capability is claimed by
+Day 5.
 
 # Milestone 15
 
