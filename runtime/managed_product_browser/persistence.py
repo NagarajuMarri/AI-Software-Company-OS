@@ -287,6 +287,18 @@ class ContentAddressedBrowserArtifactStore:
         if path.name.split(".", 1)[0] != expected_digest:
             raise BrowserArtifactError("Browser artifact digest does not match its URI")
 
+    def read_json(self, artifact_uri: str, expected_digest: str) -> object:
+        """Return one verified JSON artifact without weakening content addressing."""
+
+        self.verify(artifact_uri, expected_digest)
+        path = self.resolve(artifact_uri)
+        if path.suffix != ".json":
+            raise BrowserArtifactError("Browser artifact is not JSON")
+        try:
+            return json.loads(path.read_bytes())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise BrowserArtifactError("Browser JSON artifact is unreadable") from error
+
     def _directory(self, product_id: str, run_id: str) -> Path:
         return _safe_directory(self.root, product_id, run_id, BrowserArtifactError)
 

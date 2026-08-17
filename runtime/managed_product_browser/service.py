@@ -203,7 +203,7 @@ class ManagedProductBrowserService:
             raise BrowserAuthorityError(
                 "Browser provider result does not match its exact execution authority"
             )
-        self._validate_provider_result(plan, browser_result)
+        self._validate_provider_result(plan, browser_result, run)
         if not (
             environment_result.started_at
             <= browser_result.started_at
@@ -239,8 +239,10 @@ class ManagedProductBrowserService:
         self,
         plan: BrowserJourneyPlan,
         result: BrowserExecutionResult,
+        run,
     ) -> None:
         planned = {item.journey_id: item for item in plan.journeys}
+        contracts = {item.journey_id: item for item in run.journeys}
         evidence_ids = [item.evidence_id for item in result.evidence]
         result_ids = [item.journey_id for item in result.journey_results]
         if len(evidence_ids) != len(set(evidence_ids)) or len(result_ids) != len(
@@ -257,7 +259,8 @@ class ManagedProductBrowserService:
                 or item.run_id != plan.run_id
                 or item.commit_sha != plan.commit_sha
                 or item.capability_id != journey.capability_id
-                or item.kind not in _BROWSER_EVIDENCE
+                or item.kind
+                not in (_BROWSER_EVIDENCE | set(contracts[item.journey_id].required_evidence))
             ):
                 raise BrowserAuthorityError(
                     "Browser provider evidence escaped its exact journey authority"
@@ -274,7 +277,8 @@ class ManagedProductBrowserService:
                 )
             if journey_result.outcome is EvidenceOutcome.PASS:
                 kinds = {item.kind for item in linked if item is not None}
-                if kinds != _BROWSER_EVIDENCE or any(
+                required = set(contracts[journey_result.journey_id].required_evidence)
+                if not required <= kinds or any(
                     item is not None and item.outcome is not EvidenceOutcome.PASS
                     for item in linked
                 ):
@@ -332,15 +336,16 @@ class ManagedProductBrowserService:
             raise BrowserAuthorityError(
                 "Browser plan does not match the persisted runtime configuration"
             )
+        planned_capabilities = {item.capability_id for item in plan.journeys}
         declared = {
             item.journey_id: item
             for item in run.journeys
-            if item.customer_facing
+            if item.customer_facing and item.capability_id in planned_capabilities
         }
         planned = {item.journey_id: item for item in plan.journeys}
         if set(declared) != set(planned):
             raise BrowserAuthorityError(
-                "Browser plan must cover every declared customer-facing journey"
+                "Browser plan must cover every journey of each selected capability"
             )
         for journey_id, specification in planned.items():
             contract = declared[journey_id]
