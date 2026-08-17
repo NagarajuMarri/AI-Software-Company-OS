@@ -43,7 +43,9 @@ process, resolve a secret, contact an endpoint, open a browser, merge code, depl
 implements the separately authorized exact-SHA environment lifecycle: disposable checkout, remote
 removal, invocation-only secret resolution, migrations, service startup, redirect-free readiness,
 reverse-order shutdown, and cleanup. Day 7 adds the Chrome/Playwright provider, immutable journey
-plans, actual end-user execution, and content-addressed browser evidence.
+plans, actual end-user execution, and content-addressed browser evidence. Day 8 adds immutable
+Authentication verification authority and derives persistence/security claims from digest-verified
+named browser assertions.
 
 The evidence digest covers the complete locked capability and journey definitions, journey-result
 timestamps, and every artifact's capability/journey ownership. Secret-bearing metadata keys are
@@ -58,8 +60,9 @@ avatar synchronization, and PWA behavior.
 ## Managed product orchestration
 
 `RuntimeAcceptanceOrchestrator` defines the explicit product-adapter sequence below. Day 6 provides
-the environment portion and Day 7 provides the real browser portion. Capability-specific
-persistence, security, voice, and PWA adapters remain incomplete:
+the environment portion, Day 7 provides the real browser portion, and Day 8 provides the bounded
+Authentication persistence/security slice. Voice, PWA, complete aggregate submission, and human
+acceptance remain incomplete:
 
 1. verify the checked-out commit;
 2. verify migrations;
@@ -73,9 +76,10 @@ persistence, security, voice, and PWA adapters remain incomplete:
 
 The adapter boundary permits Playwright or another approved browser provider without coupling ASCOS
 to a product framework. Day 7 records bounded console data, allow-listed body/header-free network
-data, and masked final screenshots while the exact environment is ready. Its partial evidence bundle
-is not submitted to the acceptance aggregate until Days 8–10 can bind the remaining capability
-evidence safely. Deterministic audio fixtures carry a hashed media artifact and expected transcript;
+data, and masked final screenshots while the exact environment is ready. Day 8 adds the locked
+Authentication evidence slice. Partial evidence is not submitted to the acceptance aggregate until
+Days 9–10 bind Voice, PWA, and complete capability evidence safely. Deterministic audio fixtures
+carry a hashed media artifact and expected transcript;
 production credentials and raw secrets are never evidence metadata.
 
 ## Completeness locks

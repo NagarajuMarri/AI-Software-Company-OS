@@ -1,10 +1,31 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 8 acceptance
+
+Authentication verification must load one immutable plan and prove exact agreement with the browser
+plan, runtime configuration revision/digest/full commit SHA, acceptance profile identity/digest,
+provider, all six locked Authentication journeys, required named step IDs, exact claims, and required
+persistence/security evidence kinds before the underlying browser provider runs.
+
+Passing persistence or security evidence may be derived only from a content-addressed browser summary
+whose digest, plan, journey, outcome, and named passed assertions are verified. Missing, corrupt,
+mismatched, or failed source evidence must generate durable failure evidence. Plans are write-once,
+restart-safe, path-contained, identity-checked, and corruption-detecting.
+
+Mandatory exact-head Chromium CI must exercise the complete customer flow against a migrated SQLite
+database and prove persistence, duplicate rejection, login, logout revocation, session restoration,
+password replacement, old-password and reused-reset rejection, account-enumeration-safe recovery,
+invalid-token handling, transaction rollback, throttling, and hardened password/session/reset storage.
+It must also prove shutdown, cleanup, result restart readback, and absence of raw test credentials and
+tokens from persisted artifacts. The founder artifact must contain a safe claim manifest and six
+masked screenshots. Day 8 performs no production-product, voice, PWA, human-acceptance, merge,
+deployment, or release action.
+
 # Day 7 acceptance
 
 Browser execution must load one immutable plan and prove exact agreement with the
 `AUTOMATED_VERIFIED` runtime-acceptance run, persisted configuration revision/digest/full commit SHA,
-locked profile identity/digest, and every customer-facing journey before resolving a browser secret
+locked profile identity/digest, and every journey belonging to each selected capability before resolving a browser secret
 or starting the environment. Current policy must approve the provider, origins, and opaque browser
 secret references.
 

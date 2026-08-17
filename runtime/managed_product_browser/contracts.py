@@ -48,6 +48,8 @@ class BrowserArtifactStore(Protocol):
 
     def verify(self, artifact_uri: str, expected_digest: str) -> None: ...
 
+    def read_json(self, artifact_uri: str, expected_digest: str) -> object: ...
+
 
 @runtime_checkable
 class ManagedProductBrowserProvider(Protocol):

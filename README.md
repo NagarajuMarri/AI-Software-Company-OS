@@ -1,5 +1,12 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 8 adds immutable authentication persistence and security verification. ASCOS now derives locked
+authentication claims from exact-SHA, digest-verified browser assertions and mandatory Chromium CI
+proves all six customer journeys against a real SQLite-backed product fixture. A downloadable,
+secret-safe founder evidence pack contains the six masked screenshots and claim manifest. Voice,
+PWA, aggregate completion, human acceptance, merge, deployment, and release remain unavailable. See
+`docs/MANAGED_PRODUCT_AUTHENTICATION.md`.
+
 Day 7 adds immutable exact-commit browser journey execution. ASCOS can now run declarative end-user
 login/session journeys in Playwright Chromium while the Day 6 environment is ready, resolve approved
 browser credentials only at invocation, block unapproved origins, and persist content-addressed
@@ -66,6 +73,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MANAGED_PRODUCT_AUTHENTICATION.md](docs/MANAGED_PRODUCT_AUTHENTICATION.md) — locked
+  authentication persistence/security claims and real end-user verification evidence.
 
 - [docs/MANAGED_PRODUCT_ENVIRONMENT.md](docs/MANAGED_PRODUCT_ENVIRONMENT.md) — exact-SHA disposable
   checkout, secret-safe migration/service lifecycle, readiness, shutdown, and cleanup.

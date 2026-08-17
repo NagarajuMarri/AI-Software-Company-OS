@@ -1,5 +1,17 @@
 # Runtime Roadmap
 
+# Day 8 — Authentication Persistence and Security Evidence
+
+Bind the six locked Authentication journeys to a write-once verification plan and derive persistence
+and security claims only from digest-verified, named browser assertions. Mandatory Chromium CI runs
+registration, login, logout, session restoration, password recovery, and secure error/partial-failure
+paths against a real SQLite-backed exact-commit fixture and uploads a founder-safe screenshot and
+claim bundle.
+
+Day 8 does not claim production-product validation, Voice, PWA, complete aggregate acceptance, human
+acceptance, merge, deployment, or release. Day 9 adds voice/media evidence and Day 10 adds PWA
+evidence and safe capability aggregation.
+
 # Day 7 — Exact-Commit Browser Journey Execution
 
 Run immutable, acceptance-profile-bound customer journeys in a fresh Playwright Chromium context
@@ -8,9 +20,9 @@ unapproved origins, capture bounded secret-safe browser/console/network/screensh
 migration/startup/readiness artifacts, and persist one immutable terminal result that exact retries
 reuse without new effects.
 
-Day 7 proves real login and session restoration in mandatory browser CI. It does not run a production
-product or claim persistence/security, voice, PWA, human acceptance, merge, deployment, or release.
-Days 8–10 add the remaining capability evidence and safe aggregation.
+Day 7 proves real login and session restoration in mandatory browser CI. Day 8 now adds the locked
+Authentication persistence/security slice. Production-product validation, voice, PWA, aggregate
+completion, human acceptance, merge, deployment, and release remain unavailable.
 
 # Day 6 — Exact-SHA Managed Product Environment Lifecycle
 

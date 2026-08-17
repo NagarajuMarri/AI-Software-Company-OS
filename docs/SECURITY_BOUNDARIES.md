@@ -64,6 +64,20 @@ values are redacted; final screenshots mask secret input locators. Browser execu
 runner host and is not yet a hostile-code container/VM sandbox. It exposes no repository-write,
 human-acceptance, merge, deployment, or release operation.
 
+# Authentication verification boundaries
+
+Day 8 reloads write-once authentication authority and checks its exact run, product, browser-plan,
+runtime-configuration, full-SHA, acceptance-profile, provider, journey, assertion, claim, and evidence
+bindings before invoking the underlying browser. Persistence and security claims are derived only
+from content-addressed browser summaries with matching digests and named passed assertions. Missing,
+corrupt, or mismatched source evidence fails closed and remains durable.
+
+The mandatory end-user fixture stores only salted password hashes and session/reset-token hashes.
+Evidence and the founder verification pack exclude raw passwords, cookies, session/reset values,
+headers, bodies, browser storage, and local paths. The pack contains bounded claim identifiers,
+digests, outcomes, and masked screenshots. The fixture is an isolated exact-commit validation target,
+not a hostile-code sandbox or a production product.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database
