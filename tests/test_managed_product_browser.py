@@ -336,6 +336,20 @@ def test_console_redaction_covers_resolved_and_standard_credential_forms():
 
 
 def test_execution_store_restarts_and_rejects_mutation(tmp_path):
+    evidence = EvidenceArtifact(
+        "browser-failure",
+        "acceptance-run",
+        "AUTHENTICATION",
+        "authentication.login",
+        EvidenceKind.BROWSER,
+        EvidenceOutcome.FAIL,
+        "a" * 40,
+        "artifact://browser/product/acceptance-run/" + "b" * 64 + ".json",
+        "b" * 64,
+        NOW,
+        "Browser provider failed",
+        (("provider_id", "playwright-chromium"),),
+    )
     value = BrowserExecutionResult(
         "acceptance-run",
         "product",
@@ -343,8 +357,15 @@ def test_execution_store_restarts_and_rejects_mutation(tmp_path):
         plan().digest,
         "a" * 40,
         BrowserExecutionStage.FAILED,
-        (),
-        (),
+        (evidence,),
+        (
+            JourneyResult(
+                "authentication.login",
+                EvidenceOutcome.FAIL,
+                (evidence.evidence_id,),
+                NOW,
+            ),
+        ),
         NOW,
         NOW,
         "BROWSER_PROVIDER_FAILED",

@@ -484,7 +484,7 @@ def _result_payload(result: BrowserExecutionResult) -> dict[str, object]:
                 "digest": item.digest,
                 "observed_at": item.observed_at.isoformat(),
                 "summary": item.summary,
-                "metadata": list(item.metadata),
+                "metadata": [list(pair) for pair in item.metadata],
             }
             for item in result.evidence
         ],
