@@ -42,8 +42,8 @@ Configuration storage is not runtime orchestration. It does not clone or inspect
 process, resolve a secret, contact an endpoint, open a browser, merge code, deploy, or release. Day 6
 implements the separately authorized exact-SHA environment lifecycle: disposable checkout, remote
 removal, invocation-only secret resolution, migrations, service startup, redirect-free readiness,
-reverse-order shutdown, and cleanup. Day 7 will implement the Chrome/Playwright browser provider and
-actual end-user journeys.
+reverse-order shutdown, and cleanup. Day 7 adds the Chrome/Playwright provider, immutable journey
+plans, actual end-user execution, and content-addressed browser evidence.
 
 The evidence digest covers the complete locked capability and journey definitions, journey-result
 timestamps, and every artifact's capability/journey ownership. Secret-bearing metadata keys are
@@ -57,8 +57,9 @@ avatar synchronization, and PWA behavior.
 
 ## Managed product orchestration
 
-`RuntimeAcceptanceOrchestrator` defines the explicit product-adapter sequence below. Day 6 now
-provides the environment portion; the browser and capability adapters remain incomplete:
+`RuntimeAcceptanceOrchestrator` defines the explicit product-adapter sequence below. Day 6 provides
+the environment portion and Day 7 provides the real browser portion. Capability-specific
+persistence, security, voice, and PWA adapters remain incomplete:
 
 1. verify the checked-out commit;
 2. verify migrations;
@@ -71,8 +72,11 @@ provides the environment portion; the browser and capability adapters remain inc
 9. stop services, including after probe failure.
 
 The adapter boundary permits Playwright or another approved browser provider without coupling ASCOS
-to a product framework. Deterministic audio fixtures carry a hashed media artifact and expected
-transcript; production credentials and raw secrets are never evidence metadata.
+to a product framework. Day 7 records bounded console data, allow-listed body/header-free network
+data, and masked final screenshots while the exact environment is ready. Its partial evidence bundle
+is not submitted to the acceptance aggregate until Days 8–10 can bind the remaining capability
+evidence safely. Deterministic audio fixtures carry a hashed media artifact and expected transcript;
+production credentials and raw secrets are never evidence metadata.
 
 ## Completeness locks
 

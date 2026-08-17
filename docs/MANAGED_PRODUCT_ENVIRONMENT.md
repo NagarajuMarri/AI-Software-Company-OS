@@ -4,8 +4,9 @@ Day 6 consumes one exact persisted Managed Product Runtime Configuration and ver
 migrations, services, readiness declarations, shutdown, and disposable-workspace cleanup operate as
 declared. This is the first runtime side-effect boundary in the acceptance engine.
 
-It is deliberately not a browser, deployment, merge, release, or production-hosting capability.
-Chrome/Playwright customer journeys and browser evidence remain Day 7 work.
+It is deliberately not itself a browser, deployment, merge, release, or production-hosting
+capability. Day 7 composes it through `verify_with_ready_probe`, so Playwright runs only after
+readiness and still passes through reverse shutdown and cleanup.
 
 ## Authority and policy
 
@@ -82,9 +83,9 @@ source, migrations, service startup, readiness, service stop, and cleanup with U
 exit/status code, and a digest of bounded redacted output. The result contains no raw command output,
 secret reference, secret value, process handle, or local workspace path.
 
-These observations prove the environment portion of runtime acceptance. They do not yet constitute
-customer-journey evidence: Day 7 must bind browser, console, network, screenshot, and journey results
-to the same exact configuration and commit before runtime acceptance can advance.
+These observations prove the environment portion of runtime acceptance. Day 7 now binds them to
+browser, console, network, screenshot, and journey results for the same configuration and commit.
+The complete runtime acceptance lifecycle still awaits Days 8–10 capability evidence.
 
 ## Day 6 acceptance boundary
 
@@ -100,7 +101,7 @@ Day 6 is complete when deterministic tests prove:
 - secrets and provider output never enter the returned authority record.
 
 Production repository credentials, distributed environment workers, durable in-flight recovery,
-host/container isolation, browser automation, and production deployment remain later work. The
+host/container isolation and production deployment remain later work. The
 included local provider is POSIX-only because it uses a new process group to stop the complete
 declared service tree; Windows must supply a future Job Object or equivalent provider and fails
 closed rather than silently weakening shutdown guarantees.

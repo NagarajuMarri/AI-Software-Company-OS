@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Callable, Generic, TypeVar
 from urllib.parse import urlparse
 
 from runtime.managed_product_environment.contracts import (
@@ -20,8 +22,23 @@ from runtime.managed_product_environment.models import (
     EnvironmentStage,
     ManagedProductEnvironmentResult,
 )
-from runtime.managed_product_runtime.models import ManagedRuntimeService, endpoint_origin
+from runtime.managed_product_runtime.models import (
+    ManagedProductRuntimeConfiguration,
+    ManagedRuntimeService,
+    endpoint_origin,
+)
 from runtime.managed_product_runtime.persistence import RuntimeConfigurationStore
+
+
+_T = TypeVar("_T")
+
+
+@dataclass(frozen=True)
+class ReadyEnvironmentExecution(Generic[_T]):
+    """Environment lifecycle result plus one probe run while services were ready."""
+
+    environment_result: ManagedProductEnvironmentResult
+    probe_result: _T | None
 
 
 class ManagedProductEnvironmentService:
@@ -42,6 +59,19 @@ class ManagedProductEnvironmentService:
     def verify(
         self, request: EnvironmentExecutionRequest
     ) -> ManagedProductEnvironmentResult:
+        return self.verify_with_ready_probe(request).environment_result
+
+    def verify_with_ready_probe(
+        self,
+        request: EnvironmentExecutionRequest,
+        ready_probe: Callable[[ManagedProductRuntimeConfiguration], _T] | None = None,
+    ) -> ReadyEnvironmentExecution[_T]:
+        """Run an optional bounded probe after readiness and before shutdown.
+
+        Expected probe failures should be returned as a typed result. Unexpected
+        exceptions are re-raised only after service shutdown and workspace cleanup.
+        """
+
         configuration = self.configuration_store.get_revision(
             request.project_id,
             request.configuration_id,
@@ -67,6 +97,7 @@ class ManagedProductEnvironmentService:
             item.name: item.value for item in configuration.environment
         }
         redactions: list[str] = []
+        probe_result: _T | None = None
 
         try:
             for secret in configuration.secret_references:
@@ -94,6 +125,8 @@ class ManagedProductEnvironmentService:
                 observations.append(
                     self.provider.await_readiness(handle, declared_service)
                 )
+            if ready_probe is not None:
+                probe_result = ready_probe(configuration)
         except EnvironmentExecutionError as error:
             failure_code = error.code
             reconciliation_required = error.reconciliation_required
@@ -136,19 +169,22 @@ class ManagedProductEnvironmentService:
             stage = EnvironmentStage.RECONCILIATION_REQUIRED
         elif failure_code is not None:
             stage = EnvironmentStage.FAILED
-        return ManagedProductEnvironmentResult(
-            request.run_id,
-            request.project_id,
-            request.configuration_id,
-            request.configuration_revision,
-            request.configuration_digest,
-            configuration.commit_sha,
-            stage,
-            tuple(observations),
-            started_at,
-            _now(),
-            failure_code,
-            reconciliation_required,
+        return ReadyEnvironmentExecution(
+            ManagedProductEnvironmentResult(
+                request.run_id,
+                request.project_id,
+                request.configuration_id,
+                request.configuration_revision,
+                request.configuration_digest,
+                configuration.commit_sha,
+                stage,
+                tuple(observations),
+                started_at,
+                _now(),
+                failure_code,
+                reconciliation_required,
+            ),
+            probe_result,
         )
 
     def _authorize(self, configuration) -> None:  # noqa: ANN001

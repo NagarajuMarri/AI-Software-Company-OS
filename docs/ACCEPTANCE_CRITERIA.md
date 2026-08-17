@@ -1,5 +1,31 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 7 acceptance
+
+Browser execution must load one immutable plan and prove exact agreement with the
+`AUTOMATED_VERIFIED` runtime-acceptance run, persisted configuration revision/digest/full commit SHA,
+locked profile identity/digest, and every customer-facing journey before resolving a browser secret
+or starting the environment. Current policy must approve the provider, origins, and opaque browser
+secret references.
+
+Journeys must use bounded declarative accessible locators/actions, canonical URL paths, and exact
+input references, with no arbitrary JavaScript, CSS, XPath, shell, query/fragment targets, or
+traversal. Secret-bearing inputs require invocation-only references. Exact retries must return the
+immutable terminal result without a second environment, secret lookup, or browser effect.
+
+The browser runs only after exact-SHA migration, startup, and readiness and before reverse shutdown
+and cleanup. Requests must remain on approved origins. Evidence excludes headers, cookies, browser
+storage, bodies, credentials, and query strings; console values are bounded/redacted; secret input
+locators are masked in the final screenshot. Console/page errors, failed/HTTP-error requests, blocked
+origins, failed steps, or missing screenshots must fail the journey.
+
+Browser, console, network, screenshot, migration, startup, and readiness artifacts must be
+content-addressed and integrity-checked. Terminal results survive restart, reject mutation/corruption,
+retain failures, and become `RECONCILIATION_REQUIRED` when shutdown or cleanup is unproven. Mandatory
+exact-head Chromium CI must prove real login, HTTP-only session creation, reload/session restoration,
+evidence capture, shutdown, cleanup, and restart readback. Day 7 performs no production-product,
+human-acceptance, merge, deployment, or release action.
+
 # Day 6 acceptance
 
 Managed Product Environment execution must load one exact immutable runtime-configuration revision

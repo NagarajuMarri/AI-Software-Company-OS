@@ -1,5 +1,17 @@
 # Runtime Roadmap
 
+# Day 7 — Exact-Commit Browser Journey Execution
+
+Run immutable, acceptance-profile-bound customer journeys in a fresh Playwright Chromium context
+while the exact Day 6 environment is ready. Resolve approved inputs only at invocation, block
+unapproved origins, capture bounded secret-safe browser/console/network/screenshot evidence, add
+migration/startup/readiness artifacts, and persist one immutable terminal result that exact retries
+reuse without new effects.
+
+Day 7 proves real login and session restoration in mandatory browser CI. It does not run a production
+product or claim persistence/security, voice, PWA, human acceptance, merge, deployment, or release.
+Days 8–10 add the remaining capability evidence and safe aggregation.
+
 # Day 6 — Exact-SHA Managed Product Environment Lifecycle
 
 Consume one exact persisted runtime-configuration revision under current operator policy. Prepare a
@@ -9,9 +21,8 @@ shell, perform redirect-free readiness checks, stop services in reverse order, a
 workspace. Produce bounded secret-safe lifecycle observations and retain an unsafe-to-clean
 workspace as `RECONCILIATION_REQUIRED`.
 
-Day 6 does not open a browser or claim customer-journey acceptance. Day 7 will run Chrome/Playwright
-journeys against the same exact configuration and collect browser, console, network, and screenshot
-evidence.
+Day 6 does not itself open a browser or claim customer-journey acceptance. Day 7 now composes this
+lifecycle with Playwright while services are ready and still returns through shutdown and cleanup.
 
 # Day 5 — Managed Product Runtime Configuration
 

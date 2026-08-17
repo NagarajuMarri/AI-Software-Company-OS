@@ -141,9 +141,9 @@ Day 5 is complete when automated tests prove:
 - zero repository, subprocess, network, secret-resolution, service, or browser side effects.
 
 Day 5 does **not** prove that a product starts or works. Day 6 creates and manages an isolated
-environment at the configured exact SHA. Day 7 will add the Chrome/Playwright customer-journey
-provider and collect real browser evidence. Human acceptance, merge, deployment, and release remain
-separate explicit controls.
+environment at the configured exact SHA. Day 7 now consumes the same configuration through the
+Chrome/Playwright customer-journey provider and collects real browser evidence. Remaining capability
+proof, human acceptance, merge, deployment, and release remain separate explicit controls.
 
 See `examples/managed_product_runtime_configuration.py` for a deterministic generic product
 configuration. The example constructs a declaration only and intentionally performs no runtime
