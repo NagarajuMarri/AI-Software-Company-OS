@@ -627,7 +627,12 @@ def test_real_chromium_login_session_restore_and_secret_safe_evidence(tmp_path):
         thread.join(timeout=5)
         git_server.server_close()
 
-    assert result.stage is BrowserExecutionStage.COMPLETED
+    network_diagnostics = [
+        json.loads(artifacts.resolve(item.artifact_uri).read_text(encoding="utf-8"))
+        for item in result.evidence
+        if item.kind is EvidenceKind.BROWSER_NETWORK
+    ]
+    assert result.stage is BrowserExecutionStage.COMPLETED, network_diagnostics
     assert result.commit_sha == commit
     assert {item.kind for item in result.evidence} >= {
         EvidenceKind.MIGRATION,
