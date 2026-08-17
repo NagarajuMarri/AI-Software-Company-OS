@@ -35,6 +35,6 @@ cookies, session values, reset values, headers, bodies, or browser storage.
 ## Boundary and remaining work
 
 This module verifies an isolated exact-SHA product fixture, not a deployed production product. It
-does not resolve voice evidence, PWA evidence, human acceptance, release completion, merge, deploy,
-or release. Day 9 adds voice and media verification. Day 10 adds PWA verification and safe submission
+does not resolve PWA evidence, human acceptance, release completion, merge, deploy, or release. Day 9
+now adds deterministic voice and media verification. Day 10 adds PWA verification and safe submission
 of complete capability slices to the runtime-acceptance aggregate.

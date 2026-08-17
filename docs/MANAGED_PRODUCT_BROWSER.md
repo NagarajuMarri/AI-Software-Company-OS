@@ -57,8 +57,9 @@ observations. Failure evidence cannot be rewritten as success. If shutdown or cl
 proven, the result is `RECONCILIATION_REQUIRED`.
 
 Browser evidence is not submitted directly into the Milestone 15 acceptance aggregate on Day 7.
-Authentication persistence/security, voice, PWA, and complete multi-journey aggregation remain Days
-8–10. Advancing the lifecycle from a partial browser bundle would prevent safe later aggregation.
+Day 8 now supplies Authentication persistence/security evidence and Day 9 supplies deterministic
+Voice/media evidence. PWA and complete multi-capability aggregation remain Day 10. Advancing the
+lifecycle from a partial bundle would prevent safe later aggregation.
 
 ## Required validation
 
@@ -75,5 +76,5 @@ in the dedicated browser job on the exact pull-request head commit.
 
 The Day 6 local environment remains POSIX-only. Browser execution shares the runner host and is not a
 production hostile-code sandbox. Container/VM isolation, durable in-flight browser recovery,
-product-specific SpeakMate journey configuration, remaining capability probes, human acceptance,
-deployment, and release remain later work.
+production-provider credentials, PWA and complete aggregation, human acceptance, deployment, and
+release remain later work.

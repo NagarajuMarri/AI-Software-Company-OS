@@ -78,6 +78,21 @@ headers, bodies, browser storage, and local paths. The pack contains bounded cla
 digests, outcomes, and masked screenshots. The fixture is an isolated exact-commit validation target,
 not a hostile-code sandbox or a production product.
 
+# Voice and media verification boundaries
+
+Day 9 binds deterministic input/output media to immutable content digests, exact product endpoints,
+the full source SHA, and named Voice journey assertions. Media fetches disable ambient proxies and
+redirects, stay on the already authorized frontend origin, enforce a ten-megabyte bound and safe WAV
+type, and require byte equality with the locked fixture. PCM parsing rejects malformed, compressed,
+silent, near-silent, or dimension-mismatched content.
+
+Playback evidence comes from provider-owned Chromium checks of decoded duration, completed position,
+unmuted state, and bounded volume; application text alone cannot satisfy playback. Evidence contains
+only fixture/output digests, bounded signal measurements, claim identifiers, and response length.
+It excludes request/response bodies, credentials, cookies, browser storage, local paths, and provider
+secrets. Deterministic CI uses no production STT, LLM, or TTS credential and is not a hostile-code,
+physical-speaker, production-provider, or human-listening acceptance boundary.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

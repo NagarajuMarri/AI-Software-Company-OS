@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import math
 import re
 import time
 from urllib.parse import urlsplit, urlunsplit
@@ -180,7 +181,7 @@ class PlaywrightChromiumProvider:
         console_entries: list[dict[str, object]] = []
         network_entries: list[dict[str, object]] = []
         policy_violations: list[str] = []
-        step_results: list[dict[str, str]] = []
+        step_results: list[dict[str, object]] = []
         successful_requests: set[object] = set()
         console_failed = False
         network_failed = False
@@ -312,6 +313,45 @@ class PlaywrightChromiumProvider:
                         raise AssertionError("Browser URL path did not match")
                 elif step.action is BrowserActionKind.RELOAD:
                     page.reload(wait_until="domcontentloaded", timeout=remaining)
+                elif step.action is BrowserActionKind.ASSERT_MEDIA_PLAYED:
+                    assert locator is not None
+                    locator.wait_for(state="visible", timeout=remaining)
+                    media = locator.evaluate(
+                        """node => ({
+                            ended: Boolean(node.ended),
+                            duration: Number(node.duration),
+                            currentTime: Number(node.currentTime),
+                            muted: Boolean(node.muted),
+                            volume: Number(node.volume),
+                            readyState: Number(node.readyState)
+                        })""",
+                    )
+                    if not isinstance(media, dict):
+                        raise AssertionError("Browser media metrics were malformed")
+                    duration = _number(media.get("duration"))
+                    current_time = _number(media.get("currentTime"))
+                    volume = _number(media.get("volume"))
+                    ready_state = _number(media.get("readyState"))
+                    if (
+                        not media.get("ended")
+                        or duration <= 0
+                        or current_time + 0.1 < duration
+                        or media.get("muted") is not False
+                        or volume < 0.5
+                        or ready_state < 2
+                    ):
+                        raise AssertionError("Browser media did not complete audible playback")
+                    step_results.append(
+                        {
+                            "step_id": step.step_id,
+                            "outcome": "PASS",
+                            "duration_ms": int(duration * 1_000),
+                            "played_ms": int(current_time * 1_000),
+                            "muted": False,
+                            "volume_milli": int(volume * 1_000),
+                        }
+                    )
+                    continue
                 step_results.append({"step_id": step.step_id, "outcome": "PASS"})
         except (
             playwright_error,
@@ -587,6 +627,12 @@ def _redact(value: str, redactions: tuple[str, ...]) -> str:
         rendered,
     )
     return rendered
+
+
+def _number(value: object) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise AssertionError("Browser media metric was not finite")
+    return float(value)
 
 
 def _remaining_ms(deadline: float) -> int:

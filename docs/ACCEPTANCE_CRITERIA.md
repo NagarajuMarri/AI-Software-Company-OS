@@ -1,5 +1,30 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 9 acceptance
+
+Voice verification must reload one immutable plan and prove exact agreement with the browser plan,
+runtime configuration revision/digest/full commit SHA, acceptance profile identity/digest, provider,
+all eight locked Voice journeys, named step IDs, exact claims, fixture authority, canonical media
+paths, and bounded response before the underlying browser runs.
+
+Input and output media must be content-addressed WAV artifacts. The exact product endpoints must
+return HTTP 200 audio from the approved origin without redirects or ambient proxies, and delivered
+bytes must equal the locked fixture bytes. Verification must reject malformed, compressed, wrong-rate,
+wrong-channel, wrong-duration, silent, near-silent, or digest-mismatched media. Passing audio evidence
+must record bounded PCM dimensions, peak, RMS, and non-silent ratio without storing credentials.
+
+Audible-playback and repeat-turn claims require a provider-owned Chromium media assertion proving
+decoded positive duration, completed current time, unmuted state, and volume of at least 50 percent.
+Named browser assertions must prove exact transcript, bounded response, persisted turn, generated TTS,
+avatar `speaking → idle`, and a second same-session turn. Missing, corrupt, mismatched, failed, or
+self-reported-only playback evidence fails closed.
+
+Mandatory exact-head CI must execute all eight journeys against a migrated SQLite-backed fixture,
+verify shutdown, workspace cleanup, immutable result restart readback, and upload a founder pack with
+eight screenshots, both verified WAVs, and a secret-safe manifest. Deterministic adapters do not
+constitute production STT/LLM/TTS or human physical-speaker acceptance. Day 9 performs no PWA,
+aggregate completion, human approval, merge, deployment, or release action.
+
 # Day 8 acceptance
 
 Authentication verification must load one immutable plan and prove exact agreement with the browser
