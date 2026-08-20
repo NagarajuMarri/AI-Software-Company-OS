@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 11 begins the customer application with a real server-rendered workspace and product-request
+form. A trusted upstream customer identity can describe the product outcome, target users, required
+features, and constraints, then reopen the immutable customer-scoped brief. The dependency-free WSGI
+boundary enforces CSRF, request-size, content-type, escaping, security-header, write-once, integrity,
+and cross-customer isolation controls. Mandatory Chromium CI uploads a founder-safe screenshot and
+claim manifest. Customer account/login creation, conversational refinement, agent dispatch, coding,
+deployment, billing, merge, and release remain later modules. See
+`docs/CUSTOMER_APPLICATION_PRODUCT_REQUESTS.md`.
+
 Day 10 adds exact-commit PWA verification and safe complete-capability submission. ASCOS now proves
 the locked manifest, required PNG icons, activated and controlling service worker, actual Chromium
 install/standalone launch, refresh survival, and offline app shell in a fresh profile. It then accepts only the

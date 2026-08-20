@@ -1,5 +1,22 @@
 # Runtime Roadmap
 
+# Day 11 — Customer Workspace and Product-Request Intake
+
+Begin the customer application with a dependency-free, server-rendered workspace. A trusted upstream
+customer identity can open the dashboard, submit one bounded product brief containing the desired
+outcome, target users, required features, and optional constraints, and reopen only that customer's
+immutable request. Persist each request under write-once customer/request authority with canonical
+integrity digests, restart-safe reads, exact-retry idempotency, and corruption detection.
+
+The web boundary requires an upstream identity and CSRF authority, bounds request bytes/fields,
+accepts only form content, escapes every customer value, applies no-store/CSP/framing/content-type/
+referrer headers, and fails closed without exposing submitted values. Mandatory Chromium CI completes
+the actual form and uploads a founder-safe confirmation screenshot and manifest.
+
+Day 11 does not create customer credentials or sessions, refine requirements conversationally,
+dispatch agents, implement a product, connect repositories, merge, deploy, bill, or release. Those
+remain isolated later customer-application modules.
+
 # Day 10 — PWA Verification and Safe Runtime Submission
 
 Bind one immutable PWA plan to the exact runtime run, configuration revision/digest, full product
@@ -13,8 +30,8 @@ Persist a separate write-once submission plan that names the exact terminal Auth
 and PWA plan/result digests and all locked journeys in canonical capability order. Verify every
 content-addressed artifact before atomically recording complete runtime evidence and a write-once
 receipt. The aggregate stops at `RUNTIME_VERIFIED`; Day 10 does not perform human acceptance, OS-level
-PWA installation UI, production-product testing, merge, deployment, or release. Day 11 begins the
-customer application boundary only after founder approval.
+PWA installation UI, production-product testing, merge, deployment, or release. Founder approval
+unlocked the Day 11 customer application boundary.
 
 # Day 9 — Voice and Media End-User Verification
 
