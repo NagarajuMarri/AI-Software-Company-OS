@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 12 adds real customer signup, password login, persistent server-side sessions, CSRF-protected
+logout/revocation, and returning-customer access to the Day 11 workspace. Passwords are protected
+with per-account scrypt salts, bearer tokens are never persisted raw, cookies are HttpOnly and
+SameSite=Strict (and Secure outside the local browser fixture), and account/session authority is
+canonical, integrity-checked, restart-safe, and path-contained. Mandatory Chromium CI proves signup,
+product-request creation, sign-out, sign-in, reload, and recovery of the same customer-scoped brief.
+Password recovery, MFA, organizations/roles, billing, AI refinement, agent dispatch, coding,
+deployment, merge, and release remain later modules. See `docs/CUSTOMER_AUTHENTICATION.md`.
+
 Day 11 begins the customer application with a real server-rendered workspace and product-request
 form. A trusted upstream customer identity can describe the product outcome, target users, required
 features, and constraints, then reopen the immutable customer-scoped brief. The dependency-free WSGI
@@ -98,6 +107,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_AUTHENTICATION.md](docs/CUSTOMER_AUTHENTICATION.md) — customer accounts, scrypt
+  credentials, server-side sessions, logout revocation, returning access, and browser evidence.
 
 - [docs/MANAGED_PRODUCT_PWA.md](docs/MANAGED_PRODUCT_PWA.md) — exact-commit PWA installability,
   standalone/refresh/offline evidence, and immutable three-capability runtime submission.

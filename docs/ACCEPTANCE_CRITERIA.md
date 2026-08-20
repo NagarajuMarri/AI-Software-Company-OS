@@ -1,5 +1,33 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 12 acceptance
+
+Registration must canonicalize and validate an ASCII email, enforce the bounded strong-password
+policy, generate a collision-resistant customer identity, use a unique 128-bit salt, and persist only
+the scrypt credential digest. Login must compare derived digests in constant time and return one
+generic credential failure for unknown accounts and wrong passwords. Raw passwords and bearer
+session tokens must never be persisted, logged, rendered, or included in evidence.
+
+Every issued session must persist only its SHA-256 token digest plus customer identity, independent
+CSRF authority, issued time, and no more than a twelve-hour expiry. Invalid, missing, duplicate-cookie,
+expired, revoked, malformed, tampered, noncanonical, symlinked, or path-escaping authority must fail
+closed. Logout must require the matching session CSRF value, durably revoke the session, clear the
+cookie, and remain externally idempotent. Restarted storage must preserve valid sessions and revoked
+sessions exactly.
+
+Signup/login forms must use signed double-submit pre-authentication CSRF. Session cookies must be
+HttpOnly, SameSite=Strict, path-scoped, bounded to session lifetime, and Secure except in the explicit
+loopback browser fixture. Only the authenticated server-side middleware may populate `REMOTE_USER`
+and `ascos.csrf_token` for the Day 11 portal. All authentication responses must be no-store and carry
+CSP, framing, sniffing, and referrer protections.
+
+Mandatory exact-head CI must run a fresh real Chromium journey through unauthenticated redirect,
+signup, product-request submission, sign-out, sign-in, reload/session restoration, and recovery of
+the same customer-scoped request with no console or request failures. The founder artifact must
+contain login and returning-workspace screenshots plus a safe manifest; it must contain no password,
+bearer token, CSRF value, salt, cookie, header, or local path. Day 12 does not claim recovery, MFA,
+organizations/roles, billing, AI refinement, agents, coding, merge, deployment, or release.
+
 # Day 11 acceptance
 
 The customer portal must require a trusted upstream customer identity and CSRF token before it accepts

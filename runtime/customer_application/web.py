@@ -52,7 +52,11 @@ class CustomerPortalApplication:
         method = str(environ.get("REQUEST_METHOD", "GET")).upper()
         path = str(environ.get("PATH_INFO", "/"))
         if method == "GET" and path in {"/", "/customer"}:
-            return _respond(start_response, "200 OK", self._dashboard(customer_id))
+            return _respond(
+                start_response,
+                "200 OK",
+                self._dashboard(customer_id, _csrf(environ)),
+            )
         if method == "GET" and path == "/customer/requests/new":
             csrf = _csrf(environ)
             if csrf is None:
@@ -72,7 +76,11 @@ class CustomerPortalApplication:
                     "404 Not Found",
                     _message("Request not found", "This product request is unavailable."),
                 )
-            return _respond(start_response, "200 OK", _request_detail(value))
+            return _respond(
+                start_response,
+                "200 OK",
+                _request_detail(value, _csrf(environ)),
+            )
         if method == "POST" and path == "/customer/requests":
             return self._submit(environ, start_response, customer_id)
         return _respond(
@@ -81,7 +89,7 @@ class CustomerPortalApplication:
             _message("Page not found", "The requested customer page does not exist."),
         )
 
-    def _dashboard(self, customer_id: str) -> str:
+    def _dashboard(self, customer_id: str, csrf: str | None) -> str:
         requests = tuple(reversed(self._service.dashboard(customer_id)))
         if requests:
             cards = "".join(
@@ -100,7 +108,7 @@ class CustomerPortalApplication:
 <a class="button" href="/customer/requests/new">Describe a product</a></section>
 <section><div class="section-title"><h2>Your product requests</h2>
 <span>{len(requests)} submitted</span></div><div class="request-grid">{cards}</div></section>"""
-        return _layout("ASCOS Customer Workspace", content)
+        return _layout("ASCOS Customer Workspace", content, csrf)
 
     def _submit(
         self,
@@ -197,10 +205,10 @@ placeholder="Answer incoming calls&#10;Book appointments&#10;Send WhatsApp confi
 placeholder="Telugu and English&#10;India data residency"></textarea></label>
 <div class="form-actions"><a href="/customer">Cancel</a>
 <button type="submit">Submit product request</button></div></form></section>"""
-    return _layout("New Product Request · ASCOS", content)
+    return _layout("New Product Request · ASCOS", content, csrf)
 
 
-def _request_detail(value: CustomerProductRequest) -> str:
+def _request_detail(value: CustomerProductRequest, csrf: str | None) -> str:
     features = "".join(f"<li>{escape(item)}</li>" for item in value.features)
     constraints = (
         "".join(f"<li>{escape(item)}</li>" for item in value.constraints)
@@ -218,7 +226,7 @@ def _request_detail(value: CustomerProductRequest) -> str:
 <ul>{features}</ul></article><article><h2>Constraints</h2><ul>{constraints}</ul></article></div>
 <footer class="authority">Request ID <code>{escape(value.request_id)}</code> ·
 Integrity digest <code>{escape(value.digest[:16])}…</code></footer></section>"""
-    return _layout(f"{value.product_name} · ASCOS", content)
+    return _layout(f"{value.product_name} · ASCOS", content, csrf)
 
 
 def _message(title: str, detail: str) -> str:
@@ -226,12 +234,17 @@ def _message(title: str, detail: str) -> str:
 <p>{escape(detail)}</p><a class="button" href="/customer">Return to workspace</a></section>""")
 
 
-def _layout(title: str, content: str) -> str:
+def _layout(title: str, content: str, csrf: str | None = None) -> str:
+    account = '<div class="account"><span></span>Customer workspace</div>'
+    if csrf is not None:
+        account = f'''<form class="account logout" method="post" action="/logout">
+<span></span><button type="submit">Sign out</button>
+<input type="hidden" name="csrf_token" value="{escape(csrf)}"></form>'''
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(title)}</title><style>{_CSS}</style></head><body>
 <header><a class="brand" href="/customer"><span>AS</span><strong>ASCOS</strong></a>
-<div class="account"><span></span>Customer workspace</div></header>
+{account}</header>
 <main>{content}</main></body></html>"""
 
 
@@ -264,6 +277,7 @@ _CSS = """
 header{height:72px;padding:0 max(28px,calc((100vw - 1120px)/2));display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #dce3ee}
 .brand{display:flex;align-items:center;gap:10px;color:#101d35;text-decoration:none}.brand span{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#3157d5;color:#fff;font-weight:800}.brand strong{letter-spacing:.08em}
 .account{font-size:14px;color:#53627a;display:flex;align-items:center;gap:9px}.account span{width:9px;height:9px;border-radius:50%;background:#2bb673;box-shadow:0 0 0 4px #dff6ea}
+.logout{margin:0}.logout button{padding:8px 11px;border:1px solid #dce3ee;background:transparent;color:#53627a;box-shadow:none}.logout input{display:none}
 main{max-width:1120px;margin:0 auto;padding:64px 28px 80px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:58px}.hero>div{max-width:720px}
 h1{font-size:clamp(34px,5vw,58px);line-height:1.05;letter-spacing:-.04em;margin:12px 0 18px;color:#101d35}p{color:#53627a;line-height:1.7}.hero p{font-size:19px;max-width:650px}
 .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#3157d5;font-weight:800}.button,button{display:inline-flex;border:0;border-radius:12px;padding:14px 20px;background:#3157d5;color:#fff;text-decoration:none;font-weight:750;white-space:nowrap;cursor:pointer;box-shadow:0 10px 28px #3157d533}
