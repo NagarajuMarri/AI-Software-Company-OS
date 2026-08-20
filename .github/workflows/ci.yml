@@ -34,6 +34,7 @@ jobs:
     timeout-minutes: 20
     env:
       ASCOS_BROWSER_INTEGRATION: "1"
+      ASCOS_EVIDENCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       ASCOS_FOUNDER_EVIDENCE_DIR: founder-evidence/day8
       ASCOS_VOICE_FOUNDER_EVIDENCE_DIR: founder-evidence/day9
       ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
