@@ -1,5 +1,42 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 22 acceptance
+
+One enabled Digital Twin must align to exactly one existing `AgentRole`, one explicit provider, a
+bounded capability set, and an approved tool allowlist. One immutable assignment and one expiring
+delegation grant must match tenant, Twin, Business Role, assignment, objective digest, authority ID,
+and authority digest exactly. The grant must allow assigned-work execution, name every permitted
+tool/action, expire within 24 hours, set tool-call/output budgets, and reject approval, governance,
+product-repository write, commit, merge, deployment, release, billing, and pilot-selection actions.
+Expired, future, disabled, cross-tenant, stale, mismatched, capability-incompatible, or elevated
+authority must fail before provider or tool activity.
+
+Provider selection must be explicit and provider-neutral. The provider receives only the bounded
+typed request and a mediated tool gateway; it receives no store, filesystem, command runner,
+repository, network client, credentials, or host environment. Each tool call must be within the
+assignment, Twin, authority, provider, and runtime-registry allowlists. Day 22 registries accept only
+explicitly read-only tools. Tool inputs/outputs and provider results must use closed bounded
+non-secret fields; budget exhaustion, an unsupported tool, a provider exception, or mismatched
+result identity must produce a sanitized terminal failure receipt.
+
+Persistence must record intent before provider activity and one immutable terminal receipt bound to
+the exact Twin, assignment, authority, provider request, output, and ordered tool-call digests.
+Records must be canonical, mode 0600, write once, path contained, tenant scoped, process serialized,
+restart safe, exact-retry idempotent, closed to unknown entries, and reject unsafe permissions,
+symlinks, malformed schemas, and tampering. Provider context, tool inputs/outputs, raw provider
+responses, exceptions, credentials, and local paths must not be persisted. Live providers require
+both explicit authority and operator enablement; an interrupted live intent cannot be resubmitted
+without reconciliation.
+
+Mandatory exact-head CI must execute the deterministic provider through the real runtime, invoke one
+allowlisted read-only fixture tool, reopen the exact receipt after restart without a second provider
+effect, and use Chromium to inspect a restrictive-header founder report. Evidence must contain the
+exact commit, approved Day 21 base, authority/assignment/request/intent/output/receipt digests,
+tool-call evidence, and screenshot digest without secrets or local paths. It must state that no
+specialized Day 23–30 agent behavior and no official pilot product were selected. Day 22 grants no
+product task, workspace, repository, command, network, approval, merge, deployment, release, billing,
+or pilot-selection authority.
+
 # Day 21 acceptance
 
 Only the authenticated owner may view a request's Preview and Evidence Centre, follow its governed
