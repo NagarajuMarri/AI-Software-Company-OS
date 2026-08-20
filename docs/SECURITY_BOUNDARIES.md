@@ -165,6 +165,27 @@ declaration, not automatic data discovery or a compliance certification. Day 13 
 requirements and therefore forbids credentials, secrets, uploaded files, regulated records, agent
 execution, repository access, approval, coding, merge, deployment, billing, and release authority.
 
+# Customer requirements-approval boundaries
+
+Day 14 trusts customer identity and CSRF only from the Day 12 session middleware. The form may carry
+only the rendered revision, complete draft digest, CSRF value, and one fixed confirmation value; it
+cannot assert a customer, request digest, approval identity, time, or downstream authority. The
+service reloads the owned immutable request and latest draft and compares the digest in constant
+time before creating the receipt.
+
+Approval receipts use a closed canonical schema, full integrity digest, exclusive mode-0600 write,
+bounded derived identity, contained customer/request path, and symlink/unknown-entry rejection. A
+receipt is write-once and binds the exact source and draft digests. Its existence is the draft lock;
+all later edits fail closed and edit routes return the approved baseline. Tampered or mismatched
+receipts make both approval inspection and future draft mutation unavailable rather than reopening
+the scope.
+
+The development file adapter provides deterministic single-instance evidence, not a cross-process
+transactional guarantee. Production exposure requires a transactional database constraint spanning
+approval creation and draft revision, encryption/backup/retention controls, monitoring, rate limits,
+and privacy review. Customer approval is scope confirmation only: it conveys no PRD, planning,
+agent, repository, coding, merge, deployment, billing, or release authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

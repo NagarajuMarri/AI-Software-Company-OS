@@ -6,12 +6,14 @@ from collections.abc import Callable, Iterable
 from html import escape
 import hmac
 import re
+from typing import Protocol
 from urllib.parse import parse_qs
 
 from runtime.customer_application.errors import ProductRequestNotFound
 from runtime.customer_requirements.errors import (
     RequirementsDraftConflict,
     RequirementsDraftCorrupt,
+    RequirementsDraftLocked,
 )
 from runtime.customer_requirements.models import (
     ALLOWED_PLATFORMS,
@@ -41,15 +43,35 @@ _FIELDS = {
 _MAX_BODY = 32_768
 
 
-class CustomerWorkspaceApplication:
-    """Route Day 13 pages while preserving the Day 11 portal boundary."""
+class RoutedCustomerApplication(Protocol):
+    """Small protocol for customer-app route extensions."""
 
-    def __init__(self, portal: Callable, requirements: "CustomerRequirementsApplication") -> None:
+    def handles(self, path: str) -> bool: ...
+
+    def __call__(
+        self,
+        environ: dict[str, object],
+        start_response: Callable,
+    ) -> Iterable[bytes]: ...
+
+
+class CustomerWorkspaceApplication:
+    """Route guided customer pages while preserving the Day 11 portal boundary."""
+
+    def __init__(
+        self,
+        portal: Callable,
+        requirements: "CustomerRequirementsApplication",
+        approval: RoutedCustomerApplication | None = None,
+    ) -> None:
         self._portal = portal
         self._requirements = requirements
+        self._approval = approval
 
     def __call__(self, environ: dict[str, object], start_response: Callable) -> Iterable[bytes]:
         path = str(environ.get("PATH_INFO", "/"))
+        if self._approval is not None and self._approval.handles(path):
+            return self._approval(environ, start_response)
         if self._requirements.handles(path):
             return self._requirements(environ, start_response)
         return self._portal(environ, start_response)
@@ -85,6 +107,11 @@ class CustomerRequirementsApplication:
         try:
             if edit and method == "GET":
                 request, draft = self._service.context(customer_id, edit.group(1))
+                if self._service.is_locked(customer_id, edit.group(1)):
+                    return _redirect(
+                        start_response,
+                        f"/customer/requests/{edit.group(1)}/requirements/approved",
+                    )
                 return _respond(start_response, "200 OK", _form(request, draft, csrf))
             if edit and method == "POST":
                 return self._save(environ, start_response, customer_id, edit.group(1), csrf)
@@ -95,12 +122,27 @@ class CustomerRequirementsApplication:
                         start_response,
                         f"/customer/requests/{review.group(1)}/requirements",
                     )
-                return _respond(start_response, "200 OK", _review(request.product_name, draft, csrf))
+                return _respond(
+                    start_response,
+                    "200 OK",
+                    _review(
+                        request.product_name,
+                        draft,
+                        csrf,
+                        self._service.is_locked(customer_id, review.group(1)),
+                    ),
+                )
         except ProductRequestNotFound:
             return _respond(
                 start_response,
                 "404 Not Found",
                 _message("Request not found", "This product request is unavailable."),
+            )
+        except RequirementsDraftLocked:
+            assert edit is not None
+            return _redirect(
+                start_response,
+                f"/customer/requests/{edit.group(1)}/requirements/approved",
             )
         except RequirementsDraftConflict:
             return _respond(
@@ -271,7 +313,12 @@ def _options(values, selected) -> str:
     )
 
 
-def _review(product_name: str, value: CustomerRequirementsDraft, csrf: str) -> str:
+def _review(
+    product_name: str,
+    value: CustomerRequirementsDraft,
+    csrf: str,
+    locked: bool = False,
+) -> str:
     def items(values: tuple[str, ...], empty: str = "None declared") -> str:
         return (
             "".join(f"<li>{escape(item)}</li>" for item in values)
@@ -279,10 +326,31 @@ def _review(product_name: str, value: CustomerRequirementsDraft, csrf: str) -> s
             else f"<li>{escape(empty)}</li>"
         )
 
+    status = "Approved" if locked else "Draft saved"
+    authority = (
+        "Approved baseline — implementation has not started"
+        if locked
+        else "Draft only — no implementation has started"
+    )
+    authority_detail = (
+        "PRD generation, planning, agent assignment, coding, and deployment are separate governed steps."
+        if locked
+        else "Approval, planning, agent assignment, coding, and deployment are separate governed steps."
+    )
+    primary_action = (
+        f'<a class="button" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approval receipt</a>'
+        if locked
+        else f'<a class="button" href="/customer/requests/{escape(value.request_id)}/requirements/approve">Approve requirements</a>'
+    )
+    edit_action = (
+        ""
+        if locked
+        else f'<a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements">Edit draft</a>'
+    )
     content = f'''<section class="review"><a class="back" href="/customer/requests/{escape(value.request_id)}">← Product request</a>
 <div class="review-head"><div><span class="eyebrow">Requirements draft · Revision {value.revision}</span>
 <h1>{escape(product_name)}</h1><p>Review the clarified scope before the later approval step.</p></div>
-<span class="status">Draft saved</span></div>
+<span class="status {'approved' if locked else ''}">{status}</span></div>
 <article class="journey"><h2>Primary user journey</h2><p>{escape(value.primary_user_journey)}</p></article>
 <div class="grid"><article><h2>Desired outcomes</h2><ul>{items(value.desired_outcomes)}</ul></article>
 <article><h2>Must-have features</h2><ul>{items(value.must_have_features)}</ul></article>
@@ -291,10 +359,8 @@ def _review(product_name: str, value: CustomerRequirementsDraft, csrf: str) -> s
 <div class="signals"><span><strong>Platforms</strong>{escape(', '.join(item.title() for item in value.platforms))}</span>
 <span><strong>Data</strong>{escape(value.data_sensitivity.value.replace('_', ' ').title())}</span>
 <span><strong>Priority</strong>{escape(value.delivery_priority.value.replace('_', ' ').title())}</span></div>
-<div class="notice"><strong>Draft only — no implementation has started</strong>
-<p>Approval, planning, agent assignment, coding, and deployment are separate governed steps.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements">Edit draft</a>
-<a class="button" href="/customer">Return to workspace</a></div>
+<div class="notice"><strong>{authority}</strong><p>{authority_detail}</p></div>
+<div class="actions">{edit_action}<a class="button secondary" href="/customer">Return to workspace</a>{primary_action}</div>
 <footer>Source request <code>{escape(value.source_request_digest[:16])}…</code> · Draft <code>{escape(value.digest[:16])}…</code></footer></section>'''
     return _layout(f"Requirements for {product_name} · ASCOS", content, csrf)
 
@@ -349,4 +415,5 @@ def _respond(
 
 _CSS = """
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;color:#14213b;background:#f3f6fb}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#dce9ff 0,transparent 32%),#f3f6fb;min-height:100vh}header{height:72px;padding:0 max(28px,calc((100vw - 1060px)/2));display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #dce3ee}.brand{display:flex;align-items:center;gap:10px;color:#101d35;text-decoration:none;letter-spacing:.08em}.brand b{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#3157d5;color:#fff}.logout{display:flex;align-items:center;gap:9px;margin:0}.logout span{width:9px;height:9px;border-radius:50%;background:#2bb673;box-shadow:0 0 0 4px #dff6ea}.logout button{border:1px solid #dce3ee;border-radius:10px;padding:8px 11px;background:#fff;color:#53627a;font-weight:750;cursor:pointer}.logout input{display:none}main{max-width:1060px;margin:0 auto;padding:54px 28px 80px}.form-shell,.review{background:#fff;border:1px solid #dce3ee;border-radius:22px;padding:42px;box-shadow:0 22px 60px #263c6012}.back{display:block;margin-bottom:30px;color:#647189;text-decoration:none;font-weight:700}.draft-link{display:inline-flex;margin-top:4px;color:#3157d5;font-weight:800;text-decoration:none}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#3157d5;font-weight:850}h1{font-size:clamp(36px,5vw,54px);line-height:1.04;letter-spacing:-.045em;margin:12px 0 16px}p,li{color:#59677e;line-height:1.65}.form-shell>p{font-size:18px;max-width:760px}aside{margin:30px 0 34px;padding:20px 22px;border:1px solid #dce3ee;background:#f7f9fd;border-radius:14px}aside p{margin:6px 0}aside ul{margin-bottom:0}form{display:grid;gap:23px}label{display:grid;gap:9px;font-weight:780;color:#27344b}label>span{font-size:13px;font-weight:500;color:#7a879a}textarea,select{width:100%;border:1px solid #cbd5e4;border-radius:11px;padding:13px 14px;font:inherit;color:#15223b;background:#fbfcfe}textarea{resize:vertical}textarea:focus,select:focus{outline:3px solid #dbe4ff;border-color:#3157d5}fieldset{border:0;padding:0;margin:0}legend{font-weight:780;margin-bottom:10px}.checks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.check{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #dce3ee;border-radius:11px;background:#fbfcfe}.check input{accent-color:#3157d5}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.actions{display:flex;justify-content:flex-end;align-items:center;gap:16px;margin-top:8px}.actions>a:not(.button){color:#647189;text-decoration:none}.button,.actions button{display:inline-flex;border:0;border-radius:11px;padding:13px 18px;background:#3157d5;color:#fff;text-decoration:none;font-weight:800;cursor:pointer;box-shadow:0 10px 25px #3157d52b}.button.secondary{background:#fff;color:#3157d5;border:1px solid #bac8ee;box-shadow:none}.review-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.status{padding:7px 11px;border-radius:999px;background:#fff3d7;color:#966300;font-weight:850;font-size:12px;text-transform:uppercase;letter-spacing:.08em}.journey{margin:28px 0 16px;padding:24px;border-radius:15px;background:#edf3ff;border:1px solid #cbd9fa}.review h2{font-size:16px;margin:0 0 10px}.journey p{margin:0;white-space:pre-wrap}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid article{border:1px solid #e0e6ef;background:#f8fafd;border-radius:14px;padding:21px}.grid ul{margin:0;padding-left:20px}.signals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.signals span{display:grid;gap:5px;padding:16px;border:1px solid #e0e6ef;border-radius:12px;color:#647189}.signals strong{color:#26344c;font-size:13px}.notice{margin-top:22px;padding:19px 21px;border-left:4px solid #3157d5;background:#f2f5fc}.notice p{margin:4px 0 0}.review footer{margin-top:24px;padding-top:20px;border-top:1px solid #e0e6ef;color:#7a879a;font-size:12px}.review footer code{color:#53627a}@media(max-width:700px){header{padding:0 18px}.logout{display:none}main{padding:34px 16px}.form-shell,.review{padding:24px}.checks,.two,.grid,.signals{grid-template-columns:1fr}.review-head{display:block}.status{display:inline-flex}.actions{align-items:stretch;flex-direction:column}.actions .button,.actions button{text-align:center;justify-content:center}}
+.status.approved{background:#e4f8ec;color:#137447}.confirm{display:grid;grid-template-columns:auto 1fr;align-items:flex-start;gap:12px;padding:18px;border:1px solid #c8d6f2;border-radius:13px;background:#f7f9fd}.confirm input{margin-top:4px;accent-color:#3157d5}.receipt{margin-top:24px;padding:20px;border:1px solid #bde7ce;background:#effaf3;border-radius:14px}.receipt dl{display:grid;grid-template-columns:max-content 1fr;gap:9px 18px;margin:0}.receipt dt{font-weight:800}.receipt dd{margin:0;color:#53627a;overflow-wrap:anywhere}@media(max-width:700px){.receipt dl{grid-template-columns:1fr}}
 """

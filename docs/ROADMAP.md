@@ -1,5 +1,23 @@
 # Runtime Roadmap
 
+# Day 14 — Customer Approval and Requirements Lock
+
+Let the authenticated owner review and explicitly approve one exact current Day 13 requirements
+revision. Require the revision and full requirements digest from the rendered checkpoint, reload
+current customer-scoped authority server-side, and require an affirmative confirmation before
+creating one canonical write-once receipt. Bind that receipt to the customer, request, draft,
+revision, source-request digest, requirements digest, confirmation contract, and server time.
+
+Once the receipt exists, block every later draft mutation and redirect edit attempts to the approved
+baseline. Preserve exact-retry idempotency, restart-safe reads, path containment, closed schemas,
+exclusive mode-0600 writes, symlink/tamper detection, and generic cross-customer errors. Mandatory
+Chromium CI proves confirmation, receipt rendering, edit blocking, logout, returning login, and
+reopening the approved baseline.
+
+Day 14 does not generate or approve a PRD, create a roadmap, estimate delivery, assign agents,
+connect repositories, generate code, execute a product, merge, deploy, bill, or release. Those are
+separate governed modules.
+
 # Day 13 — Guided Customer Requirements Drafts
 
 Let an authenticated customer refine one owned Day 11 request through a guided product-discovery
