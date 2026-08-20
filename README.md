@@ -1,5 +1,18 @@
 # AI-Software-Company-OS (ASCOS)
 
+The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
+`docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
+compressed, renumbered, or inferred from chat history.
+
+Day 20 adds a customer-scoped project progress dashboard derived on every read from the exact
+locked roadmap and Day 19 estimate authority. It displays governed milestones, exactly-once planned
+requirement tasks, truthful zero progress, the empty operational-agent assignment state, open
+authority blockers, and recorded planning decisions. The projection reuses ASCOS's Project Manager
+progress calculation and persists no new execution state. Mandatory Chromium CI proves an
+authenticated customer can open and reopen the same exact projection. The dashboard cannot assign
+agents, create executable tasks, connect a repository, write code, deploy, release, select a pilot,
+or perform Day 21 work. See `docs/CUSTOMER_PROJECT_PROGRESS.md`.
+
 Day 19 adds deterministic customer delivery-effort estimate drafts from the exact locked Day 18
 roadmap. Every governed roadmap item and locked requirement maps exactly once into a transparent
 relative engineering-day range with visible complexity drivers, assumptions, effort band, and

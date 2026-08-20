@@ -304,6 +304,28 @@ The artifact remains `DRAFT`. An engineering day is relative effort rather than 
 Day 19 grants no approval, price, quote, date, schedule, staffing, agent, repository, implementation
 task, code, merge, deployment, billing, release, or official pilot-product authority.
 
+# Customer project-progress boundaries
+
+Day 20 trusts customer identity and CSRF only from the Day 12 session middleware and exposes one
+GET-only view. It accepts no progress mutation or customer-asserted identity, digest, milestone,
+task, assignment, blocker, decision, or execution authority. The service reloads the complete
+Day 11-19 customer authority chain on every read and requires exact request, PRD, locked-roadmap,
+roadmap-approval, estimate, digest, and ordered requirement bindings. Missing, cross-customer,
+corrupt, stale, tampered, or mismatched authority fails closed.
+
+The dashboard is a deterministic non-persistent projection. Existing governed roadmap items become
+visible milestones and locked requirements become non-executable planned tasks exactly once. ASCOS's
+existing Project Manager progress calculation must independently return zero progress for this
+not-started state. Operational agent assignments are deliberately empty. Open blockers describe
+missing authority and later capabilities; they do not become executable tasks. Decisions expose
+only bounded labels, rationale, time, and the exact safe authority digest.
+
+Customer content is escaped and responses remain non-cacheable with restrictive CSP, frame denial,
+sniffing denial, and no-referrer policy. Browser evidence excludes passwords, bearer tokens,
+cookies, CSRF values, salts, and local paths. Day 20 has no persistence adapter, mutation route,
+agent runtime, repository adapter, subprocess, external AI, network-provider, code, deployment,
+release, billing, pilot-selection, or Day 21 authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

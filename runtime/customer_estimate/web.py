@@ -269,7 +269,8 @@ def _estimate_review(
 <dt>Estimate digest</dt><dd><code>{escape(estimate.digest)}</code></dd></dl></div>
 <div class="notice"><strong>Draft estimate — no commitment or execution authority</strong>
 <p>No approval, price, quote, calendar date, schedule, staffing, agents, repositories, implementation tasks, code, merge, deployment, billing, release, or pilot-product selection has been authorized.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(estimate.request_id)}/roadmap/approved">View locked roadmap</a>
+<div class="actions"><a class="button" href="/customer/requests/{escape(estimate.request_id)}/progress">View project progress</a>
+<a class="button secondary" href="/customer/requests/{escape(estimate.request_id)}/roadmap/approved">View locked roadmap</a>
 <a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
     return _layout(f"Draft estimate for {prd.title} · ASCOS", content, csrf)
 

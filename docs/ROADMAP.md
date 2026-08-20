@@ -1,5 +1,26 @@
 # Runtime Roadmap
 
+# Day 20 — Customer Project Progress Dashboard
+
+Let the authenticated owner open a deterministic, read-only progress projection for the exact
+Day 19 estimate and its locked roadmap. Reload and verify the complete governed authority chain on
+every request. Reuse the existing Project Manager domain to calculate totals and progress, project
+each governed roadmap item as one visible milestone, and map every locked requirement exactly once
+as a planned task in roadmap order.
+
+Show truthful overall and per-milestone progress, completed/total and in-progress/blocked task
+counts, operational-agent assignment state, open execution blockers, and governed planning
+decisions with their exact authority digests. Keep all tasks and milestones `NOT_STARTED`, progress
+at zero, and assignments empty because execution authority and the operational workforce do not yet
+exist. The projection is content-digested, customer-scoped, non-persistent, CSRF/session protected,
+escaped, non-cacheable, and GET-only. Mandatory Chromium CI proves authenticated opening,
+logout/login, exact projection recovery, browser protections, and founder-safe evidence.
+
+Day 20 is visibility only. It does not approve an estimate, assign an agent, persist execution
+state, create an executable task, select a pilot product, connect or write a repository, generate or
+execute code, merge, deploy, bill, release, or perform Day 21. Day 21 remains a separately approved
+Preview and Evidence Centre module.
+
 # Day 19 — Traceable Customer Delivery Estimate Draft
 
 Let the authenticated owner generate and reopen one deterministic delivery-effort estimate v0.1
