@@ -1,5 +1,13 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 14 adds explicit customer approval and immutable locking for one exact Day 13 requirements
+revision. The signed-in owner reviews the complete scope, selects a required confirmation, and
+receives a canonical write-once receipt bound to the source request and requirements digests.
+Approved requests reject later edits, survive logout/login and restart, and remain customer-scoped.
+Mandatory Chromium CI proves confirmation, locking, receipt recovery, and browser protections. This
+approval does not generate a PRD, plan work, dispatch agents, connect a repository, code, merge,
+deploy, bill, or release. See `docs/CUSTOMER_REQUIREMENTS_APPROVAL.md`.
+
 Day 13 adds guided customer requirements refinement. An authenticated customer can open an immutable
 Day 11 product request, clarify the primary user journey, desired outcomes, must-have features,
 measurable success signals, non-goals, delivery platforms, data sensitivity, and priority, then save
@@ -116,6 +124,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_REQUIREMENTS_APPROVAL.md](docs/CUSTOMER_REQUIREMENTS_APPROVAL.md) — explicit
+  customer confirmation, immutable requirements locking, approval receipts, and browser evidence.
 
 - [docs/CUSTOMER_GUIDED_REQUIREMENTS.md](docs/CUSTOMER_GUIDED_REQUIREMENTS.md) — guided product
   clarification, append-only customer drafts, source binding, review UI, and browser evidence.

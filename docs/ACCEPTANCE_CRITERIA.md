@@ -1,5 +1,32 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 14 acceptance
+
+Only the authenticated owner of the immutable source request may open the approval checkpoint,
+approve, or view its receipt. Approval must reload current server-side request and draft authority,
+require an explicit confirmation, and match both the exact positive revision and complete 64-digit
+draft digest shown to the customer. Missing drafts, stale forms, false/missing confirmation,
+cross-customer access, source mismatch, and malformed authority must fail closed.
+
+The receipt must bind a bounded derived approval ID, customer/request/draft identities, revision,
+source-request digest, requirements digest, fixed confirmation-contract version, and timezone-aware
+server time. It must be canonical, integrity-digested, path-contained, write-once, mode 0600,
+restart-safe, exact-retry idempotent, and protected against unknown fields/files, mutation, symlinks,
+and conflicting second approval. Once present, it must durably block every later draft mutation and
+edit route without rewriting the approved draft.
+
+The web checkpoint must use trusted session identity and session CSRF, exact bounded URL-encoded
+fields, a required confirmation checkbox, restrictive security headers, escaped customer content,
+and generic failure pages that do not echo rejected authority. The receipt page must say that the
+baseline is approved while implementation has not started.
+
+Mandatory exact-head CI must run real Chromium through signup, intake, refinement, explicit
+confirmation, receipt display, attempted edit redirect, logout, returning login, and reopening the
+approved baseline without console/request failures. The founder artifact must contain
+`requirements-approved.png` and a content-digested manifest without passwords, bearer tokens,
+cookies, CSRF values, salts, or local paths. Day 14 grants no PRD, planning, agent, repository,
+coding, merge, deployment, billing, or release authority.
+
 # Day 13 acceptance
 
 Only the authenticated customer that owns the immutable source request may open, save, list, or

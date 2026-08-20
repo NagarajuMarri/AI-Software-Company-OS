@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 from runtime.customer_application.models import CustomerProductRequest
 from runtime.customer_application.service import CustomerProductRequestService
-from runtime.customer_requirements.errors import RequirementsDraftConflict
+from runtime.customer_requirements.errors import RequirementsDraftConflict, RequirementsDraftLocked
 from runtime.customer_requirements.models import (
     ALLOWED_PLATFORMS,
     CustomerRequirementsDraft,
@@ -26,10 +26,17 @@ class CustomerRequirementsService:
         store: FileCustomerRequirementsStore,
         requests: CustomerProductRequestService,
         clock: Callable[[], datetime] | None = None,
+        is_locked: Callable[[str, str], bool] | None = None,
     ) -> None:
         self._store = store
         self._requests = requests
         self._clock = clock or (lambda: datetime.now(timezone.utc))
+        self._lock_lookup = is_locked or (lambda _customer_id, _request_id: False)
+
+    def is_locked(self, customer_id: str, request_id: str) -> bool:
+        """Return whether an immutable approval now prevents draft changes."""
+
+        return self._lock_lookup(customer_id, request_id)
 
     def context(
         self,
@@ -58,6 +65,8 @@ class CustomerRequirementsService:
         delivery_priority: DeliveryPriority,
     ) -> CustomerRequirementsDraft:
         request, latest = self.context(customer_id, request_id)
+        if self.is_locked(customer_id, request_id):
+            raise RequirementsDraftLocked("Approved requirements cannot be revised")
         current_revision = 0 if latest is None else latest.revision
         if (
             not platforms
