@@ -1,5 +1,25 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 11 acceptance
+
+The customer portal must require a trusted upstream customer identity and CSRF token before it accepts
+a product request. The request body, content type, form fields, identifiers, text, feature count,
+constraint count, and individual values must be bounded. Customer text must be escaped on every
+render, responses must be non-cacheable and carry CSP, frame, content-type, and referrer protections,
+and invalid submissions must fail closed without echoing customer content.
+
+One successful submission must persist a canonical, integrity-digested, write-once request bound to
+the customer and request IDs, desired product outcome, target users, ordered required features,
+optional constraints, terminal submission stage, and timezone-aware submission time. Exact retries
+must reuse the original record; changed retries, traversal, cross-customer reads, symlink escape,
+corruption, and overwrite must fail. Restarted storage must reproduce the request exactly.
+
+Mandatory exact-head CI must run a real Chromium journey from an empty customer dashboard through the
+product form to the persisted confirmation/detail page. The founder artifact must contain a safe
+screenshot and manifest with no credentials, session identifiers, CSRF values, or customer secrets.
+Day 11 does not claim customer account/login implementation, AI refinement, agent dispatch,
+repository connection, coding, merge, deployment, billing, or release.
+
 # Day 10 acceptance
 
 PWA verification must reload one immutable plan and prove exact agreement with the

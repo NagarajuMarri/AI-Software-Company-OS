@@ -108,6 +108,22 @@ the exact Authentication, Voice, and PWA result digests, journey coverage, evide
 content-addressed artifact before runtime acceptance changes. It exposes no human-acceptance, source
 write, merge, deployment, or release operation and stops at `RUNTIME_VERIFIED`.
 
+# Customer product-request boundaries
+
+Day 11 accepts identity only from a trusted WSGI `REMOTE_USER` gateway and accepts CSRF authority only
+from server-side session middleware; neither value is read from a customer-controlled header or form
+as identity authority. Requests require a matching CSRF value, exact form content type, declared and
+bounded byte length, a closed field set, single values, bounded text/items, safe identifiers, and
+timezone-aware server submission time. Invalid requests return a generic response without echoing
+customer content.
+
+Customer values are escaped before rendering. Responses are non-cacheable and carry restrictive CSP,
+frame, content-type, and referrer headers. Persistence is customer-scoped, canonical, integrity
+digested, path-contained, write-once, and exact-retry idempotent. Cross-customer reads, traversal,
+symlink escape, corruption, and changed identity reuse fail closed. Day 11 stores product briefs and
+therefore excludes credentials, secrets, regulated data, uploads, agent execution, repository access,
+merge, deployment, billing, and release.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database
