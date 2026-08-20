@@ -80,6 +80,19 @@ def test_allowed_environment_value_is_redacted_from_output(tmp_path):
     assert "credential-like-value" not in repr(result)
 
 
+def test_default_environment_does_not_inherit_unapproved_values(tmp_path, monkeypatch):
+    monkeypatch.setenv("ASCOS_UNAPPROVED_VALUE", "must-not-leak")
+    result = runner(tmp_path).execute(CommandRequest(
+        "python",
+        (
+            "-c",
+            "import os;print(os.environ.get('ASCOS_UNAPPROVED_VALUE', 'missing'))",
+        ),
+        tmp_path,
+    ))
+    assert result.stdout.strip() == "missing"
+
+
 def test_live_cancellation_terminates_child(tmp_path):
     cancellation = threading.Event()
     timer = threading.Timer(.05, cancellation.set)

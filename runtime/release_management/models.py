@@ -65,6 +65,22 @@ class ReleaseCandidate:
     created_by: str
     created_at: datetime
 
+    def __post_init__(self) -> None:
+        if not self.candidate_id.strip() or not self.created_by.strip():
+            raise ValueError("Release candidate identity is required")
+        if len(self.commit_sha) != 40 or any(
+            character not in "0123456789abcdef"
+            for character in self.commit_sha.lower()
+        ):
+            raise ValueError("Release candidate requires a full hexadecimal commit SHA")
+        offset = self.created_at.utcoffset()
+        if (
+            self.created_at.tzinfo is None
+            or offset is None
+            or offset.total_seconds() != 0
+        ):
+            raise ValueError("Release candidate timestamp must use UTC")
+
 
 @dataclass(frozen=True)
 class ReleaseApproval:
@@ -131,6 +147,14 @@ class DeploymentRecord:
 
 
 @dataclass(frozen=True)
+class ReleaseReadiness:
+    ready: bool
+    blockers: tuple[str, ...]
+    accepted_capability_ids: tuple[str, ...]
+    acceptance_run_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class Release:
     release_id: str
     product_ids: tuple[str, ...]
@@ -146,6 +170,8 @@ class Release:
     commit_shas: tuple[str, ...] = ()
     pull_request_urls: tuple[str, ...] = ()
     decision_ids: tuple[str, ...] = ()
+    locked_capability_ids: tuple[str, ...] = ()
+    runtime_acceptance_run_ids: tuple[str, ...] = ()
     candidates: tuple[ReleaseCandidate, ...] = ()
     approvals: tuple[ReleaseApproval, ...] = ()
     notes: ReleaseNotes | None = None
@@ -179,6 +205,12 @@ class Release:
         for sha in self.commit_shas:
             if len(sha) != 40 or any(c not in "0123456789abcdef" for c in sha.lower()):
                 raise ValueError("Release commits require full hexadecimal SHAs")
+        for values, label in (
+            (self.locked_capability_ids, "locked capability IDs"),
+            (self.runtime_acceptance_run_ids, "runtime acceptance run IDs"),
+        ):
+            if len(values) != len(set(values)) or any(not item.strip() for item in values):
+                raise ValueError(f"{label} must be unique and non-empty")
 
 
 @dataclass(frozen=True)

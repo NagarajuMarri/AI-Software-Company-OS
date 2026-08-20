@@ -19,6 +19,13 @@ _EXECUTABLE = re.compile(r"^[A-Za-z0-9_.+-]+$")
 _SECRET = re.compile(r"(TOKEN|SECRET|PASSWORD|API[_-]?KEY|CREDENTIAL)", re.I)
 
 
+def _minimal_environment() -> dict[str, str]:
+    environment = {"PATH": os.environ.get("PATH", os.defpath)}
+    if os.name == "nt":
+        environment["SYSTEMROOT"] = os.environ.get("SYSTEMROOT", r"C:\Windows")
+    return environment
+
+
 class LocalCommandRunner:
     def __init__(
         self,
@@ -33,7 +40,9 @@ class LocalCommandRunner:
         self.allowed_executables = frozenset(allowed_executables)
         self.allowed_environment = frozenset(allowed_environment)
         self.max_output_bytes = max_output_bytes
-        self.base_environment = dict(base_environment or {})
+        self.base_environment = dict(
+            _minimal_environment() if base_environment is None else base_environment
+        )
 
     def execute(self, request: CommandRequest, *, cancellation=None) -> CommandResult:
         self._validate(request)

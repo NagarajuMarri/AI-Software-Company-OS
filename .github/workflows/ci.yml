@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -27,26 +29,164 @@ jobs:
           done
       - run: git diff --check
 
-  optional-postgresql:
-    if: ${{ vars.ASCOS_RUN_POSTGRES_TESTS == 'true' }}
+  browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ASCOS_BROWSER_INTEGRATION: "1"
+      ASCOS_FOUNDER_EVIDENCE_DIR: founder-evidence/day8
+      ASCOS_VOICE_FOUNDER_EVIDENCE_DIR: founder-evidence/day9
+      ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
+      ASCOS_DAY11_FOUNDER_EVIDENCE_DIR: founder-evidence/day11
+      ASCOS_DAY12_FOUNDER_EVIDENCE_DIR: founder-evidence/day12
+      ASCOS_DAY13_FOUNDER_EVIDENCE_DIR: founder-evidence/day13
+      ASCOS_DAY14_FOUNDER_EVIDENCE_DIR: founder-evidence/day14
+      ASCOS_DAY15_FOUNDER_EVIDENCE_DIR: founder-evidence/day15
+      ASCOS_DAY16_FOUNDER_EVIDENCE_DIR: founder-evidence/day16
+      ASCOS_DAY17_FOUNDER_EVIDENCE_DIR: founder-evidence/day17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,browser]"
+      - run: python -m playwright install --with-deps chromium
+      - name: Run runtime and customer-application end-user tests
+        run: >-
+          python -m pytest -q
+          tests/test_managed_product_browser.py
+          tests/test_managed_product_authentication.py
+          tests/test_managed_product_authentication_integration.py
+          tests/test_managed_product_voice.py
+          tests/test_managed_product_voice_integration.py
+          tests/test_managed_product_pwa.py
+          tests/test_managed_product_pwa_integration.py
+          tests/test_customer_application.py
+          tests/test_customer_application_integration.py
+          tests/test_customer_authentication.py
+          tests/test_customer_authentication_integration.py
+          tests/test_customer_requirements.py
+          tests/test_customer_requirements_integration.py
+          tests/test_customer_requirements_approval.py
+          tests/test_customer_requirements_approval_integration.py
+          tests/test_customer_prd.py
+          tests/test_customer_prd_integration.py
+          tests/test_customer_prd_approval.py
+          tests/test_customer_prd_approval_integration.py
+          tests/test_customer_roadmap.py
+          tests/test_customer_roadmap_integration.py
+      - name: Upload founder-safe Day 8 verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day8-founder-verification
+          path: founder-evidence/day8
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 9 voice verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day9-founder-voice-verification
+          path: founder-evidence/day9
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 10 PWA verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day10-founder-pwa-verification
+          path: founder-evidence/day10
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 11 customer application verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day11-founder-customer-application
+          path: founder-evidence/day11
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 12 customer authentication verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day12-founder-customer-authentication
+          path: founder-evidence/day12
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 13 guided requirements verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day13-founder-guided-requirements
+          path: founder-evidence/day13
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 14 requirements approval verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day14-founder-requirements-approval
+          path: founder-evidence/day14
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 15 customer PRD verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day15-founder-customer-prd
+          path: founder-evidence/day15
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 16 customer PRD approval verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day16-founder-customer-prd-approval
+          path: founder-evidence/day16
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 17 customer roadmap verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day17-founder-customer-roadmap
+          path: founder-evidence/day17
+          if-no-files-found: warn
+          retention-days: 14
+
+  postgresql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ascos_ci
+          TZ: UTC
         ports: ["5432:5432"]
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d ascos_ci"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest -q tests/test_postgresql_adapter.py
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,postgres]"
+      - run: >-
+          python -m pytest -q
+          tests/test_postgresql_adapter.py
+          tests/test_postgresql_integration.py
         env:
-          ASCOS_POSTGRES_TEST_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          ASCOS_POSTGRES_TEST_URL: postgresql://postgres:postgres@localhost:5432/ascos_ci

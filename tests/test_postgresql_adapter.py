@@ -1,12 +1,11 @@
 from datetime import datetime, timezone
-import os
 import pytest
 
 from runtime.persistence.postgresql.connection import PostgreSQLConfiguration, connect
 from runtime.persistence.postgresql.exceptions import PostgreSQLConnectionError
 from runtime.persistence.postgresql.migrations import MIGRATIONS
 from runtime.persistence.postgresql.outbox_repository import (
-    CLAIM_SELECT_SQL, PostgreSQLOutboxRepository,
+    CLAIM_SELECT_SQL, RECOVER_EXPIRED_SQL, PostgreSQLOutboxRepository,
 )
 
 NOW = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -41,14 +40,30 @@ def test_claim_sql_has_deterministic_order():
 def test_claim_is_atomic_and_fenced():
     connection = Connection([("op-1", 4), (9,)])
     result = PostgreSQLOutboxRepository(lambda: connection, clock=lambda: NOW).claim_next("worker")
-    assert result["operation_id"] == "op-1"
-    assert result["fencing_token"] == 5
+    assert result.operation_id == "op-1"
+    assert result.fencing_token == 5
+    assert result.claimed_at == NOW
     assert connection.closed
 
 
 def test_empty_claim_returns_none():
     connection = Connection([None])
     assert PostgreSQLOutboxRepository(lambda: connection, clock=lambda: NOW).claim_next("worker") is None
+
+
+def test_claim_recovers_expired_work_before_selecting():
+    connection = Connection([("op-1", 1), (2,)])
+    PostgreSQLOutboxRepository(lambda: connection, clock=lambda: NOW).claim_next("worker")
+    assert RECOVER_EXPIRED_SQL in connection.cursor_value.calls[0][0]
+
+
+@pytest.mark.parametrize("owner,ttl", [("bad owner", 30), ("worker", 0), ("worker", 3601)])
+def test_claim_request_is_validated(owner, ttl):
+    with pytest.raises(ValueError):
+        PostgreSQLOutboxRepository(lambda: None, clock=lambda: NOW).claim_next(
+            owner,
+            ttl_seconds=ttl,
+        )
 
 
 def test_raw_url_rejected_as_configuration():
@@ -61,9 +76,14 @@ def test_pool_bounds_are_validated():
 
 
 def test_connection_error_is_redacted():
+    def secret_bearing_resolver(_reference):
+        raise RuntimeError("postgresql://user:supersecret@database/internal")
+
     with pytest.raises(PostgreSQLConnectionError) as captured:
-        connect(PostgreSQLConfiguration("test-database"), lambda _: "not-a-real-dsn")
-    assert "not-a-real-dsn" not in str(captured.value)
+        connect(PostgreSQLConfiguration("test-database"), secret_bearing_resolver)
+    assert "supersecret" not in str(captured.value)
+    assert captured.value.__cause__ is None
+    assert captured.value.__context__ is None
 
 
 def test_migrations_are_versioned_and_ordered():
@@ -77,11 +97,3 @@ def test_migrations_are_versioned_and_ordered():
 def test_migration_contains_required_boundary(fragment):
     sql = " ".join(statement for migration in MIGRATIONS for statement in migration.statements)
     assert fragment in sql
-
-
-@pytest.mark.skipif(
-    not os.environ.get("ASCOS_POSTGRES_TEST_URL"),
-    reason="ASCOS_POSTGRES_TEST_URL is not configured",
-)
-def test_postgresql_integration_environment_is_opt_in():
-    assert os.environ.get("ASCOS_POSTGRES_TEST_URL")
