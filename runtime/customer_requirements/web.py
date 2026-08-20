@@ -64,10 +64,13 @@ class CustomerWorkspaceApplication:
         requirements: "CustomerRequirementsApplication",
         approval: RoutedCustomerApplication | None = None,
         prd: RoutedCustomerApplication | None = None,
+        prd_approval: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
-        self._extensions = tuple(item for item in (approval, prd) if item is not None)
+        self._extensions = tuple(
+            item for item in (approval, prd, prd_approval) if item is not None
+        )
 
     def __call__(self, environ: dict[str, object], start_response: Callable) -> Iterable[bytes]:
         path = str(environ.get("PATH_INFO", "/"))

@@ -1,5 +1,25 @@
 # Runtime Roadmap
 
+# Day 16 — Customer PRD Approval and Immutable Lock
+
+Let the authenticated owner review the complete exact Day 15 PRD, affirm one fixed confirmation,
+and create one canonical write-once approval receipt. Reload the customer-owned request,
+requirements revision, requirements approval, and PRD server-side. Bind the receipt to their exact
+identities, versions, and digests; reject missing, stale, cross-customer, corrupt, or mismatched
+authority.
+
+Project the receipt through the existing governed Product Requirements lifecycle from `DRAFT` to
+`UNDER_REVIEW`, `APPROVED`, and `LOCKED`. Require the document and every requirement to be locked,
+the customer to be the recorded approver, the lock timestamp to match the receipt, and PRD validation
+to pass. Preserve exact-retry idempotency, restart-safe reads, canonical integrity records,
+mode-0600 exclusive writes, customer isolation, path containment, closed schemas, symlink/tamper
+detection, session CSRF, escaping, and restrictive browser headers. Mandatory Chromium CI proves
+approval, receipt rendering, logout/login, and locked-PRD recovery.
+
+Day 16 does not create a roadmap, estimate or schedule work, assign agents, select a pilot product,
+connect a repository, generate or execute code, merge, deploy, bill, or release. Those remain
+separate founder-governed modules.
+
 # Day 15 — Traceable Customer PRD Draft
 
 Let the authenticated owner generate one deterministic PRD v0.1 only after Day 14 has locked an

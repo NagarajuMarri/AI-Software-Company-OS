@@ -1,4 +1,4 @@
-"""First real product pilot definition; contains no product repository writes."""
+"""Historical managed-flow fixture; contains no product repository writes."""
 
 from datetime import datetime, timezone
 
@@ -33,7 +33,7 @@ def managed_change_request(
             "practice session from proficiency, goal, recent mistakes, streak, "
             "completed lessons, explanation language, and available duration."
         ),
-        "First commercial ASCOS managed-product pilot",
+        "Historical ASCOS managed-flow fixture; no official pilot product is selected",
         EXPECTED_PRODUCT_AREAS,
         (
             "Session includes warm-up, situation, vocabulary, grammar, pronunciation, "
