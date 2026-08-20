@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 15 adds deterministic customer PRD-draft generation. After Day 14 approval, the authenticated
+owner can create and reopen one canonical PRD v0.1 bound to the exact source-request, requirements,
+and approval digests. Every requirement carries an approved-source reference, and the artifact is
+validated through ASCOS's existing governed PRD domain while remaining `DRAFT`. Mandatory Chromium
+CI proves the complete signup-to-PRD and returning-customer journeys and uploads a safe review
+screenshot. This module does not approve or lock the PRD, make a roadmap, estimate work, dispatch
+agents, connect a repository, write code, merge, deploy, bill, or release. See
+`docs/CUSTOMER_PRD_DRAFT.md`.
+
 Day 14 adds explicit customer approval and immutable locking for one exact Day 13 requirements
 revision. The signed-in owner reviews the complete scope, selects a required confirmation, and
 receives a canonical write-once receipt bound to the source request and requirements digests.
@@ -124,6 +133,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_PRD_DRAFT.md](docs/CUSTOMER_PRD_DRAFT.md) — deterministic PRD v0.1 generation,
+  exact approval binding, source mapping, governed-domain validation, and browser evidence.
 
 - [docs/CUSTOMER_REQUIREMENTS_APPROVAL.md](docs/CUSTOMER_REQUIREMENTS_APPROVAL.md) — explicit
   customer confirmation, immutable requirements locking, approval receipts, and browser evidence.

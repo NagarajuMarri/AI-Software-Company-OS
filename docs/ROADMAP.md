@@ -1,5 +1,25 @@
 # Runtime Roadmap
 
+# Day 15 — Traceable Customer PRD Draft
+
+Let the authenticated owner generate one deterministic PRD v0.1 only after Day 14 has locked an
+approved requirements revision. Reload all authority server-side and bind the write-once artifact to
+the exact customer, request, immutable source-request digest, requirements digest, and approval
+receipt digest. Map the approved journey and outcomes, must-have features, platforms, declared data
+sensitivity, delivery priority, success metrics, and exclusions into stable requirement identities
+with explicit source references.
+
+Project the artifact into the existing governed Product Requirements domain and require validation
+to pass while retaining `DRAFT` status, no approver, and no future roadmap. Preserve exact-retry
+idempotency, restart-safe reads, canonical integrity records, mode-0600 exclusive writes, customer
+isolation, path containment, closed schemas, symlink/tamper detection, session CSRF, escaping, and
+browser protections. Mandatory Chromium CI proves the full signup, intake, refinement, approval,
+generation, review, logout/login, and existing-draft recovery journey.
+
+Day 15 does not approve or lock the PRD, create a roadmap, estimate or schedule work, assign agents,
+connect repositories, generate or execute code, merge, deploy, bill, or release. Those remain
+separate governed modules.
+
 # Day 14 — Customer Approval and Requirements Lock
 
 Let the authenticated owner review and explicitly approve one exact current Day 13 requirements

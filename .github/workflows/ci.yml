@@ -41,6 +41,7 @@ jobs:
       ASCOS_DAY12_FOUNDER_EVIDENCE_DIR: founder-evidence/day12
       ASCOS_DAY13_FOUNDER_EVIDENCE_DIR: founder-evidence/day13
       ASCOS_DAY14_FOUNDER_EVIDENCE_DIR: founder-evidence/day14
+      ASCOS_DAY15_FOUNDER_EVIDENCE_DIR: founder-evidence/day15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,6 +70,8 @@ jobs:
           tests/test_customer_requirements_integration.py
           tests/test_customer_requirements_approval.py
           tests/test_customer_requirements_approval_integration.py
+          tests/test_customer_prd.py
+          tests/test_customer_prd_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -123,6 +126,14 @@ jobs:
         with:
           name: day14-founder-requirements-approval
           path: founder-evidence/day14
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 15 customer PRD verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day15-founder-customer-prd
+          path: founder-evidence/day15
           if-no-files-found: warn
           retention-days: 14
 
