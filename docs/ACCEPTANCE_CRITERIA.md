@@ -1,5 +1,38 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 23 acceptance
+
+The CEO and Product Manager must be separate enabled Digital Twins aligned exactly to
+`AgentRole.CEO` and `AgentRole.PROJECT_MANAGER`. Each must use the Day 22 runtime, the explicit
+Day 23 provider, an exact ordered capability profile, an exact ordered delegated-action profile,
+zero tools, zero tool calls, no live-provider authorization, one current tenant-bound authority,
+and an objective digest that matches its immutable assignment. Wrong role, tenant, Twin, provider,
+capability, action order, objective, handoff, tool allowance, or elevated authority must fail before
+provider activity.
+
+The CEO output must record a bounded opportunity summary, goals, structured clarification
+questions, and status report. It must not contain product scope or plan items. The Product Manager
+output must require the exact persisted CEO artifact and opportunity digest, then record goals,
+in-scope and out-of-scope items, structured questions, an ordered product plan, and status report.
+Both outputs must be closed typed schemas, remain `DRAFT_AWAITING_HUMAN_REVIEW`, retain
+`NOT_SELECTED` pilot state, name human-decision blockers, and bind the exact opportunity,
+assignment, authority, provider request/output, runtime receipt, and upstream artifact digests.
+
+Only validated typed content may enter the leadership artifact store; raw provider responses and
+exceptions must not. Records must be canonical, integrity checked, mode 0600, tenant/execution
+scoped, write once, bounded, path contained, restart safe, exact-retry idempotent, and reject
+unknown entries, symlinks, unsafe permissions, malformed fields, and tampering. Exact retry and a
+new service/provider instance must return identical artifacts without repeating provider effects.
+
+Mandatory exact-head CI must execute both roles through the real runtime on generic fixture data,
+verify the exact CEO-to-Product-Manager handoff, and use real Chromium to inspect both drafts,
+statuses, digest chain, authority exclusions, restrictive headers, console health, and network
+health. Founder evidence must bind the exact commit, approved Day 22 base, both artifacts,
+authorities, assignments, provider requests/outputs, receipts, and screenshot digest without
+credentials or local paths. Day 23 performs no architecture/technology/ADR/risk work, engineering
+task creation, repository or command access, coding, budget/investment decision, approval, merge,
+deployment, billing, release, multi-agent orchestration, or official pilot selection.
+
 # Day 22 acceptance
 
 One enabled Digital Twin must align to exactly one existing `AgentRole`, one explicit provider, a

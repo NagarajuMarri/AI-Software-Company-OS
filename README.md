@@ -4,6 +4,16 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 23 adds operational CEO and Product Manager Digital Twins. The CEO records one bounded
+opportunity brief with goals, clarification questions, and an explicit status report. The Product
+Manager (`AgentRole.PROJECT_MANAGER`) consumes the exact persisted CEO artifact and produces
+clarified in/out scope, a draft product plan, questions, and status. Both role profiles execute
+through the Day 22 provider-neutral runtime with exact expiring authority, no tools, immutable
+digest-bound draft artifacts, restart-safe exact retries, and mandatory Chromium evidence. The
+agents cannot approve, fund, select a pilot, design architecture, create engineering work, access a
+repository, merge, deploy, bill, release, or orchestrate other agents. See
+`docs/LEADERSHIP_WORKFORCE_AGENTS.md`.
+
 Day 22 adds the provider-neutral Digital Twin execution runtime. One enabled Digital Twin is bound
 to one existing Business Role, one explicitly selected provider, declared capabilities, an
 allowlist of read-only tools, and one exact expiring delegation grant. The runtime persists intent
@@ -308,6 +318,7 @@ official frozen Spoken English AI PRD is
 - [docs/role-architecture.md](docs/role-architecture.md) — authoritative source of truth for reusable engineering business roles, scalable role tiers, capability assignments, and optional digital-twin fulfilment principles.
 - [docs/digital-twin-architecture.md](docs/digital-twin-architecture.md) — the authoritative architecture describing how Business Roles are fulfilled through Digital Twins while remaining technology independent.
 - [docs/DIGITAL_TWIN_EXECUTION_RUNTIME.md](docs/DIGITAL_TWIN_EXECUTION_RUNTIME.md) — the Day 22 provider-neutral runtime, delegated-authority, read-only tool-gateway, persistence, and evidence contract.
+- [docs/LEADERSHIP_WORKFORCE_AGENTS.md](docs/LEADERSHIP_WORKFORCE_AGENTS.md) — the Day 23 bounded CEO opportunity-intake and Product Manager scope/planning/status contract.
 - [docs/decision-architecture.md](docs/decision-architecture.md) — the authoritative architecture governing how decisions are owned, authorized, delegated, traced, reviewed, and evolved throughout ASCOS.
 - [docs/skill-architecture.md](docs/skill-architecture.md) — the authoritative architecture defining reusable enterprise skills, their composition, proficiency, lifecycle, governance, and assignment relationships with Business Roles and Digital Twins.
 - [docs/tool-architecture.md](docs/tool-architecture.md) — the authoritative architecture defining reusable operational Tools, their classifications, specification model, relationships, composition, selection, lifecycle, governance, and boundaries with Skills and future Execution Architecture.
