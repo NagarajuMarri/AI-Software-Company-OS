@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 18 — Customer Roadmap Approval and Immutable Lock
+
+Let the authenticated owner review every milestone and requirement mapping in one exact Day 17
+roadmap draft, affirm one fixed confirmation, and create one canonical write-once approval receipt.
+Reload and validate the complete customer-owned request, requirements, requirements approval, PRD,
+PRD approval, and roadmap chain server-side. Bind the receipt to all identities, versions, and
+digests, including the exact rendered roadmap digest; reject missing, stale, cross-customer,
+corrupt, tampered, or mismatched authority.
+
+Project the approved artifact into a deterministic immutable roadmap whose roadmap and every item
+are `LOCKED`. Preserve exact milestone order, stable roadmap-item IDs, ordered requirement mappings,
+priorities, and exactly-once requirement coverage. Preserve exact-retry idempotency, restart-safe
+reads, canonical integrity records, mode-0600 exclusive writes, customer isolation, path
+containment, closed schemas, symlink/tamper detection, session CSRF, escaping, and restrictive
+browser headers. Mandatory Chromium CI proves explicit approval, locked receipt rendering,
+logout/login, and recovery of the same locked roadmap.
+
+Day 18 creates immutable planning scope only. It does not estimate or schedule work, assign people
+or agents, select a pilot product, connect a repository, create implementation tasks, generate or
+execute code, merge, deploy, bill, or release. Day 19 remains separate and requires founder
+approval.
+
 # Day 17 — Traceable Customer Roadmap Draft
 
 Let the authenticated owner generate and reopen one deterministic roadmap v0.1 only from the exact

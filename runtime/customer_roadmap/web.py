@@ -23,7 +23,12 @@ from runtime.customer_requirements import (
     RequirementsDraftCorrupt,
 )
 from runtime.customer_requirements.web import _csrf, _layout, _message, _redirect, _respond
-from runtime.customer_roadmap.errors import CustomerRoadmapConflict, CustomerRoadmapCorrupt
+from runtime.customer_roadmap.approval_service import CustomerRoadmapApprovalService
+from runtime.customer_roadmap.errors import (
+    CustomerRoadmapApprovalCorrupt,
+    CustomerRoadmapConflict,
+    CustomerRoadmapCorrupt,
+)
 from runtime.customer_roadmap.models import CustomerRoadmapDraft, CustomerRoadmapMilestone
 from runtime.customer_roadmap.service import CustomerRoadmapService
 
@@ -41,8 +46,13 @@ _MAX_BODY = 8_192
 class CustomerRoadmapApplication:
     """Generate a traceable planning draft without starting implementation."""
 
-    def __init__(self, service: CustomerRoadmapService) -> None:
+    def __init__(
+        self,
+        service: CustomerRoadmapService,
+        approvals: CustomerRoadmapApprovalService | None = None,
+    ) -> None:
         self._service = service
+        self._approvals = approvals
 
     @staticmethod
     def handles(path: str) -> bool:
@@ -68,6 +78,15 @@ class CustomerRoadmapApplication:
         selected = generate or review
         request_id = selected.group(1) if selected is not None else ""
         try:
+            if (
+                selected is not None
+                and self._approvals is not None
+                and self._approvals.is_locked(customer_id, request_id)
+            ):
+                return _redirect(
+                    start_response,
+                    f"/customer/requests/{request_id}/roadmap/approved",
+                )
             if generate and method == "GET":
                 _, prd, approval, roadmap = self._service.context(customer_id, request_id)
                 if roadmap is not None:
@@ -125,6 +144,7 @@ class CustomerRoadmapApplication:
             )
         except (
             CustomerRoadmapCorrupt,
+            CustomerRoadmapApprovalCorrupt,
             CustomerPrdApprovalCorrupt,
             CustomerPrdCorrupt,
             RequirementsApprovalCorrupt,
@@ -245,6 +265,7 @@ def _roadmap_review(
 <div class="notice"><strong>Draft plan — no execution authority</strong>
 <p>No estimates, dates, schedule commitments, staffing, agents, repositories, coding, merge, deployment, billing, release, or pilot-product selection have been authorized.</p></div>
 <div class="actions"><a class="button secondary" href="/customer/requests/{escape(prd.request_id)}/prd/approved">View locked PRD</a>
+<a class="button" href="/customer/requests/{escape(prd.request_id)}/roadmap/approve">Review and approve roadmap</a>
 <a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
     return _layout(f"Draft roadmap for {prd.title} · ASCOS", content, csrf)
 

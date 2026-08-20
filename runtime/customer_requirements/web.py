@@ -66,11 +66,14 @@ class CustomerWorkspaceApplication:
         prd: RoutedCustomerApplication | None = None,
         prd_approval: RoutedCustomerApplication | None = None,
         roadmap: RoutedCustomerApplication | None = None,
+        roadmap_approval: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
         self._extensions = tuple(
-            item for item in (approval, prd, prd_approval, roadmap) if item is not None
+            item
+            for item in (approval, prd, prd_approval, roadmap, roadmap_approval)
+            if item is not None
         )
 
     def __call__(self, environ: dict[str, object], start_response: Callable) -> Iterable[bytes]:
