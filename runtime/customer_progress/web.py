@@ -160,8 +160,9 @@ def _dashboard(snapshot: CustomerProjectProgressSnapshot, csrf: str) -> str:
 <dt>Estimate</dt><dd><code>{escape(snapshot.estimate_digest)}</code></dd>
 <dt>Projection digest</dt><dd><code>{escape(snapshot.digest)}</code></dd></dl></div>
 <div class="notice"><strong>Visibility only — no execution authority</strong>
-<p>This dashboard does not approve an estimate, assign an agent, create an executable task, connect a repository, write code, merge, deploy, bill, release, select a pilot product, or perform Day 21 work.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(snapshot.request_id)}/estimate/review">View estimate</a>
+<p>This dashboard does not approve an estimate, assign an agent, create an executable task, connect a repository, write code, merge, deploy, bill, release, or select a pilot product.</p></div>
+<div class="actions"><a class="button" href="/customer/requests/{escape(snapshot.request_id)}/evidence">Open preview and evidence centre</a>
+<a class="button secondary" href="/customer/requests/{escape(snapshot.request_id)}/estimate/review">View estimate</a>
 <a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
     return _layout(f"Project progress for {snapshot.title} · ASCOS", content, csrf)
 

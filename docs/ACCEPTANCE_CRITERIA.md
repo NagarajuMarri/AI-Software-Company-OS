@@ -1,5 +1,35 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 21 acceptance
+
+Only the authenticated owner may view a request's Preview and Evidence Centre, follow its governed
+preview link, or record a review. The service must reload the exact Day 20 progress projection and
+its request-to-estimate/locked-roadmap authority chain server-side. One internal publication
+boundary may record an already-produced preview only when its credential-free origin is explicitly
+allowlisted and every evidence artifact binds the same full commit SHA. The customer web boundary
+must not publish previews or evidence and must reject cross-customer, missing, stale, corrupt,
+tampered, unsafe-origin, incomplete, or mismatched authority.
+
+The package must include unique artifacts covering automated tests, real browser execution, browser
+console, browser network, screenshot, and security results. It must bind customer, request, product,
+progress ID/digest, roadmap digest, estimate digest, preview label/URL, full commit SHA, publication
+time, and stable package identity. `ACCEPT` must be blocked unless every required evidence kind
+passes. `REVISE` must require bounded customer comments. Both decisions must require the exact
+rendered package digest, session CSRF, a fixed reviewed-evidence confirmation, and create one
+immutable receipt bound to the exact package and progress digests.
+
+Package and receipt persistence must be canonical, integrity checked, customer scoped, write once,
+restart safe, exact-retry idempotent, path contained, closed to unknown entries, mode 0600, and
+reject symlinks and tampering. Responses must escape customer content and retain no-store, CSP,
+frame, sniffing, and referrer protections. Mandatory exact-head CI must run Chromium through
+authenticated navigation, evidence inspection, opening the separate allowlisted preview, explicit
+acceptance, logout/login, and recovery of the same receipt without console or request failures.
+Founder evidence must include centre, opened-preview, and receipt screenshots plus a digested
+manifest free of passwords, tokens, cookies, CSRF values, salts, and local paths.
+
+Day 21 records a customer review only. It creates no preview/deployment, agent, executable task,
+workspace, repository write, code, merge, billing, release, pilot selection, or Day 22 authority.
+
 # Day 20 acceptance
 
 Only the authenticated owner may view project progress for a customer request. The service must

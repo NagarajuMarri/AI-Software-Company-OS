@@ -4,6 +4,16 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 21 adds the authenticated Preview and Evidence Centre. ASCOS can record one already-produced,
+allowlisted product preview and a canonical exact-commit evidence package covering automated tests,
+Chromium, console, network, screenshot, and security results. The customer opens the preview,
+inspects the evidence, and records one immutable `ACCEPT` or `REVISE` receipt; failed required
+evidence cannot be accepted and revisions require comments. The package binds the exact Day 20
+progress, locked roadmap, estimate, and commit digests. Mandatory Chromium CI proves preview opening,
+review, acceptance, sign-out/sign-in, and receipt recovery. Day 21 does not create or deploy a
+preview, run agents, create tasks, write a repository, merge, release, select a pilot, or begin Day
+22. See `docs/CUSTOMER_PREVIEW_EVIDENCE.md`.
+
 Day 20 adds a customer-scoped project progress dashboard derived on every read from the exact
 locked roadmap and Day 19 estimate authority. It displays governed milestones, exactly-once planned
 requirement tasks, truthful zero progress, the empty operational-agent assignment state, open

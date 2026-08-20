@@ -34,6 +34,7 @@ jobs:
     timeout-minutes: 20
     env:
       ASCOS_BROWSER_INTEGRATION: "1"
+      ASCOS_EVIDENCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       ASCOS_FOUNDER_EVIDENCE_DIR: founder-evidence/day8
       ASCOS_VOICE_FOUNDER_EVIDENCE_DIR: founder-evidence/day9
       ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
@@ -47,6 +48,7 @@ jobs:
       ASCOS_DAY18_FOUNDER_EVIDENCE_DIR: founder-evidence/day18
       ASCOS_DAY19_FOUNDER_EVIDENCE_DIR: founder-evidence/day19
       ASCOS_DAY20_FOUNDER_EVIDENCE_DIR: founder-evidence/day20
+      ASCOS_DAY21_FOUNDER_EVIDENCE_DIR: founder-evidence/day21
     steps:
       - uses: actions/checkout@v4
         with:
@@ -87,6 +89,8 @@ jobs:
           tests/test_customer_estimate_integration.py
           tests/test_customer_progress.py
           tests/test_customer_progress_integration.py
+          tests/test_customer_evidence.py
+          tests/test_customer_evidence_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -189,6 +193,14 @@ jobs:
         with:
           name: day20-founder-customer-project-progress
           path: founder-evidence/day20
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 21 customer preview evidence verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day21-founder-customer-preview-evidence
+          path: founder-evidence/day21
           if-no-files-found: warn
           retention-days: 14
 
