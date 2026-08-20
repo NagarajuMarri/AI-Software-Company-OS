@@ -1,5 +1,42 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 25 acceptance
+
+One shared Engineering provider and service must support exactly `AgentRole.BACKEND_ENGINEER`,
+`AgentRole.FRONTEND_ENGINEER`, `AgentRole.AI_ENGINEER`, and `AgentRole.DATA_ENGINEER`. Each enabled
+Digital Twin must use its exact ordered capability and delegated-action profile, zero tools and tool
+calls, no live-provider authorization, one current tenant-bound authority, and one immutable work
+order whose assignment ID and objective digest match the delegation. Wrong role, provider,
+capability, action or order, tenant, Twin, assignment, objective, tool allowance, source, or elevated
+authority must fail before provider activity.
+
+Every work order must bind the same tenant and opportunity, the exact digest of the persisted Day 24
+Software Architect artifact, and only component IDs present in that artifact. The architecture must
+remain `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW` with `NOT_SELECTED` pilot state. One successful
+role execution must produce closed typed implementation instructions, role-appropriate interface
+contracts, exact acceptance checks, engineering self-validation checks, handoff notes, and a status
+report. The output must preserve the work-order, architecture, role, capability, action, authority,
+assignment, provider request/output, and execution-receipt bindings and remain
+`DRAFT_ENGINEERING_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`.
+
+Provider output and all nested Engineering fields are untrusted. Only a result whose rebuilt request
+and output digests reconcile with the terminal runtime receipt may be stored. Persistence must be
+canonical, mode 0600, tenant/execution scoped, write once, bounded, path contained, integrity
+checked, restart safe, and exact-retry idempotent. It must reject unknown entries or fields, unsafe
+permissions, symlinks, non-canonical records, malformed role-specific items, changed acceptance
+checks, cross-role output, identity mismatch, and tampering. Raw provider values and exceptions,
+credentials, secrets, customer data, and local paths must not be persisted.
+
+Mandatory exact-head CI must execute all four roles through the real shared Digital Twin runtime
+using generic fixtures and real Chromium. Chromium must inspect all role outputs, the exact Day 24
+architecture binding, work-order and receipt digests, zero-tool authority, output status,
+restrictive headers, empty console failures, and empty network failures. Founder evidence must bind
+the exact commit, approved Day 24 base, source artifact, all work orders, role profiles, authorities,
+assignments, provider requests/outputs, receipts, counts, and screenshot digest without credentials
+or local paths. Day 25 performs no product-workspace or repository write, command, code application,
+QA, Security, DevOps, Documentation, multi-agent orchestration, merge, deployment, release, billing,
+budget action, architecture approval, or official pilot selection.
+
 # Day 24 acceptance
 
 One enabled Digital Twin must align exactly to `AgentRole.SOFTWARE_ARCHITECT`, the explicit Day 24

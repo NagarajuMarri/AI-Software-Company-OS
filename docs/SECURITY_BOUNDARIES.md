@@ -16,6 +16,38 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Engineering workforce boundaries
+
+Day 25 treats every Engineering work order, provider result, nested implementation item, interface
+contract, and status field as untrusted. One shared composition admits only Backend, Frontend, AI,
+and Data Engineer Business Roles. Before provider activity it requires the exact role-specific
+capability tuple, ordered action tuple, provider, tenant, Twin, assignment ID, objective digest,
+current expiring authority, work-order digest, and exact persisted Day 24 architecture digest. Work
+orders may target only component IDs contained in that architecture. A role, capability, action,
+tenant, assignment, source, objective, tool, or authority mismatch fails closed.
+
+All four profiles have an empty tool allowlist, zero tool-call budget, and no live-provider
+authorization. The provider receives only bounded non-secret architecture and work-order fields
+through the Day 22 typed request. It receives no filesystem, environment, subprocess, repository,
+network, credential, persistence, product workspace, approval, QA, Security, DevOps, deployment, or
+release capability. Role-specific output schemas prevent a Backend artifact from carrying Frontend,
+AI, or Data change kinds or contracts, and vice versa. Unknown fields, changed acceptance checks,
+cross-role records, malformed nested values, and elevated states fail before Engineering storage.
+
+After runtime execution, the service rebuilds the deterministic provider request and output and
+requires both digests to match the terminal receipt. Only then may the canonical, mode-0600,
+write-once, tenant/execution-scoped artifact store persist the result. Reads reject unsafe
+permissions, symlinks, unknown directory entries, non-canonical content, identity mismatch,
+oversized data, and digest tampering. Raw provider responses and exceptions, credentials, customer
+secrets, and local paths are never stored. Exact retry and restart reopen the same receipt and
+artifact without a second provider effect.
+
+Every output remains `DRAFT_ENGINEERING_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`; the source remains
+`DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`, and pilot state is fixed to `NOT_SELECTED`. Exact action
+profiles exclude architecture approval, product-workspace or repository writes, commands, code
+application, QA, Security, DevOps, Documentation, multi-agent orchestration, commit, merge,
+deployment, release, billing, budget allocation, and pilot selection.
+
 # Software Architect workforce boundaries
 
 Day 24 treats Software Architect provider output and every nested architecture field as untrusted.
