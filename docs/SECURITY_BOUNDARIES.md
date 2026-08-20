@@ -124,6 +124,27 @@ symlink escape, corruption, and changed identity reuse fail closed. Day 11 store
 therefore excludes credentials, secrets, regulated data, uploads, agent execution, repository access,
 merge, deployment, billing, and release.
 
+# Customer authentication boundaries
+
+Day 12 owns customer identity before the Day 11 portal. Canonical email is lookup authority, but raw
+email never becomes a filesystem name. Passwords are invocation-only and converted to per-account
+salted scrypt digests; raw bearer tokens are returned only to the browser and persistence uses their
+SHA-256 digests. Session records bind one customer to an independent CSRF value, issue time, twelve-
+hour expiry, and durable revocation marker. Account, session, and revocation records are closed-schema,
+canonical, integrity checked, path contained, exclusive-write, mode 0600 authorities.
+
+Signup and login use a signed double-submit pre-authentication CSRF cookie. Authenticated mutation
+uses the server-side session CSRF value. Cookies are HttpOnly and SameSite=Strict, Secure in normal
+operation, and explicitly non-Secure only for the loopback HTTP browser fixture. Authentication
+failure pages are generic and do not echo submitted identifiers or credentials. All responses use
+no-store, restrictive CSP, frame denial, sniffing denial, and no-referrer policy. The middleware, not
+the customer request, injects `REMOTE_USER` and `ascos.csrf_token` into the portal.
+
+This development file adapter does not provide password recovery, MFA, rate limiting, breached-
+password screening, organizations/roles, distributed session storage, encryption at rest, production
+email delivery, billing, deployment, or release. Production exposure requires those later controls,
+TLS termination, a managed database/secret, monitoring, backup, and operational abuse protection.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

@@ -8,7 +8,8 @@ deployment.
 
 ## Customer journey
 
-1. A trusted upstream identity/session gateway supplies `REMOTE_USER` and `ascos.csrf_token`.
+1. The Day 12 authentication middleware validates a server-side session and supplies `REMOTE_USER`
+   and `ascos.csrf_token` (a trusted upstream gateway remains a supported composition boundary).
 2. `GET /customer` renders the customer-scoped workspace and prior product requests.
 3. `GET /customer/requests/new` renders a CSRF-protected product form.
 4. The customer supplies product name, outcome, target users, one or more required features, and
@@ -34,8 +35,10 @@ module may add a database implementation behind the same domain boundary.
 ## Web and trust boundary
 
 `CustomerPortalApplication` is dependency-free WSGI so the domain remains framework-neutral. It
-does not trust customer identity or CSRF values from request headers. Deployment must compose real
-authentication/session middleware that supplies those server-side environment authorities.
+does not trust customer identity or CSRF values from request headers. Day 12 now supplies the real
+account/session middleware that provides those server-side environment authorities; a production
+deployment must additionally supply TLS, managed persistence, rate limiting, recovery, monitoring,
+and other later operational controls.
 
 The portal accepts only bounded URL-encoded forms with a closed single-value field set. It uses a
 constant-time CSRF comparison, escapes all customer values, never echoes an invalid submission, and

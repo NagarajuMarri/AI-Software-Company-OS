@@ -1,5 +1,24 @@
 # Runtime Roadmap
 
+# Day 12 — Customer Authentication and Returning Sessions
+
+Compose real customer account and session authority in front of the Day 11 workspace. Customers can
+create a canonical-email account, sign in with a strong password, retain an HttpOnly strict-same-site
+session across requests/reloads, sign out through session-bound CSRF protection, and sign back in to
+recover only their existing product requests. Persist salted scrypt credential digests, bearer-token
+digests, server-side CSRF values, expiry, and durable revocation markers in canonical, integrity-
+checked, exclusive-write records.
+
+The WSGI boundary supplies `REMOTE_USER` and `ascos.csrf_token` internally after session validation;
+the browser cannot assert either authority. Pre-authentication forms use signed double-submit CSRF,
+authentication errors avoid account disclosure, and all authentication responses are non-cacheable
+with restrictive browser headers. Mandatory Chromium CI proves signup, Day 11 request submission,
+logout, returning login, reload/session restoration, customer-scoped recovery, and safe evidence.
+
+Day 12 does not implement password recovery, MFA, organizations/roles, billing, conversational
+requirements, agent dispatch, repository access, coding, merge, deployment, or release. Those remain
+separate later customer-application and workforce modules.
+
 # Day 11 — Customer Workspace and Product-Request Intake
 
 Begin the customer application with a dependency-free, server-rendered workspace. A trusted upstream
