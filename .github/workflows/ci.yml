@@ -39,6 +39,7 @@ jobs:
       ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
       ASCOS_DAY11_FOUNDER_EVIDENCE_DIR: founder-evidence/day11
       ASCOS_DAY12_FOUNDER_EVIDENCE_DIR: founder-evidence/day12
+      ASCOS_DAY13_FOUNDER_EVIDENCE_DIR: founder-evidence/day13
     steps:
       - uses: actions/checkout@v4
         with:
@@ -63,6 +64,8 @@ jobs:
           tests/test_customer_application_integration.py
           tests/test_customer_authentication.py
           tests/test_customer_authentication_integration.py
+          tests/test_customer_requirements.py
+          tests/test_customer_requirements_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -101,6 +104,14 @@ jobs:
         with:
           name: day12-founder-customer-authentication
           path: founder-evidence/day12
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 13 guided requirements verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day13-founder-guided-requirements
+          path: founder-evidence/day13
           if-no-files-found: warn
           retention-days: 14
 

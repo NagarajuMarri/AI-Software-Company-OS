@@ -1,5 +1,23 @@
 # Runtime Roadmap
 
+# Day 13 — Guided Customer Requirements Drafts
+
+Let an authenticated customer refine one owned Day 11 request through a guided product-discovery
+form. Capture the primary user journey, desired outcomes, reconciled must-have features, measurable
+success signals, explicit non-goals, ordered delivery platforms, declared data sensitivity, and
+delivery priority. Bind every draft to the immutable source-request digest and customer/request
+identity.
+
+Persist an append-only, contiguous revision history with canonical integrity digests, mode-0600
+exclusive writes, restart-safe reads, exact-retry idempotency, optimistic concurrency, path
+containment, symlink rejection, and corruption detection. A review screen clearly labels the result
+as a draft. Mandatory Chromium CI proves signup, intake, refinement, saved review, logout, returning
+login, and reopening the same customer-scoped draft with safe screenshot evidence.
+
+Day 13 does not approve or lock requirements, generate a PRD, plan delivery, assign agents, connect a
+repository, generate code, run product implementation, merge, deploy, bill, or release. Those remain
+separate governed modules.
+
 # Day 12 — Customer Authentication and Returning Sessions
 
 Compose real customer account and session authority in front of the Day 11 workspace. Customers can

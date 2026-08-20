@@ -220,6 +220,7 @@ def _request_detail(value: CustomerProductRequest, csrf: str | None) -> str:
 <p>ASCOS saved your product brief as immutable planning authority.</p></div></div>
 <div class="detail-header"><div><span class="eyebrow">Product request</span>
 <h1>{escape(value.product_name)}</h1></div><span class="status">Submitted</span></div>
+<div class="detail-action"><a class="button" href="/customer/requests/{escape(value.request_id)}/requirements">Refine requirements</a></div>
 <div class="detail-grid"><article><h2>Product outcome</h2>
 <p>{escape(value.product_summary)}</p></article><article><h2>Target users</h2>
 <p>{escape(value.target_users)}</p></article><article><h2>Required features</h2>
@@ -287,5 +288,6 @@ h1{font-size:clamp(34px,5vw,58px);line-height:1.05;letter-spacing:-.04em;margin:
 .form-shell,.detail{max-width:820px;margin:0 auto;background:#fff;border:1px solid #dce3ee;border-radius:22px;padding:40px;box-shadow:0 22px 60px #263c6012}.form-shell h1,.detail h1{font-size:42px}.back{display:block;margin-bottom:32px;color:#53627a;text-decoration:none;font-weight:650}
 form{display:grid;gap:22px;margin-top:34px}label{display:grid;gap:9px;font-weight:750;color:#27344b}label span{font-weight:500;color:#7a879a;font-size:13px}input,textarea{width:100%;border:1px solid #cbd5e4;border-radius:11px;padding:13px 14px;font:inherit;color:#15223b;background:#fbfcfe;resize:vertical}input:focus,textarea:focus{outline:3px solid #dbe4ff;border-color:#3157d5}.form-actions{display:flex;align-items:center;justify-content:flex-end;gap:22px;padding-top:8px}.form-actions a{color:#53627a;text-decoration:none}
 .success{display:flex;gap:15px;background:#eaf9f1;border:1px solid #bde9d1;border-radius:14px;padding:18px;margin-bottom:34px}.success>span{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#24a865;color:#fff}.success p{margin:3px 0 0}.detail-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}.detail-grid article{background:#f7f9fc;border:1px solid #e0e6ef;border-radius:14px;padding:20px}.detail-grid h2{font-size:15px;margin:0 0 10px}.detail-grid p{margin:0;white-space:pre-wrap}.detail-grid ul{margin:0;padding-left:20px;color:#53627a;line-height:1.7}.authority{margin-top:26px;padding-top:20px;border-top:1px solid #e0e6ef;color:#7a879a;font-size:12px}.authority code{color:#53627a}
+.detail-action{display:flex;justify-content:flex-end;margin:12px 0 4px}
 @media(max-width:700px){header{padding:0 18px}.account{display:none}main{padding:36px 18px}.hero{align-items:flex-start;flex-direction:column}.form-shell,.detail{padding:24px}.detail-grid{grid-template-columns:1fr}.form-actions{justify-content:space-between}}
 """
