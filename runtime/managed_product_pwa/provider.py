@@ -60,11 +60,10 @@ class PlaywrightPwaProvider:
 
         try:
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(
+                context = playwright.chromium.launch_persistent_context(
+                    "",
                     headless=True,
                     executable_path=playwright.chromium.executable_path,
-                )
-                context = browser.new_context(
                     accept_downloads=False,
                     ignore_https_errors=False,
                     java_script_enabled=True,
@@ -73,8 +72,11 @@ class PlaywrightPwaProvider:
                     timezone_id="UTC",
                     viewport={"width": 1280, "height": 720},
                 )
+                browser = context.browser
+                if browser is None:
+                    raise PlaywrightError("Persistent Chromium browser is unavailable")
                 context.set_default_timeout(10_000)
-                page = context.new_page()
+                page = context.pages[0] if context.pages else context.new_page()
 
                 def route_request(route) -> None:  # noqa: ANN001
                     requested = route.request.url
@@ -257,7 +259,6 @@ class PlaywrightPwaProvider:
                         except PlaywrightError:
                             failure_code = "PWA_PROVIDER_FAILED"
                     context.close()
-                    browser.close()
         except (PlaywrightError, PlaywrightTimeoutError, OSError):
             failure_code = "PWA_PROVIDER_FAILED"
 
