@@ -1,5 +1,30 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 19 acceptance
+
+Estimate generation must require an authenticated customer, session CSRF, one exact owned Day 18
+locked roadmap, and the roadmap-approval digest rendered at the checkpoint. The service must reload
+and validate the complete request-to-roadmap-approval chain and the governed `LOCKED` projection
+server-side. Missing, stale, cross-customer, corrupt, tampered, unlocked, invalid, or mismatched
+authority must fail closed before persistence.
+
+The deterministic profile must preserve exact roadmap-item IDs and order, map every locked
+requirement exactly once, and produce per-item and total relative engineering-day ranges. Its
+priority and category points, data-sensitivity uncertainty factor, effort band, confidence rule,
+drivers, and assumptions must be stable, bounded, and visible. The artifact must bind every upstream
+identity and digest, stay `DRAFT`, and expose no approval, price, quote, calendar date, schedule,
+staffing, agent, repository, task, code, deployment, billing, release, or pilot-product authority.
+
+Persistence must be customer scoped, canonical, integrity checked, mode 0600, write once, restart
+safe, exact-retry idempotent, path contained, closed to unknown entries, and reject symlinks and
+tampering. The web form must use a bounded closed schema, trusted session identity and CSRF, escape
+customer text, and retain no-store, CSP, framing, sniffing, and referrer protections. Mandatory
+exact-head Chromium CI must prove signup through estimate generation, complete mapping and
+assumption display, logout/login, and reopening the same draft without console or request failures.
+The founder artifact must contain `delivery-estimate-draft.png` and a content-digested safe manifest.
+Day 19 performs no approval, quote, scheduling, assignment, repository, implementation, merge,
+deployment, billing, release, pilot selection, or Day 20 action.
+
 # Day 18 acceptance
 
 Roadmap approval must require an authenticated customer, session CSRF, the complete rendered Day 17

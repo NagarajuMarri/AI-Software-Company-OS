@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 19 — Traceable Customer Delivery Estimate Draft
+
+Let the authenticated owner generate and reopen one deterministic delivery-effort estimate v0.1
+only from the exact Day 18 locked roadmap. Reload the complete request, requirements, requirements
+approval, PRD, PRD approval, roadmap, roadmap approval, and governed locked projection server-side.
+Require the rendered roadmap-approval digest and bind the write-once estimate to every upstream
+identity and digest.
+
+Preserve exact roadmap-item order, stable IDs, and exactly-once locked-requirement mappings. Derive
+transparent relative engineering-day ranges from governed requirement priorities, categories, data
+sensitivity, and scope count. Show complexity points, effort bands, confidence, drivers, and explicit
+assumptions. Preserve exact-retry idempotency, restart-safe reconstruction, canonical integrity
+records, mode-0600 exclusive writes, customer isolation, path containment, closed schemas,
+symlink/tamper detection, session CSRF, escaping, and restrictive browser headers. Mandatory
+Chromium CI proves the full generation and returning-customer journey.
+
+The estimate remains `DRAFT`; an engineering day is a relative effort unit rather than a calendar
+duration. Day 19 does not approve an estimate, create a price or quote, set a date or schedule,
+assign staff or agents, select a pilot, connect a repository, create implementation tasks, generate
+or execute code, merge, deploy, bill, or release. Day 20 remains separate and requires founder
+approval.
+
 # Day 18 — Customer Roadmap Approval and Immutable Lock
 
 Let the authenticated owner review every milestone and requirement mapping in one exact Day 17

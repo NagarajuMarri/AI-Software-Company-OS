@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 19 adds deterministic customer delivery-effort estimate drafts from the exact locked Day 18
+roadmap. Every governed roadmap item and locked requirement maps exactly once into a transparent
+relative engineering-day range with visible complexity drivers, assumptions, effort band, and
+confidence. The canonical artifact binds the complete request-to-roadmap-approval digest chain,
+remains write-once and `DRAFT`, and is proven by a returning-customer Chromium journey. It creates no
+approval, price, quote, calendar date, schedule, staffing, agent, repository, implementation task,
+code, deployment, billing, release, or pilot-product authority. See
+`docs/CUSTOMER_DELIVERY_ESTIMATE.md`.
+
 Day 18 adds explicit customer review, approval, and immutable locking for one exact Day 17 roadmap
 draft. The authenticated owner reviews every milestone and requirement mapping, provides a fixed
 affirmative confirmation, and receives a canonical write-once receipt bound to the complete
@@ -158,6 +167,10 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_DELIVERY_ESTIMATE.md](docs/CUSTOMER_DELIVERY_ESTIMATE.md) — deterministic effort
+  ranges, exact locked-roadmap mapping, visible uncertainty, write-once persistence, and browser
+  evidence.
 
 - [docs/CUSTOMER_ROADMAP_APPROVAL.md](docs/CUSTOMER_ROADMAP_APPROVAL.md) — explicit roadmap
   confirmation, write-once receipt, immutable item locking, exact mapping preservation, and browser

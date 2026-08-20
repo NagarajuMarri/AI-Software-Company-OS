@@ -277,6 +277,33 @@ A locked roadmap is immutable planning scope only: it grants no estimate, date, 
 agent, repository, task, code, merge, deployment, billing, release, or official pilot-product
 authority.
 
+# Customer delivery-estimate boundaries
+
+Day 19 trusts customer identity and CSRF only from the Day 12 session middleware. The generation
+form may carry only the exact rendered roadmap-approval digest and session CSRF; it cannot assert
+customer, request, roadmap, approval, product, PRD, requirement mapping, estimate identity, time,
+range, confidence, assumptions, or downstream authority. The service reloads the complete Day 11-18
+chain and governed locked projection, compares all identity and digest bindings, and fails closed on
+missing, stale, cross-customer, corrupt, tampered, unlocked, or mismatched authority.
+
+The deterministic model uses only governed requirement priority/category, declared data sensitivity,
+approved platforms, and locked scope count. It performs no network, external-AI, secret-manager,
+repository, subprocess, or agent call. Every locked requirement must map exactly once to its existing
+governed roadmap item. Effort ranges, points, drivers, confidence, and assumptions are explanatory
+signals, not a commitment or hidden execution instruction.
+
+The estimate is a closed canonical write-once record with a full integrity digest, bounded derived
+identity, exclusive mode-0600 creation, contained customer/request path, exact-retry idempotency,
+restart reconstruction, and rejection of unknown entries, symlinks, and tampering. Customer text is
+escaped on checkpoint and review pages; browser evidence excludes passwords, bearer tokens, cookies,
+CSRF values, salts, and local paths. The development adapter remains single-instance evidence;
+production exposure requires transactional uniqueness, encryption and managed keys, backup/restore,
+retention/deletion, observability, rate limits, abuse controls, and privacy review.
+
+The artifact remains `DRAFT`. An engineering day is relative effort rather than calendar duration.
+Day 19 grants no approval, price, quote, date, schedule, staffing, agent, repository, implementation
+task, code, merge, deployment, billing, release, or official pilot-product authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database
