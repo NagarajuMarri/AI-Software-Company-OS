@@ -64,6 +64,7 @@ class PlaywrightPwaProvider:
                     "",
                     headless=True,
                     executable_path=playwright.chromium.executable_path,
+                    args=["--enable-devtools-pwa-handler"],
                     accept_downloads=False,
                     ignore_https_errors=False,
                     java_script_enabled=True,
@@ -190,7 +191,11 @@ class PlaywrightPwaProvider:
                     browser_session = browser.new_browser_cdp_session()
                     phase = "INSTALL"
                     browser_session.send(
-                        "PWA.install", {"manifestId": installed_manifest_id}
+                        "PWA.install",
+                        {
+                            "manifestId": installed_manifest_id,
+                            "installUrlOrBundleUrl": f"{origin}{plan.start_path}",
+                        },
                     )
                     phase = "STANDALONE_SETTING"
                     browser_session.send(

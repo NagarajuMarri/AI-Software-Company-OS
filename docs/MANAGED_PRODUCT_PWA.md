@@ -10,7 +10,8 @@ revision/digest, acceptance profile identity/digest, and runtime run.
 `PwaVerificationPlan` fixes the provider, canonical start/manifest/service-worker paths, visible app
 shell marker, and ordered claims. `ManagedProductPwaService` reloads that authority, rechecks current
 provider/origin policy, and composes it with the Day 6 exact-SHA environment lifecycle. The provider
-uses a fresh headless Chromium context with external origins blocked and service workers enabled.
+uses a fresh persistent headless Chromium profile with external origins blocked, service workers
+enabled, and Chromium's DevTools PWA handler explicitly enabled for the install/launch lifecycle.
 
 A pass requires:
 
