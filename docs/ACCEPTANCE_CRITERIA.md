@@ -1,5 +1,32 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 20 acceptance
+
+Only the authenticated owner may view project progress for a customer request. The service must
+reload the exact request-to-estimate authority chain server-side, require the Day 18 locked roadmap
+and Day 19 draft estimate to match every identity, digest, and ordered requirement mapping, and fail
+closed on missing, stale, cross-customer, corrupt, or mismatched authority. The route is GET-only;
+neither browser nor customer input may assert progress, status, assignments, blockers, decisions,
+authority digests, or execution state.
+
+Every governed roadmap item must appear once as a milestone. Every locked requirement must appear
+once, in roadmap order, as a planned task bound to its existing milestone. ASCOS must calculate the
+aggregate through the existing Project Manager progress domain and report zero completed, zero in
+progress, zero task-level blocked, zero percent, and no assigned operational agents. The dashboard
+must visibly show open execution-authority, workforce, and product-workspace blockers plus the
+locked-roadmap and draft-estimate decisions with exact authority digests. Repeated views must produce
+the same content digest and must not create a progress persistence directory.
+
+The web surface must escape customer content, retain no-store, CSP, framing, sniffing, and referrer
+protections, and visibly state that it is a visibility-only projection. Mandatory exact-head CI must
+run real Chromium through authenticated access, full governed-plan navigation, dashboard inspection,
+logout, login, and reopening the same projection without console or network failures. Founder-safe
+evidence must contain `project-progress-dashboard.png` and a digested manifest without passwords,
+bearer tokens, cookies, CSRF values, salts, or local paths.
+
+Day 20 creates no estimate approval, agent assignment, executable task, repository connection or
+write, code, merge, deployment, billing, release, official pilot selection, or Day 21 authority.
+
 # Day 19 acceptance
 
 Estimate generation must require an authenticated customer, session CSRF, one exact owned Day 18

@@ -46,6 +46,7 @@ jobs:
       ASCOS_DAY17_FOUNDER_EVIDENCE_DIR: founder-evidence/day17
       ASCOS_DAY18_FOUNDER_EVIDENCE_DIR: founder-evidence/day18
       ASCOS_DAY19_FOUNDER_EVIDENCE_DIR: founder-evidence/day19
+      ASCOS_DAY20_FOUNDER_EVIDENCE_DIR: founder-evidence/day20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,6 +85,8 @@ jobs:
           tests/test_customer_roadmap_approval_integration.py
           tests/test_customer_estimate.py
           tests/test_customer_estimate_integration.py
+          tests/test_customer_progress.py
+          tests/test_customer_progress_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -178,6 +181,14 @@ jobs:
         with:
           name: day19-founder-customer-delivery-estimate
           path: founder-evidence/day19
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 20 customer project progress verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day20-founder-customer-project-progress
+          path: founder-evidence/day20
           if-no-files-found: warn
           retention-days: 14
 
