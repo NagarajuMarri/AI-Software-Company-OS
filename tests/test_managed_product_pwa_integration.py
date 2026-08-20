@@ -372,6 +372,7 @@ self.addEventListener('fetch', event => event.respondWith(caches.match(event.req
 _MANIFEST_FIXTURE = {
     "name": "SpeakMate",
     "short_name": "SpeakMate",
+    "id": "/",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",

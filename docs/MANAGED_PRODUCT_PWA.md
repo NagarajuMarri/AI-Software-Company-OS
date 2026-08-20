@@ -17,7 +17,8 @@ A pass requires:
 1. an exact same-origin, redirect-free, bounded manifest with name, short name, standalone-capable
    display, `/` scope, the declared start path, and PNG icons declaring 192x192 and 512x512;
 2. the declared service worker in `activated` state and controlling the refreshed page;
-3. the declared shell in emulated standalone display mode and after a normal refresh;
+3. zero Chromium installability errors, browser-level installation of the exact manifest identity,
+   an authorized launched target with standalone user display mode, and a normal refresh;
 4. the same controlled shell after Chromium network access is disabled;
 5. no browser console/page error, plus content-addressed browser, console, network, PWA, screenshot,
    migration, startup, and readiness evidence.

@@ -54,6 +54,8 @@ class PlaywrightPwaProvider:
         screenshot: bytes | None = None
         origin = endpoint_origin(configuration.frontend_url)
         offline = False
+        installed_manifest_id: str | None = None
+        browser_session = None
 
         try:
             with sync_playwright() as playwright:
@@ -169,20 +171,42 @@ class PlaywrightPwaProvider:
                         raise AssertionError("PWA service worker did not control the page")
                     claims.append("SERVICE_WORKER_CONTROLS_PAGE")
 
-                    session = context.new_cdp_session(page)
-                    session.send(
-                        "Emulation.setEmulatedMedia",
+                    page_session = context.new_cdp_session(page)
+                    installability = page_session.send("Page.getInstallabilityErrors")
+                    if installability.get("installabilityErrors"):
+                        raise AssertionError("Chromium reported PWA installability errors")
+                    app_identity = page_session.send("Page.getAppId")
+                    installed_manifest_id = app_identity.get("appId")
+                    if installed_manifest_id != f"{origin}/":
+                        raise AssertionError("PWA manifest identity did not match authority")
+                    browser_session = browser.new_browser_cdp_session()
+                    browser_session.send(
+                        "PWA.install", {"manifestId": installed_manifest_id}
+                    )
+                    browser_session.send(
+                        "PWA.changeAppUserSettings",
                         {
-                            "media": "screen",
-                            "features": [
-                                {"name": "display-mode", "value": "standalone"}
-                            ],
+                            "manifestId": installed_manifest_id,
+                            "displayMode": "standalone",
                         },
                     )
-                    if not page.evaluate(
-                        "matchMedia('(display-mode: standalone)').matches"
+                    launched = browser_session.send(
+                        "PWA.launch", {"manifestId": installed_manifest_id}
+                    )
+                    target_id = launched.get("targetId")
+                    if not isinstance(target_id, str) or not target_id:
+                        raise AssertionError("PWA standalone launch returned no target")
+                    target = browser_session.send(
+                        "Target.getTargetInfo", {"targetId": target_id}
+                    ).get("targetInfo")
+                    if (
+                        not isinstance(target, dict)
+                        or target.get("type") != "page"
+                        or _resolved_path(target.get("url"), origin, page.url)
+                        != plan.start_path
                     ):
-                        raise AssertionError("PWA standalone display mode was not observed")
+                        raise AssertionError("PWA standalone launch target was unauthorized")
+                    browser_session.send("Target.closeTarget", {"targetId": target_id})
                     claims.append("STANDALONE_DISPLAY")
                     page.reload(wait_until="networkidle")
                     shell = page.get_by_test_id(plan.shell_test_id)
@@ -213,6 +237,13 @@ class PlaywrightPwaProvider:
                 finally:
                     if offline:
                         context.set_offline(False)
+                    if browser_session is not None and installed_manifest_id is not None:
+                        try:
+                            browser_session.send(
+                                "PWA.uninstall", {"manifestId": installed_manifest_id}
+                            )
+                        except PlaywrightError:
+                            failure_code = "PWA_PROVIDER_FAILED"
                     context.close()
                     browser.close()
         except (PlaywrightError, PlaywrightTimeoutError, OSError):
@@ -265,6 +296,7 @@ def _validate_manifest(value: object, plan: PwaVerificationPlan) -> tuple[str, .
         or not value["name"].strip()
         or not isinstance(value.get("short_name"), str)
         or not value["short_name"].strip()
+        or _manifest_path(value.get("id")) != "/"
         or value.get("display") not in {"standalone", "fullscreen", "minimal-ui"}
         or _manifest_path(value.get("start_url")) != plan.start_path
         or _manifest_path(value.get("scope")) != "/"

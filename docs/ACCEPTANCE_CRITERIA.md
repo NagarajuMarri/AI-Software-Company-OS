@@ -10,7 +10,8 @@ worker paths, shell marker, and every locked PWA claim before the managed enviro
 A passing fresh Chromium profile must fetch an exact same-origin manifest without redirects, require
 non-empty name/short name, standalone-capable display, exact start/scope paths, and valid bounded PNG
 responses declaring both 192x192 and 512x512 sizes. The exact service worker must reach `activated`,
-control the page after reload, preserve the shell in emulated standalone display mode, survive a
+control the page after reload, pass Chromium installability checks, install its exact manifest
+identity, launch an authorized target with standalone user display mode, survive a
 normal refresh, and serve the expected controlled shell after network access is disabled. Console or
 page errors, origin escapes, mismatches, missing screenshot, incomplete claims, shutdown uncertainty,
 or artifact-integrity failure must fail closed.

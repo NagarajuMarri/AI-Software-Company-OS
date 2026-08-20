@@ -5,7 +5,8 @@
 Bind one immutable PWA plan to the exact runtime run, configuration revision/digest, full product
 commit, locked acceptance profile, approved provider, canonical application paths, shell marker, and
 seven ordered claims. Mandatory Chromium CI validates the manifest and 192/512 PNG icons, waits for
-the exact service worker to activate and control the page, observes standalone display mode, refreshes
+the exact service worker to activate and control the page, installs and launches the manifest identity
+in standalone mode, refreshes
 the shell, and reloads it offline. It uploads a content-addressed screenshot and safe claim manifest.
 
 Persist a separate write-once submission plan that names the exact terminal Authentication, Voice,

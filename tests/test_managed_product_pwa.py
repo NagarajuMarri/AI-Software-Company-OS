@@ -251,6 +251,7 @@ def test_manifest_requires_exact_scope_paths_display_and_png_icons():
     manifest = {
         "name": "SpeakMate",
         "short_name": "SpeakMate",
+        "id": "/",
         "display": "standalone",
         "start_url": "/",
         "scope": "/",

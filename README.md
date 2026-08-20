@@ -1,8 +1,8 @@
 # AI-Software-Company-OS (ASCOS)
 
 Day 10 adds exact-commit PWA verification and safe complete-capability submission. ASCOS now proves
-the locked manifest, required PNG icons, activated and controlling service worker, standalone display
-mode, refresh survival, and offline app shell in a fresh Chromium profile. It then accepts only the
+the locked manifest, required PNG icons, activated and controlling service worker, actual Chromium
+install/standalone launch, refresh survival, and offline app shell in a fresh profile. It then accepts only the
 immutable, content-addressed Authentication, Voice, and PWA results for the same run/configuration/
 profile/commit and advances the aggregate only to `RUNTIME_VERIFIED`. Mandatory browser CI uploads a
 founder-safe PWA screenshot and claim manifest. This is deterministic fixture evidence, not an OS-level
