@@ -16,6 +16,30 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Software Architect workforce boundaries
+
+Day 24 treats Software Architect provider output and every nested architecture field as untrusted.
+The composition requires the exact persisted Day 23 Product Manager artifact, opportunity digest,
+tenant, `AgentRole.SOFTWARE_ARCHITECT`, provider, capability tuple, ordered action tuple, Twin,
+assignment, objective digest, and unexpired authority before provider activity. The profile has an
+empty tool allowlist, zero tool-call budget, and no live-provider authorization. The provider
+receives only bounded non-secret Product Manager plan fields through the Day 22 typed request; it
+receives no filesystem, environment, subprocess, repository, network, credential, persistence,
+approval, budget, deployment, or release capability.
+
+After runtime execution, the service rebuilds the deterministic provider request and result, requires
+their digests to match the terminal receipt, validates a closed typed architecture schema, and only
+then writes state. The artifact store is tenant/execution scoped, canonical, mode 0600, write once,
+bounded, path contained, and integrity checked. Reads reject unsafe permissions, symlinks, unknown
+entries, malformed nested records, identity mismatch, non-canonical data, and tampering. Raw provider
+payloads and exceptions, credentials, customer secrets, and local paths are not stored.
+
+Every artifact remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; technology recommendations and
+ADRs remain `PROPOSED`, ADRs require human approval, and pilot state is fixed to `NOT_SELECTED`. The
+exact action set excludes architecture approval, engineering-task creation, source/repository writes,
+commands, commit, merge, deployment, release, billing, budget allocation, and pilot selection. Day 24
+also excludes Day 25 engineering execution and Day 30 multi-agent orchestration.
+
 # Leadership workforce boundaries
 
 Day 23 treats the CEO and Product Manager provider output as untrusted. The composition requires an

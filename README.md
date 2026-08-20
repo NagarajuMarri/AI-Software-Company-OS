@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 24 adds one bounded Software Architect Digital Twin. It consumes the exact persisted Day 23
+Product Manager plan and produces a typed draft architecture proposal: domain boundary, components,
+integration and data lifecycle, security and quality considerations, concrete technology
+recommendations, proposed ADRs, technical risks, mitigations, and a status report. The agent uses
+the Day 22 runtime with one exact role/action/capability profile, zero tools, immutable digest-bound
+state, restart-safe exact retries, and mandatory Chromium evidence. Every recommendation and ADR
+remains proposed and the artifact remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`. It cannot
+approve architecture, create engineering tasks, write code or repositories, merge, deploy, release,
+bill, set a budget, select a pilot, or perform Day 25 engineering work. See
+`docs/SOFTWARE_ARCHITECT_WORKFORCE_AGENT.md`.
+
 Day 23 adds operational CEO and Product Manager Digital Twins. The CEO records one bounded
 opportunity brief with goals, clarification questions, and an explicit status report. The Product
 Manager (`AgentRole.PROJECT_MANAGER`) consumes the exact persisted CEO artifact and produces

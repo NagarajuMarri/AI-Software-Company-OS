@@ -1,5 +1,26 @@
 # Runtime Roadmap
 
+# Day 24 — Software Architect Agent
+
+Operationalize one `AgentRole.SOFTWARE_ARCHITECT` Digital Twin through the Day 22 runtime. It must
+consume the exact persisted Day 23 Product Manager plan and produce one closed typed draft covering
+the product domain boundary, architecture principles, components and interfaces, integrations, data
+lifecycle, security controls, quality strategy, concrete technology recommendations, proposed ADRs,
+technical risks and mitigations, and a status report. The role has one exact action/capability
+profile, zero tools and tool calls, no live-provider authority, and one tenant-bound expiring grant.
+
+Persist the proposal only after the provider request/output and runtime receipt digests reconcile and
+the complete nested schema validates. The record is canonical, mode 0600, write once, tenant and
+execution scoped, integrity checked, bounded, and restart-safe. Exact retry and restart must reopen
+the same receipt and artifact without repeating the provider effect. Mandatory exact-head Chromium
+CI must inspect the proposal, technology choices, ADRs, risks, Product-Manager handoff, status,
+authority exclusions, restrictive headers, and browser health using generic verification data.
+
+The artifact remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; every technology recommendation and
+ADR remains `PROPOSED`. Day 24 grants no architecture approval, engineering-task creation,
+repository, command, network, coding, merge, deployment, release, billing, budget, orchestration, or
+pilot-selection authority. Backend, frontend, AI, and data engineering execution remains Day 25.
+
 # Day 23 — CEO and Product Manager Agents
 
 Operationalize exactly two Business Roles through the Day 22 Digital Twin runtime. The CEO profile

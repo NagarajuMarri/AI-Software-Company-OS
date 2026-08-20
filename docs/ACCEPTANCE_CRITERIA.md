@@ -1,5 +1,41 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 24 acceptance
+
+One enabled Digital Twin must align exactly to `AgentRole.SOFTWARE_ARCHITECT`, the explicit Day 24
+provider, the ordered Software Architect capability profile, and the ordered delegated-action
+profile. It must have zero tools, zero tool calls, no live-provider authorization, one current
+tenant-bound authority, and an objective digest matching its immutable assignment. Wrong role,
+tenant, Twin, provider, capability, action or action order, objective, tool allowance, or elevated
+authority must fail before provider activity.
+
+The source must be the exact persisted Day 23 Product Manager plan for the same tenant, opportunity,
+and opportunity digest. The architecture artifact must bind that source digest and contain a typed
+domain boundary, principles, at least three components, integrations, data lifecycle, security and
+quality considerations, at least two concrete technology recommendations, at least one proposed ADR,
+at least one rated technical risk with mitigation and escalation, and an explicit status report. The
+artifact must remain `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; all technology recommendations and
+ADRs must remain `PROPOSED`, ADRs must require human approval, and pilot state must remain
+`NOT_SELECTED`.
+
+Only closed typed content whose provider request/output and receipt digests reconcile may be stored.
+Persistence must be canonical, integrity checked, mode 0600, tenant/execution scoped, write once,
+bounded, path contained, restart safe, exact-retry idempotent, and reject unknown entries, unsafe
+permissions, symlinks, malformed nested fields, non-canonical records, and tampering. Raw provider
+responses, exceptions, credentials, secrets, customer data, and local paths must not be persisted.
+Retry and a new service/provider instance must return the same artifact without another provider
+effect.
+
+Mandatory exact-head CI must execute the architect through the real Digital Twin runtime using
+generic fixture data and real Chromium. The browser must inspect the proposal, components,
+technology recommendations, proposed ADRs, technical risks, exact Product-Manager handoff, receipt,
+draft status, authority exclusions, restrictive headers, console health, and network health.
+Founder evidence must bind the exact commit, approved Day 23 base, source/artifact digests, authority,
+assignment, provider request/output, receipt, counts, and screenshot digest without credentials or
+local paths. Day 24 performs no architecture approval, engineering task creation, repository or
+command access, coding, merge, deployment, release, billing, budget decision, orchestration, Day 25
+engineering behavior, or official pilot selection.
+
 # Day 23 acceptance
 
 The CEO and Product Manager must be separate enabled Digital Twins aligned exactly to
