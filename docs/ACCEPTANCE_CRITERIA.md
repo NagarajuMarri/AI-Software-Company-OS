@@ -335,7 +335,20 @@ named, current-commit decision bound to passing human-UX evidence and the comple
 digest. Locked contracts, journey definitions, evidence/result histories, and run identity cannot be
 rewritten after planning. Release review, approval, and publication must reject missing, stale,
 incomplete, or pre-runtime acceptance runs.
+# Day 4 PostgreSQL validation acceptance
 
+Day 4 is accepted only when the exact candidate commit passes the always-scheduled CI
+job against a real PostgreSQL 16 service. The integration evidence must cover fresh,
+repeat, and concurrent migrations; rejection or rollback of unsafe schema changes;
+exclusive multi-connection outbox claims; expired-claim fencing and reclaim; optimistic
+single-winner writes; and restart readback from a fresh repository connection. Fake
+connection tests or a skipped database suite do not satisfy this acceptance gate.
+
+This acceptance applies only to the bounded experimental PostgreSQL adapter. It does
+not certify a production persistence provider. Full `PersistenceProvider` and durable
+outbox contract conformance, runtime composition, deployment security, backup/restore,
+point-in-time recovery, failover, capacity, and soak validation remain incomplete and
+must not be represented as accepted or production-ready.
 # Milestone 12.4 acceptance
 
 Managed provider execution requires typed capabilities, secret-safe injected
@@ -438,7 +451,9 @@ The worker runtime must start only explicitly, use unique instance identities,
 heartbeat through durable registries, stop gracefully, and preserve outbox fencing.
 Provider routing must reject disabled, open, and saturated providers deterministically.
 PostgreSQL claiming must use atomic `FOR UPDATE SKIP LOCKED`; real integration results
-may only be claimed when the optional test database is configured.
+may only be claimed from the always-scheduled PostgreSQL CI job or an explicitly
+configured real test database. A missing test database must produce a reported skip,
+not a successful PostgreSQL claim.
 
 # Milestone 12.0 acceptance
 

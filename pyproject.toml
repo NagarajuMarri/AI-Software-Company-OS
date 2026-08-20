@@ -18,6 +18,9 @@ dev = [
 browser = [
   "playwright==1.55.0",
 ]
+postgres = [
+  "psycopg[binary]>=3.2,<4",
+]
 
 [tool.setuptools.packages.find]
 include = ["runtime", "runtime.*"]

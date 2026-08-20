@@ -50,10 +50,31 @@ Strict latest restore is the default and stops on a corrupt newest checkpoint.
 Recovery mode may fall back, but operators must inspect the reported skipped
 files. Symlink and permission guarantees vary by operating system; keep the
 storage directory private and controlled by the runtime account.
+
 # Process-worker operations
 
 Workers are started explicitly with bounded operation, idle, and runtime limits.
 Operators can inspect registrations, request shutdown, and scan stale heartbeats.
 Provider disable, enable, and circuit reset require an operator identity and reason.
-PostgreSQL integration verification is optional and must be reported as skipped when
-no secure test database reference is configured.
+
+## PostgreSQL validation and operating limits
+
+The CI PostgreSQL job is always scheduled and uses an isolated PostgreSQL 16 service.
+Its real-server migration, concurrency, and recovery result is the Day 4 adapter
+evidence. A local run without a securely supplied `ASCOS_POSTGRES_TEST_URL` skips the
+integration module and must be reported as skipped, not passed.
+
+Use only a disposable database for local integration tests. Supply its DSN through a
+secret mechanism, never command output or committed configuration, and install the
+`postgres` project extra. Before any deployment-oriented experiment, back up the target,
+verify the expected schema version, and monitor migration errors, version conflicts,
+outbox age, expired claims, and connection health. Configuration currently validates
+pool-size bounds but does not construct a connection pool; pool composition and sizing
+evidence are still required.
+
+The PostgreSQL repositories are not wired into the runtime composition root and do not
+yet implement the complete persistence and durable-outbox provider contracts. The CI
+database is not backup, restore, failover, TLS, credential-rotation, capacity, or soak
+evidence. Keep production usage blocked until those capabilities, composition-level
+restart tests, and an operator-reviewed recovery procedure are implemented and
+validated.

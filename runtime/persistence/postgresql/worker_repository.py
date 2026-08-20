@@ -1,5 +1,9 @@
+from runtime.persistence.postgresql.exceptions import PostgreSQLVersionConflictError
+
+
 class PostgreSQLWorkerRepository:
-    def __init__(self, connection_factory): self.connection_factory = connection_factory
+    def __init__(self, connection_factory):
+        self.connection_factory = connection_factory
 
     def heartbeat(self, instance_id, *, expected_version, now, expires_at):
         connection = self.connection_factory()
@@ -13,6 +17,8 @@ class PostgreSQLWorkerRepository:
                     (expires_at, instance_id, expected_version),
                 )
                 row = cursor.fetchone()
-                if row is None: raise RuntimeError("Worker heartbeat version conflict")
+                if row is None:
+                    raise PostgreSQLVersionConflictError("Worker heartbeat version conflict")
                 return row[0]
-        finally: connection.close()
+        finally:
+            connection.close()
