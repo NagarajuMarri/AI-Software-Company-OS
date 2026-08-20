@@ -16,6 +16,29 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Leadership workforce boundaries
+
+Day 23 treats the CEO and Product Manager provider output as untrusted. The composition requires an
+exact role, provider, capability tuple, ordered delegated-action tuple, tenant, Twin, assignment,
+objective digest, and unexpired authority before execution. Both profiles have an empty tool
+allowlist and zero tool-call budget. The CEO may frame opportunity intake and status; the Product
+Manager may clarify scope, propose a draft product plan, and report status only from the exact
+persisted CEO artifact. Neither profile receives filesystem, environment, subprocess, repository,
+network, credential, approval, budget, deployment, or release capabilities.
+
+The generic runtime persists only digest evidence. Day 23 separately rebuilds the deterministic
+role result, requires its output digest to match the terminal runtime receipt, validates a closed
+typed artifact, and only then writes bounded canonical mode-0600 state. Artifact directories are
+tenant/execution scoped and closed; records are write once and integrity checked, and reads reject
+symlinks, unsafe permissions, malformed schemas, unknown entries, path escape, and tampering. Raw
+provider payloads, exceptions, credentials, and local paths are not stored.
+
+Every role artifact is `DRAFT_AWAITING_HUMAN_REVIEW`, reports human-decision blockers, and fixes
+pilot state to `NOT_SELECTED`. Exact action profiles exclude approval and governance changes,
+investment or budget allocation, repository writes, commit, merge, deployment, billing, release,
+and pilot selection. Day 23 also excludes Day 24 architecture, technology, ADR, and technical-risk
+behavior, engineering execution, and Day 30 multi-agent orchestration.
+
 # Digital Twin execution boundaries
 
 Day 22 treats the Digital Twin provider, its structured result, and every tool request as untrusted.

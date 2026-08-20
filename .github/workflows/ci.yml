@@ -50,6 +50,7 @@ jobs:
       ASCOS_DAY20_FOUNDER_EVIDENCE_DIR: founder-evidence/day20
       ASCOS_DAY21_FOUNDER_EVIDENCE_DIR: founder-evidence/day21
       ASCOS_DAY22_FOUNDER_EVIDENCE_DIR: founder-evidence/day22
+      ASCOS_DAY23_FOUNDER_EVIDENCE_DIR: founder-evidence/day23
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,6 +95,8 @@ jobs:
           tests/test_customer_evidence_integration.py
           tests/test_digital_twin_runtime.py
           tests/test_digital_twin_integration.py
+          tests/test_workforce_leadership.py
+          tests/test_workforce_leadership_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -212,6 +215,14 @@ jobs:
         with:
           name: day22-founder-digital-twin-runtime
           path: founder-evidence/day22
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 23 leadership workforce verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day23-founder-leadership-workforce
+          path: founder-evidence/day23
           if-no-files-found: warn
           retention-days: 14
 

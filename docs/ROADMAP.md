@@ -1,5 +1,26 @@
 # Runtime Roadmap
 
+# Day 23 — CEO and Product Manager Agents
+
+Operationalize exactly two Business Roles through the Day 22 Digital Twin runtime. The CEO profile
+must accept one bounded opportunity, frame its problem, users, goals, constraints, clarification
+questions, and current status, and produce a draft opportunity brief. The Product Manager profile
+maps to the existing `AgentRole.PROJECT_MANAGER`; it must consume the exact persisted CEO brief,
+clarify in/out scope, propose an ordered draft product plan, ask bounded questions, and report
+status. Each profile has an exact action/capability set, zero tool calls, one expiring authority,
+one assignment, one execution receipt, and one validated immutable artifact.
+
+Persist only typed, closed, canonical mode-0600 artifacts after the untrusted provider output has
+passed schema and receipt-digest validation. Exact retry and restart must reopen the same runtime
+receipt and artifact without a second provider effect. Mandatory Chromium CI executes both roles,
+inspects the exact CEO-to-Product-Manager digest handoff, verifies restrictive headers and browser
+health, and uploads founder-safe exact-commit evidence using generic fixture data.
+
+Both artifacts remain `DRAFT_AWAITING_HUMAN_REVIEW`. Day 23 grants no investment, budget, product,
+scope, architecture, repository, coding, task, approval, merge, deployment, billing, release,
+multi-agent-orchestration, or official pilot-selection authority. Software architecture proposal,
+technology selection, ADRs, and technical risk identification remain Day 24 work.
+
 # Day 22 — Provider-Neutral Digital Twin Execution Runtime
 
 Introduce one generic operational boundary that aligns a Digital Twin to exactly one existing
