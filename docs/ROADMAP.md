@@ -1,5 +1,24 @@
 # Runtime Roadmap
 
+# Day 17 — Traceable Customer Roadmap Draft
+
+Let the authenticated owner generate and reopen one deterministic roadmap v0.1 only from the exact
+Day 16 locked customer PRD. Reload the complete customer authority chain server-side, require the
+rendered PRD-approval digest, and bind the write-once roadmap to every request, requirements,
+approval, PRD, and PRD-approval identity and digest.
+
+Reuse the existing Product Requirements roadmap and roadmap-item derivation. Require a valid
+`LOCKED` PRD, retain deterministic milestone ordering and stable roadmap item IDs, preserve ordered
+requirement priorities, and prove every locked requirement maps exactly once with no additions.
+Persist a canonical integrity record with exact-retry idempotency, restart-safe validation,
+mode-0600 exclusive creation, customer isolation, path containment, a closed schema, unknown-entry
+and symlink rejection, session CSRF, escaped output, and restrictive browser headers. Mandatory
+Chromium CI proves generation, complete traceability, logout/login, and same-draft recovery.
+
+The roadmap and every item remain `DRAFT`. Day 17 does not approve the roadmap, estimate or schedule
+work, assign people or agents, select a pilot product, connect a repository, create implementation
+tasks, generate or execute code, merge, deploy, bill, or release. Day 18 remains separate.
+
 # Day 16 — Customer PRD Approval and Immutable Lock
 
 Let the authenticated owner review the complete exact Day 15 PRD, affirm one fixed confirmation,

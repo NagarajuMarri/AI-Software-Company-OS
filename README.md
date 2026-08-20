@@ -1,5 +1,13 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 17 adds deterministic customer roadmap-draft generation from one exact locked Day 16 PRD. The
+authenticated owner creates and reopens a canonical roadmap v0.1 whose stable milestones and items
+come from ASCOS's existing governed Product Requirements domain. Every locked requirement is mapped
+exactly once, and the artifact binds the complete request-to-PRD-approval digest chain. Mandatory
+Chromium CI proves generation and returning-customer recovery. The result remains `DRAFT` and creates
+no estimate, date, schedule, staffing, agent, repository, coding, deployment, billing, release, or
+pilot-product authority. See `docs/CUSTOMER_ROADMAP_DRAFT.md`.
+
 Day 16 adds explicit customer review, approval, and immutable locking for one exact Day 15 PRD
 version. The authenticated owner reviews the complete PRD, provides an affirmative confirmation,
 and receives a canonical receipt bound to every prior authority digest. ASCOS projects the receipt
@@ -141,6 +149,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_ROADMAP_DRAFT.md](docs/CUSTOMER_ROADMAP_DRAFT.md) — deterministic governed
+  milestones, exact locked-requirement mapping, immutable source binding, and browser evidence.
 
 - [docs/CUSTOMER_PRD_APPROVAL.md](docs/CUSTOMER_PRD_APPROVAL.md) — explicit PRD confirmation,
   immutable locking, governed lifecycle projection, and founder-safe browser evidence.

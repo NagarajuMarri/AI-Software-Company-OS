@@ -1,5 +1,28 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 17 acceptance
+
+Roadmap generation must require an authenticated customer, session CSRF, one exact owned and locked
+Day 16 PRD, and the PRD-approval digest rendered at the checkpoint. The service must reload and
+validate the complete request, requirements, requirements approval, PRD, PRD approval, and governed
+locked document. Missing, stale, cross-customer, corrupt, tampered, invalid, or mismatched authority
+must fail closed before persistence.
+
+Derivation must reuse the existing Product Requirements roadmap and roadmap-item operations. The PRD
+must be valid and `LOCKED`; every source requirement must be `LOCKED`; milestone ordering, stable item
+IDs, ordered requirement mappings, and priorities must match the governed projection. Every locked
+requirement must appear exactly once and no unknown requirement may appear. The artifact and every
+item remain `DRAFT`, with no estimate, date, schedule, assignee, agent, repository, implementation,
+deployment, billing, release, or pilot-product authority.
+
+Persistence must be customer scoped, canonical, integrity checked, mode 0600, write once, restart
+safe, exact-retry idempotent, path contained, closed to unknown entries, and reject symlinks and
+tampering. The web form must use a closed bounded schema, escape all customer text, and preserve the
+no-store, CSP, framing, sniffing, and referrer protections. Mandatory exact-head Chromium CI must
+prove signup through roadmap generation, complete mapping display, logout/login, and same-draft
+recovery with a safe screenshot and digest manifest. Day 17 performs no roadmap approval, estimate,
+schedule, agent, repository, coding, merge, deployment, billing, release, or Day 18 action.
+
 # Day 16 acceptance
 
 PRD approval must require an authenticated customer, session CSRF, one exact owned Day 15 PRD, its

@@ -228,6 +228,31 @@ monitoring, abuse controls, rate limits, and privacy review. A locked PRD is sco
 does not create a roadmap or estimate, select a pilot, assign an agent, connect a repository, generate
 or execute code, merge, deploy, bill, or release.
 
+# Customer roadmap-draft boundaries
+
+Day 17 trusts customer identity and CSRF only from the Day 12 session middleware. The generation form
+may carry only session CSRF and the rendered PRD-approval digest; it cannot assert customer, product,
+upstream identities, requirement mappings, milestone order, generation time, status, estimate,
+schedule, assignee, repository, or execution authority. The service reloads the complete Day 11-16
+chain, reconstructs and validates the locked governed PRD, and fails closed on missing, stale,
+cross-customer, corrupt, tampered, or mismatched authority.
+
+Roadmap structure comes only from the existing governed roadmap and roadmap-item derivation. The
+service requires exact stable IDs and ordering, compares milestone and priority mappings, and proves
+that every locked requirement occurs once. The deterministic profile makes no network, external AI,
+secret-manager, repository, subprocess, or agent call.
+
+The record is a closed canonical write-once envelope with a full integrity digest, bounded derived
+identity, exclusive mode-0600 creation, path containment, unknown-entry and symlink rejection, exact
+retry idempotency, and restart reconstruction. Customer text is escaped on both checkpoint and review
+pages. The development adapter remains single-instance evidence; production exposure requires
+transactional uniqueness, encryption and managed keys, backup/restore, retention/deletion,
+observability, rate limits, abuse controls, and privacy review.
+
+The roadmap is `DRAFT` only. It does not approve a plan, estimate or schedule work, assign people or
+agents, select a pilot, connect a repository, create implementation tasks, generate or execute code,
+merge, deploy, bill, or release.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

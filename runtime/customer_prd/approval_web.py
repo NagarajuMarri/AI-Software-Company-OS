@@ -263,6 +263,7 @@ def _approved_receipt(
 <dt>Receipt digest</dt><dd><code>{escape(receipt.digest)}</code></dd></dl></div>
 <div class="notice"><strong>Locked scope — planning and implementation have not started</strong>
 <p>Roadmaps, estimates, agent assignment, repository access, coding, merge, deployment, billing, and release require separate founder-governed modules.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approved source</a>
+<div class="actions"><a class="button" href="/customer/requests/{escape(value.request_id)}/roadmap">Create roadmap draft</a>
+<a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approved source</a>
 <a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
     return _layout(f"Approved {value.title} · ASCOS", content, csrf)
