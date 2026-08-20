@@ -1,5 +1,33 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 13 acceptance
+
+Only the authenticated customer that owns the immutable source request may open, save, list, or
+review its guided requirements. Every revision must bind the exact customer ID, request ID, bounded
+derived draft ID, positive contiguous revision, source-request digest, primary user journey, desired
+outcomes, must-have features, measurable success metrics, optional non-goals, canonical platform
+order, data-sensitivity declaration, delivery-priority declaration, and timezone-aware server time.
+
+Draft history must be append-only, write-once, canonical, integrity-digested, path-contained, mode
+0600, restart-safe, and limited to 1,000 revisions. Exact retries must reuse the existing latest
+revision without another write. Changed submissions must provide the exact latest revision; stale
+writers, gaps, unknown files, duplicate/unknown platforms, traversal, symlinks, cross-customer
+access, source mismatch, mutation, and malformed authority must fail closed.
+
+The web form must require trusted session identity and CSRF authority, exact URL-encoded content,
+bounded bytes and fields, closed field names, single values except bounded platform checkboxes,
+bounded normalized lines, and enumerated selections. Customer content must be escaped and invalid
+submissions must not echo it. All pages must be non-cacheable and carry CSP, framing, sniffing, and
+referrer protections. The review page must state that the record is only a draft and conveys no
+approval or implementation authority.
+
+Mandatory exact-head CI must run a real Chromium journey through signup, product-request creation,
+guided clarification, immutable save, review, logout, new login, and reopening the same draft without
+console or request failures. The founder artifact must contain `requirements-review.png` and a
+content-digested manifest with no password, bearer token, cookie, CSRF value, salt, or local path.
+Day 13 does not claim requirements approval/locking, PRD generation, planning, agents, coding,
+repository connection, merge, deployment, billing, or release.
+
 # Day 12 acceptance
 
 Registration must canonicalize and validate an ASCII email, enforce the bounded strong-password

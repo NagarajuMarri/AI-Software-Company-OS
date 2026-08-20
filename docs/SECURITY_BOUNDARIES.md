@@ -145,6 +145,26 @@ password screening, organizations/roles, distributed session storage, encryption
 email delivery, billing, deployment, or release. Production exposure requires those later controls,
 TLS termination, a managed database/secret, monitoring, backup, and operational abuse protection.
 
+# Customer guided-requirements boundaries
+
+Day 13 accepts a source request only through the authenticated customer-scoped Day 11 service. It
+never trusts a form customer ID, source digest, revision timestamp, or draft identity. The service
+loads those authorities server-side, derives a bounded draft ID, orders platform selections, binds
+the current immutable request digest, and assigns the next revision and time.
+
+Draft records are closed-schema canonical JSON with integrity digests and exclusive mode-0600
+writes. History is append-only and requires contiguous revision filenames. Exact-retry reuse and
+optimistic concurrency prevent duplicate effects and lost updates. Path containment, identifier
+validation, symlink rejection, history bounds, source-digest verification, corruption detection, and
+cross-customer request lookup fail closed.
+
+The web boundary accepts only bounded URL-encoded forms with exact fields and session CSRF, escapes
+all customer content, does not echo invalid values, and applies no-store, restrictive CSP, frame
+denial, sniffing denial, and no-referrer headers. The data-sensitivity selection is a customer
+declaration, not automatic data discovery or a compliance certification. Day 13 stores product
+requirements and therefore forbids credentials, secrets, uploaded files, regulated records, agent
+execution, repository access, approval, coding, merge, deployment, billing, and release authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

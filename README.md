@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 13 adds guided customer requirements refinement. An authenticated customer can open an immutable
+Day 11 product request, clarify the primary user journey, desired outcomes, must-have features,
+measurable success signals, non-goals, delivery platforms, data sensitivity, and priority, then save
+and reopen an append-only draft revision. Optimistic concurrency, source-request digest binding,
+canonical records, restart-safe history, customer isolation, CSRF, escaping, and browser protections
+fail closed. Mandatory Chromium CI proves the complete returning-customer journey and uploads a safe
+review screenshot. The draft grants no approval, planning, agent, coding, repository, merge,
+deployment, or release authority. See `docs/CUSTOMER_GUIDED_REQUIREMENTS.md`.
+
 Day 12 adds real customer signup, password login, persistent server-side sessions, CSRF-protected
 logout/revocation, and returning-customer access to the Day 11 workspace. Passwords are protected
 with per-account scrypt salts, bearer tokens are never persisted raw, cookies are HttpOnly and
@@ -107,6 +116,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_GUIDED_REQUIREMENTS.md](docs/CUSTOMER_GUIDED_REQUIREMENTS.md) — guided product
+  clarification, append-only customer drafts, source binding, review UI, and browser evidence.
 
 - [docs/CUSTOMER_AUTHENTICATION.md](docs/CUSTOMER_AUTHENTICATION.md) — customer accounts, scrypt
   credentials, server-side sessions, logout revocation, returning access, and browser evidence.
