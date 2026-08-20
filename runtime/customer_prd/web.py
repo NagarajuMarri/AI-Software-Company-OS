@@ -6,10 +6,16 @@ from collections.abc import Callable, Iterable
 from html import escape
 import hmac
 import re
+from typing import Protocol
 from urllib.parse import parse_qs
 
 from runtime.customer_application.errors import ProductRequestNotFound
-from runtime.customer_prd.errors import CustomerPrdConflict, CustomerPrdCorrupt
+from runtime.customer_prd.errors import (
+    CustomerPrdApprovalConflict,
+    CustomerPrdApprovalCorrupt,
+    CustomerPrdConflict,
+    CustomerPrdCorrupt,
+)
 from runtime.customer_prd.models import CustomerPrdDraft, CustomerPrdRequirement
 from runtime.customer_prd.service import CustomerPrdService
 from runtime.customer_requirements import (
@@ -28,11 +34,22 @@ _FIELDS = {"csrf_token", "expected_approval_digest", "action"}
 _MAX_BODY = 4_096
 
 
+class CustomerPrdApprovalLookup(Protocol):
+    """Read-only lock lookup used to route an approved PRD consistently."""
+
+    def is_locked(self, customer_id: str, request_id: str) -> bool: ...
+
+
 class CustomerPrdApplication:
     """Generate one source-bound PRD draft and expose read-only customer review."""
 
-    def __init__(self, service: CustomerPrdService) -> None:
+    def __init__(
+        self,
+        service: CustomerPrdService,
+        approvals: CustomerPrdApprovalLookup | None = None,
+    ) -> None:
         self._service = service
+        self._approvals = approvals
 
     @staticmethod
     def handles(path: str) -> bool:
@@ -102,6 +119,14 @@ class CustomerPrdApplication:
                         start_response,
                         f"/customer/requests/{review.group(1)}/prd",
                     )
+                if (
+                    self._approvals is not None
+                    and self._approvals.is_locked(customer_id, review.group(1))
+                ):
+                    return _redirect(
+                        start_response,
+                        f"/customer/requests/{review.group(1)}/prd/approved",
+                    )
                 return _respond(start_response, "200 OK", _prd_review(prd, csrf))
         except ProductRequestNotFound:
             return _respond(
@@ -109,7 +134,11 @@ class CustomerPrdApplication:
                 "404 Not Found",
                 _message("Request not found", "This product request is unavailable."),
             )
-        except (CustomerPrdConflict, RequirementsApprovalConflict):
+        except (
+            CustomerPrdApprovalConflict,
+            CustomerPrdConflict,
+            RequirementsApprovalConflict,
+        ):
             return _respond(
                 start_response,
                 "409 Conflict",
@@ -120,6 +149,7 @@ class CustomerPrdApplication:
             )
         except (
             CustomerPrdCorrupt,
+            CustomerPrdApprovalCorrupt,
             RequirementsApprovalCorrupt,
             RequirementsDraftCorrupt,
         ):
@@ -243,9 +273,10 @@ def _prd_review(value: CustomerPrdDraft, csrf: str) -> str:
 <span><strong>Data</strong>{escape(value.data_sensitivity.value.replace('_', ' ').title())}</span>
 <span><strong>Priority</strong>{escape(value.delivery_priority.value.replace('_', ' ').title())}</span></div>
 <div class="notice"><strong>PRD draft only — no implementation has started</strong>
-<p>Customer PRD review/approval, roadmap planning, agent assignment, coding, and deployment are later governed modules.</p></div>
+<p>Review and approval are required before any later roadmap module. Planning, agents, repository access, coding, and deployment have not started.</p></div>
 <div class="actions"><a class="button secondary" href="/customer">Return to workspace</a>
-<a class="button" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approved source</a></div>
+<a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approved source</a>
+<a class="button" href="/customer/requests/{escape(value.request_id)}/prd/approve">Review and approve PRD</a></div>
 <footer>PRD <code>{escape(value.prd_id)}</code> · Artifact <code>{escape(value.digest)}</code><br>
 Approved source <code>{escape(value.approval_digest)}</code> · Profile <code>{escape(value.generation_profile)}</code></footer></section>'''
     return _layout(f"{value.title} · ASCOS", content, csrf)

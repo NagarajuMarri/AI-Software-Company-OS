@@ -1,6 +1,10 @@
-# Spoken English AI Managed Pilot
+# Spoken English AI Managed-Flow Fixture
 
-The first commercial pilot is **Personalised Daily Speaking Practice Session**.
+This is a historical deterministic fixture for exercising ASCOS's managed-product flow. It is not
+the official implementation pilot. No official ASCOS pilot product is selected; the founder will
+provide that product separately.
+
+The fixture scenario is **Personalised Daily Speaking Practice Session**.
 `runtime.pilots.spoken_english.managed_change_request()` must run through Project
 Registry, 12.3A planning/materialisation, separate 12.3B execution approval,
 isolated workspace/branch, 12.4 provider operation, gates, evidence, and separate

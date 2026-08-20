@@ -1,5 +1,13 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 16 adds explicit customer review, approval, and immutable locking for one exact Day 15 PRD
+version. The authenticated owner reviews the complete PRD, provides an affirmative confirmation,
+and receives a canonical receipt bound to every prior authority digest. ASCOS projects the receipt
+through its governed `DRAFT -> UNDER_REVIEW -> APPROVED -> LOCKED` lifecycle and verifies every
+requirement is locked. Mandatory Chromium CI proves approval and returning-customer recovery. This
+module creates no roadmap, estimate, agent assignment, repository connection, code, deployment,
+billing, release, or pilot-product selection. See `docs/CUSTOMER_PRD_APPROVAL.md`.
+
 Day 15 adds deterministic customer PRD-draft generation. After Day 14 approval, the authenticated
 owner can create and reopen one canonical PRD v0.1 bound to the exact source-request, requirements,
 and approval digests. Every requirement carries an approved-source reference, and the artifact is
@@ -96,8 +104,8 @@ cannot enter review while a locked capability is only implemented or automatical
 
 Milestone 12.4 adds a typed durable coding-provider boundary, a fully offline
 deterministic provider, and an optional explicitly authorized OpenAI Responses
-API adapter. It defines the first Spoken English AI managed pilot without
-modifying the live product repository. See
+API adapter. Its Spoken English scenario is a historical managed-flow fixture,
+not the official implementation pilot, and it does not modify the live product repository. See
 `docs/CODING_PROVIDER_ARCHITECTURE.md`.
 
 Live synchronous recovery is deliberately conservative: a mandatory durable
@@ -133,6 +141,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_PRD_APPROVAL.md](docs/CUSTOMER_PRD_APPROVAL.md) — explicit PRD confirmation,
+  immutable locking, governed lifecycle projection, and founder-safe browser evidence.
 
 - [docs/CUSTOMER_PRD_DRAFT.md](docs/CUSTOMER_PRD_DRAFT.md) — deterministic PRD v0.1 generation,
   exact approval binding, source mapping, governed-domain validation, and browser evidence.

@@ -207,6 +207,27 @@ monitoring, abuse controls, and privacy review. A generated artifact is `DRAFT` 
 approver, roadmap, estimate, agent assignment, repository access, coding, merge, deployment, billing,
 or release authority.
 
+# Customer PRD-approval boundaries
+
+Day 16 trusts customer identity and CSRF only from the Day 12 session middleware. The approval form
+may carry only the rendered PRD digest, the fixed confirmation value, and session CSRF; it cannot
+assert customer, product, source, requirements, approval, PRD identity, time, lifecycle status, or
+downstream authority. The service reloads the complete Day 11-15 chain server-side, compares every
+digest binding, and fails closed on missing, stale, cross-customer, corrupt, or mismatched authority.
+
+The receipt is a closed canonical write-once record with a full integrity digest, bounded derived
+identity, exclusive mode-0600 creation, path containment, unknown-entry and symlink rejection, exact
+retry idempotency, and restart validation. Customer text is escaped on both the approval checkpoint
+and receipt. The locked governed projection must traverse the existing review, approval, and lock
+states; it records the authenticated customer as approver, locks every requirement at the receipt
+time, and must pass PRD validation.
+
+The development file adapter is deterministic single-instance evidence. Production exposure
+requires transactional uniqueness, encryption and managed keys, backup/restore, retention/deletion,
+monitoring, abuse controls, rate limits, and privacy review. A locked PRD is scope authority only: it
+does not create a roadmap or estimate, select a pilot, assign an agent, connect a repository, generate
+or execute code, merge, deploy, bill, or release.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

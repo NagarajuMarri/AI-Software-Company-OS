@@ -1,5 +1,28 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 16 acceptance
+
+PRD approval must require an authenticated customer, session CSRF, one exact owned Day 15 PRD, its
+complete rendered scope, an affirmative fixed confirmation, and the exact rendered PRD digest. The
+service must reload the product request, locked customer requirements, requirements approval, and
+PRD server-side and reject missing, stale, cross-customer, corrupt, tampered, or mismatched authority
+before persistence.
+
+The write-once receipt must bind customer, request, PRD artifact, product, PRD identity, version,
+source-request digest, requirements digest, requirements-approval digest, PRD digest, confirmation
+contract, and UTC approval time. Projection through the existing governed lifecycle must produce a
+`LOCKED` PRD with the customer as approver, the receipt time as lock time, every requirement locked,
+complete review/approve/lock history, and no validation issues. No roadmap record or downstream
+authority may be created.
+
+Persistence must be customer scoped, canonical, integrity checked, mode 0600, write once, restart
+safe, exact-retry idempotent, path contained, closed to unknown entries, and rejecting of symlinks and
+tampering. The web form must use a closed bounded schema, escape all customer text, and retain the
+portal's no-store, CSP, framing, sniffing, and referrer protections. Mandatory exact-head Chromium CI
+must prove signup through locked-PRD receipt plus logout/login recovery, with a safe screenshot and
+digest manifest. Day 16 performs no roadmap, estimate, pilot selection, agent, repository, coding,
+merge, deployment, billing, or release action.
+
 # Day 15 acceptance
 
 PRD generation must require an authenticated customer, session CSRF, one exact owned Day 14 approval
