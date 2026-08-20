@@ -1,5 +1,28 @@
 # Runtime Roadmap
 
+# Day 22 — Provider-Neutral Digital Twin Execution Runtime
+
+Introduce one generic operational boundary that aligns a Digital Twin to exactly one existing
+Business Role and dispatches one exact assignment to one explicitly selected replaceable provider.
+The immutable assignment must bind the tenant, Twin, role, objective, non-secret context,
+capabilities, requested tools, and exact delegated-authority digest. The authority must bind the
+same identities and objective, list allowed actions and tools, expire within 24 hours, and set
+bounded tool-call and output budgets.
+
+Register only explicitly read-only Day 22 tools. Expose tools to a provider only through a gateway
+that checks the assignment allowlist and budget on every invocation and records digest-only success
+or failure evidence. Persist a canonical mode-0600 execution intent before provider activity and a
+canonical terminal receipt afterward. Exact retry and restart must return the same receipt without
+a second provider effect. A prepared live-provider intent without a receipt requires reconciliation;
+live execution requires both delegation-grant authority and operator enablement.
+
+Mandatory Chromium CI executes the offline deterministic provider through the real typed boundary,
+uses one allowlisted fixture-record tool, restarts, reopens the same receipt, and inspects a
+founder-safe exact-commit report. The fixture is generic runtime verification only. Day 22 does not
+implement CEO, Product Manager, architect, engineering, QA, security, DevOps, documentation, or
+multi-agent role behavior; create a product workspace or executable product task; access a product
+repository; run a command or network tool; approve, merge, deploy, release, bill, or select a pilot.
+
 # Day 21 — Customer Preview and Evidence Centre
 
 Let the authenticated owner open one already-produced product preview, inspect a governed package

@@ -4,6 +4,16 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 22 adds the provider-neutral Digital Twin execution runtime. One enabled Digital Twin is bound
+to one existing Business Role, one explicitly selected provider, declared capabilities, an
+allowlist of read-only tools, and one exact expiring delegation grant. The runtime persists intent
+before provider activity, exposes only bounded non-secret context through the typed provider
+request, mediates every tool call through call/output budgets, and records a canonical digest-only
+receipt that exact retries and restarts reopen without a second provider effect. Mandatory Chromium
+CI inspects a founder-safe exact-commit execution report. Day 22 adds no specialized workforce role,
+product workspace, product-repository write, command or network tool, merge, deployment, release,
+billing, approval, or pilot-product authority. See `docs/DIGITAL_TWIN_EXECUTION_RUNTIME.md`.
+
 Day 21 adds the authenticated Preview and Evidence Centre. ASCOS can record one already-produced,
 allowlisted product preview and a canonical exact-commit evidence package covering automated tests,
 Chromium, console, network, screenshot, and security results. The customer opens the preview,
@@ -11,8 +21,8 @@ inspects the evidence, and records one immutable `ACCEPT` or `REVISE` receipt; f
 evidence cannot be accepted and revisions require comments. The package binds the exact Day 20
 progress, locked roadmap, estimate, and commit digests. Mandatory Chromium CI proves preview opening,
 review, acceptance, sign-out/sign-in, and receipt recovery. Day 21 does not create or deploy a
-preview, run agents, create tasks, write a repository, merge, release, select a pilot, or begin Day
-22. See `docs/CUSTOMER_PREVIEW_EVIDENCE.md`.
+preview, run agents, create tasks, write a repository, merge, release, select a pilot, or grant Day
+22 execution authority. See `docs/CUSTOMER_PREVIEW_EVIDENCE.md`.
 
 Day 20 adds a customer-scoped project progress dashboard derived on every read from the exact
 locked roadmap and Day 19 estimate authority. It displays governed milestones, exactly-once planned
@@ -297,6 +307,7 @@ official frozen Spoken English AI PRD is
 - [docs/engineering-capability-model.md](docs/engineering-capability-model.md) — internal capability model for the Engineering Office.
 - [docs/role-architecture.md](docs/role-architecture.md) — authoritative source of truth for reusable engineering business roles, scalable role tiers, capability assignments, and optional digital-twin fulfilment principles.
 - [docs/digital-twin-architecture.md](docs/digital-twin-architecture.md) — the authoritative architecture describing how Business Roles are fulfilled through Digital Twins while remaining technology independent.
+- [docs/DIGITAL_TWIN_EXECUTION_RUNTIME.md](docs/DIGITAL_TWIN_EXECUTION_RUNTIME.md) — the Day 22 provider-neutral runtime, delegated-authority, read-only tool-gateway, persistence, and evidence contract.
 - [docs/decision-architecture.md](docs/decision-architecture.md) — the authoritative architecture governing how decisions are owned, authorized, delegated, traced, reviewed, and evolved throughout ASCOS.
 - [docs/skill-architecture.md](docs/skill-architecture.md) — the authoritative architecture defining reusable enterprise skills, their composition, proficiency, lifecycle, governance, and assignment relationships with Business Roles and Digital Twins.
 - [docs/tool-architecture.md](docs/tool-architecture.md) — the authoritative architecture defining reusable operational Tools, their classifications, specification model, relationships, composition, selection, lifecycle, governance, and boundaries with Skills and future Execution Architecture.

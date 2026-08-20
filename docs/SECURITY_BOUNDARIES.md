@@ -16,6 +16,30 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Digital Twin execution boundaries
+
+Day 22 treats the Digital Twin provider, its structured result, and every tool request as untrusted.
+The runtime compares the exact tenant, Twin, Business Role, assignment, objective, authority,
+capability, provider, and tool bindings before activity. Delegation expires within 24 hours and has
+explicit action, tool-call, and output limits. Prohibited approval, governance, repository-write,
+commit, merge, deployment, release, billing, and pilot-selection actions are invalid model values,
+not conventions in a prompt.
+
+Providers receive an immutable bounded request and one gateway capability. They do not receive a
+filesystem, environment, subprocess runner, repository adapter, network client, persistence store,
+or credential resolver. The Day 22 runtime registry accepts read-only tools only; every call is
+checked against the assignment, Twin, delegation, provider, registry, call count, and byte budget.
+Context and structured fields reject secret-bearing keys. Tool and provider values remain ephemeral;
+persistence retains only identities, sanitized fixed summaries, and canonical digests. Raw provider
+exceptions never enter a receipt.
+
+Execution intent is exclusively written before provider activity. Per-execution file locking,
+mode-0600 records, canonical envelopes, tenant/path containment, closed directories, bounded reads,
+and symlink, permission, schema, and digest validation protect restart state. A complete receipt
+makes exact retry side-effect free. A prepared live-provider intent without a receipt is not retried;
+it requires reconciliation. Live provider use additionally requires both an exact delegation flag
+and explicit operator enablement. Day 22 ships no live provider, mutating tool, or product authority.
+
 # Managed runtime configuration boundaries
 
 Managed runtime configuration persists public environment bindings and opaque secret references,
