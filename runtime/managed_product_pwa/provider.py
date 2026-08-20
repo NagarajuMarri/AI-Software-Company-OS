@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import json
+from time import monotonic, sleep
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from runtime.managed_product_browser.contracts import BrowserArtifactStore
@@ -213,16 +214,25 @@ class PlaywrightPwaProvider:
                     if not isinstance(target_id, str) or not target_id:
                         raise AssertionError("PWA standalone launch returned no target")
                     phase = "LAUNCH_TARGET"
-                    target = browser_session.send(
-                        "Target.getTargetInfo", {"targetId": target_id}
-                    ).get("targetInfo")
-                    if (
-                        not isinstance(target, dict)
-                        or target.get("type") != "page"
-                        or _resolved_path(target.get("url"), origin, page.url)
-                        != plan.start_path
-                    ):
-                        raise AssertionError("PWA standalone launch target was unauthorized")
+                    deadline = monotonic() + 10
+                    while True:
+                        target = browser_session.send(
+                            "Target.getTargetInfo", {"targetId": target_id}
+                        ).get("targetInfo")
+                        if isinstance(target, dict) and target.get("type") == "page":
+                            try:
+                                if (
+                                    _resolved_path(target.get("url"), origin, page.url)
+                                    == plan.start_path
+                                ):
+                                    break
+                            except ValueError:
+                                pass
+                        if monotonic() >= deadline:
+                            raise AssertionError(
+                                "PWA standalone launch target was unauthorized"
+                            )
+                        sleep(0.1)
                     browser_session.send("Target.closeTarget", {"targetId": target_id})
                     claims.append("STANDALONE_DISPLAY")
                     phase = "REFRESH"
