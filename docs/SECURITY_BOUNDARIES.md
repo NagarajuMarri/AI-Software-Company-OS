@@ -186,6 +186,27 @@ approval creation and draft revision, encryption/backup/retention controls, moni
 and privacy review. Customer approval is scope confirmation only: it conveys no PRD, planning,
 agent, repository, coding, merge, deployment, billing, or release authority.
 
+# Customer PRD-draft boundaries
+
+Day 15 treats the Day 14 receipt as the only generation authority. Customer identity and CSRF come
+from Day 12 session middleware; the form may carry only the fixed action and the rendered approval
+digest. The service reloads the request, approved requirements revision, and receipt server-side,
+requires exact customer/request/source/draft/approval bindings, and validates the resulting artifact
+through the existing governed Product Requirements domain. The deterministic generation profile
+makes no network, external AI, repository, secret-manager, subprocess, or agent call.
+
+The PRD record is a closed canonical write-once envelope with a full integrity digest, bounded stable
+identities, exclusive mode-0600 creation, path containment, unknown-entry and symlink rejection, and
+restart verification. Customer-provided content is escaped in the read-only review page. Persisted
+data contains the approved product scope and may contain customer-declared personal-data intent, but
+must not contain credentials, secrets, uploads, or regulated records.
+
+The development file adapter is single-instance evidence. Production exposure requires a
+transactional database uniqueness constraint, encryption, backup/restore, retention/deletion,
+monitoring, abuse controls, and privacy review. A generated artifact is `DRAFT` only: it has no
+approver, roadmap, estimate, agent assignment, repository access, coding, merge, deployment, billing,
+or release authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

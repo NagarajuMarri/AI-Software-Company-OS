@@ -1,5 +1,27 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 15 acceptance
+
+PRD generation must require an authenticated customer, session CSRF, one exact owned Day 14 approval
+receipt, and the approval digest rendered at the generation checkpoint. The service must reload the
+approved source request and requirements revision, compare every source/digest binding, and reject
+missing, stale, cross-customer, corrupt, tampered, or mismatched authority before persistence.
+
+The deterministic profile must map every approved scope field into a canonical PRD v0.1. Stable
+requirements must cover the user journey and desired outcomes, each must-have feature, ordered
+platforms, and declared data sensitivity; each requirement must retain a human-readable source
+reference. Success metrics, exclusions, and delivery priority must remain visible. The generated
+artifact must pass the existing Product Requirements validator, stay `DRAFT`, have no approver or
+future roadmap, and expose no downstream action.
+
+Persistence must be customer scoped, canonical, integrity checked, write-once, restart safe,
+path-contained, mode 0600, exact-retry idempotent, and rejecting of unknown files and symlinks. The
+web boundary must use a closed bounded form, escape all customer text, and retain the existing
+no-store, CSP, framing, sniffing, and referrer protections. Mandatory exact-head Chromium CI must
+prove signup through PRD review plus logout/login and existing-draft recovery, with a safe screenshot
+and digest manifest. Day 15 performs no PRD approval, planning, agent, repository, coding, merge,
+deployment, billing, or release action.
+
 # Day 14 acceptance
 
 Only the authenticated owner of the immutable source request may open the approval checkpoint,

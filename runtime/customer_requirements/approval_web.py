@@ -238,5 +238,6 @@ def _approved_receipt(
 <div class="notice"><strong>Approved baseline — implementation has not started</strong>
 <p>PRD generation, planning, agent assignment, coding, and deployment remain separate governed modules.</p></div>
 <div class="actions"><a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements/review">View approved scope</a>
-<a class="button" href="/customer">Return to workspace</a></div></section>'''
+<a class="button secondary" href="/customer">Return to workspace</a>
+<a class="button" href="/customer/requests/{escape(value.request_id)}/prd">Create PRD draft</a></div></section>'''
     return _layout(f"Approved requirements for {product_name} · ASCOS", content, csrf)
