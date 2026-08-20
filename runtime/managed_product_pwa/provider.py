@@ -219,7 +219,10 @@ class PlaywrightPwaProvider:
                         target = browser_session.send(
                             "Target.getTargetInfo", {"targetId": target_id}
                         ).get("targetInfo")
-                        if isinstance(target, dict) and target.get("type") == "page":
+                        if isinstance(target, dict) and target.get("type") in {
+                            "page",
+                            "tab",
+                        }:
                             try:
                                 if (
                                     _resolved_path(target.get("url"), origin, page.url)
