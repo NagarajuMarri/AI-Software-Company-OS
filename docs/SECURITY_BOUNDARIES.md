@@ -326,6 +326,31 @@ cookies, CSRF values, salts, and local paths. Day 20 has no persistence adapter,
 agent runtime, repository adapter, subprocess, external AI, network-provider, code, deployment,
 release, billing, pilot-selection, or Day 21 authority.
 
+# Customer preview-and-evidence boundaries
+
+Day 21 trusts customer identity and CSRF only from the Day 12 session middleware. Customer routes
+can read the centre, follow the recorded preview link, and submit a closed five-field review form;
+they cannot publish or replace a preview/evidence package. The service reloads the exact Day 20
+projection and validates customer/request/product identities plus progress, locked-roadmap, and
+estimate digests. Browser-submitted customer IDs, commit SHAs, evidence, preview URLs, progress, or
+downstream authority are never trusted.
+
+Preview URLs must be credential-free, query-free, fragment-free, path-bearing HTTPS URLs. Plain
+HTTP is allowed only for loopback browser fixtures. Their canonical origin must match an explicit
+service allowlist both at publication and read time. Evidence artifact URLs are similarly bounded;
+every artifact must use the existing governed runtime-acceptance model, cover the six required
+test/browser/security kinds, and bind the same full commit SHA. Failed required evidence cannot be
+accepted. `REVISE` requires comments; both decisions require the exact package digest, a fixed
+review confirmation, and session CSRF.
+
+The package and review receipt use exclusive mode-0600 canonical writes, full integrity digests,
+stable bounded identifiers, customer/request path containment, exact-retry idempotency, closed
+directories and schemas, restart validation, and symlink/tamper rejection. Content is escaped;
+responses are non-cacheable and keep CSP, frame denial, sniffing denial, and no-referrer policy.
+Evidence excludes passwords, bearer tokens, cookies, CSRF values, salts, and local paths. Day 21
+contains no preview deployment, agent runtime, task runner, repository adapter, subprocess,
+external-AI provider, billing, merge, release, pilot-selection, or Day 22 authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

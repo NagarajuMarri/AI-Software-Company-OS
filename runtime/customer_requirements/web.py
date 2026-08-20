@@ -69,6 +69,7 @@ class CustomerWorkspaceApplication:
         roadmap_approval: RoutedCustomerApplication | None = None,
         estimate: RoutedCustomerApplication | None = None,
         progress: RoutedCustomerApplication | None = None,
+        evidence: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
@@ -82,6 +83,7 @@ class CustomerWorkspaceApplication:
                 roadmap_approval,
                 estimate,
                 progress,
+                evidence,
             )
             if item is not None
         )

@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 21 — Customer Preview and Evidence Centre
+
+Let the authenticated owner open one already-produced product preview, inspect a governed package
+of exact-commit automated-test, browser, console, network, screenshot, and security evidence, and
+submit exactly one explicit `ACCEPT` or `REVISE` decision. Bind the package to the exact Day 20
+progress projection, locked roadmap, Day 19 estimate, customer, request, product, full commit SHA,
+allowlisted preview origin, and every evidence digest. Do not expose evidence publication through a
+customer web route and do not accept any binding from the browser.
+
+Persist one canonical write-once package and one canonical write-once review receipt. Require the
+exact rendered package digest, session CSRF, a fixed reviewed-evidence confirmation, and one of the
+two exact decisions. Block `ACCEPT` unless all required evidence passes; require bounded comments
+for `REVISE`. Preserve exact-retry idempotency, restart-safe reconstruction, tenant isolation,
+mode-0600 exclusive writes, closed schemas/directories, path containment, safe credential-free
+URLs, escaping, restrictive headers, and symlink/tamper rejection. Mandatory Chromium CI opens a
+separate loopback verification preview, inspects all evidence, records acceptance, signs out/in, and
+reopens the same receipt with founder-safe screenshots and a digested manifest.
+
+Day 21 reviews existing evidence only. It does not create a preview, workspace, task, or agent; run
+an agent or subprocess; connect or write a product repository; generate code; merge; deploy; bill;
+release; select an official pilot product; or begin the Day 22 Digital Twin runtime.
+
 # Day 20 — Customer Project Progress Dashboard
 
 Let the authenticated owner open a deterministic, read-only progress projection for the exact
