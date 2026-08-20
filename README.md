@@ -1,11 +1,20 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 10 adds exact-commit PWA verification and safe complete-capability submission. ASCOS now proves
+the locked manifest, required PNG icons, activated and controlling service worker, standalone display
+mode, refresh survival, and offline app shell in a fresh Chromium profile. It then accepts only the
+immutable, content-addressed Authentication, Voice, and PWA results for the same run/configuration/
+profile/commit and advances the aggregate only to `RUNTIME_VERIFIED`. Mandatory browser CI uploads a
+founder-safe PWA screenshot and claim manifest. This is deterministic fixture evidence, not an OS-level
+installation, production deployment, human acceptance, merge, or release. See
+`docs/MANAGED_PRODUCT_PWA.md`.
+
 Day 9 adds deterministic Voice/media end-user verification. ASCOS now binds all eight locked Voice
 journeys to exact input/output WAV digests, verifies the bytes served by the exact-SHA product,
 measures non-silent signal, requires Chromium to complete unmuted media playback, verifies avatar
 speaking-to-idle state and a second persisted turn, and produces a founder-safe pack with eight
-screenshots and two playable WAVs. Production providers, PWA aggregation, human acceptance, merge,
-deployment, and release remain unavailable. See `docs/MANAGED_PRODUCT_VOICE.md`.
+screenshots and two playable WAVs. Production providers and human acceptance remain unavailable;
+Day 10 now supplies the PWA and safe aggregate boundary. See `docs/MANAGED_PRODUCT_VOICE.md`.
 
 Day 8 adds immutable authentication persistence and security verification. ASCOS now derives locked
 authentication claims from exact-SHA, digest-verified browser assertions and mandatory Chromium CI
@@ -80,6 +89,9 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/MANAGED_PRODUCT_PWA.md](docs/MANAGED_PRODUCT_PWA.md) — exact-commit PWA installability,
+  standalone/refresh/offline evidence, and immutable three-capability runtime submission.
 
 - [docs/MANAGED_PRODUCT_VOICE.md](docs/MANAGED_PRODUCT_VOICE.md) — exact-fixture Voice-chain,
   non-silent media, browser playback, avatar, and repeated-turn evidence.

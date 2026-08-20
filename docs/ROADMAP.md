@@ -1,5 +1,20 @@
 # Runtime Roadmap
 
+# Day 10 — PWA Verification and Safe Runtime Submission
+
+Bind one immutable PWA plan to the exact runtime run, configuration revision/digest, full product
+commit, locked acceptance profile, approved provider, canonical application paths, shell marker, and
+seven ordered claims. Mandatory Chromium CI validates the manifest and 192/512 PNG icons, waits for
+the exact service worker to activate and control the page, observes standalone display mode, refreshes
+the shell, and reloads it offline. It uploads a content-addressed screenshot and safe claim manifest.
+
+Persist a separate write-once submission plan that names the exact terminal Authentication, Voice,
+and PWA plan/result digests and all locked journeys in canonical capability order. Verify every
+content-addressed artifact before atomically recording complete runtime evidence and a write-once
+receipt. The aggregate stops at `RUNTIME_VERIFIED`; Day 10 does not perform human acceptance, OS-level
+PWA installation UI, production-product testing, merge, deployment, or release. Day 11 begins the
+customer application boundary only after founder approval.
+
 # Day 9 — Voice and Media End-User Verification
 
 Bind all eight locked Voice journeys to immutable exact-commit authority. Verify content-addressed
@@ -9,7 +24,7 @@ playback, avatar speaking-to-idle state, and a second turn in the same session. 
 screenshots, both playable WAVs, and a safe integrity manifest for founder inspection.
 
 Day 9 uses deterministic credential-free providers and does not claim production-provider, physical
-microphone/speaker, or human listening acceptance. Day 10 adds PWA evidence and safe aggregate
+microphone/speaker, or human listening acceptance. Day 10 now adds PWA evidence and safe aggregate
 submission. Merge, deployment, and release remain unavailable.
 
 # Day 8 — Authentication Persistence and Security Evidence

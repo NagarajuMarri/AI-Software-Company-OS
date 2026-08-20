@@ -1,5 +1,33 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 10 acceptance
+
+PWA verification must reload one immutable plan and prove exact agreement with the
+`AUTOMATED_VERIFIED` runtime run, persisted runtime configuration revision/digest/full commit SHA,
+acceptance profile identity/digest, current provider/origin policy, canonical start/manifest/service
+worker paths, shell marker, and every locked PWA claim before the managed environment starts.
+
+A passing fresh Chromium profile must fetch an exact same-origin manifest without redirects, require
+non-empty name/short name, standalone-capable display, exact start/scope paths, and valid bounded PNG
+responses declaring both 192x192 and 512x512 sizes. The exact service worker must reach `activated`,
+control the page after reload, preserve the shell in emulated standalone display mode, survive a
+normal refresh, and serve the expected controlled shell after network access is disabled. Console or
+page errors, origin escapes, mismatches, missing screenshot, incomplete claims, shutdown uncertainty,
+or artifact-integrity failure must fail closed.
+
+The aggregate submission plan must be write-once, restart-safe, corruption-detecting, and bind exactly
+Authentication, Voice, and PWA—in that order—to their plan/result digests and complete locked journey
+sets. Submission must accept only successful exact-run/configuration/profile/commit results, verify
+every content-addressed artifact and evidence link, reject duplicates or omissions, and persist an
+immutable receipt. Exact retry must not repeat runtime mutation. Successful submission advances only
+from `AUTOMATED_VERIFIED` to `RUNTIME_VERIFIED`; it must not request or record human approval.
+
+Mandatory exact-head CI must run the real PWA fixture, exact-SHA checkout, migration, service startup,
+readiness, Chromium verification, offline reload, reverse shutdown, workspace cleanup, result restart
+readback, and upload the founder-safe screenshot/manifest. This proves deterministic installability
+prerequisites and browser behavior, not OS installation UI, production-product operation, human UX,
+merge, deployment, or release.
+
 # Day 9 acceptance
 
 Voice verification must reload one immutable plan and prove exact agreement with the browser plan,

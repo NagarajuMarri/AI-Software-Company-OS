@@ -36,6 +36,7 @@ jobs:
       ASCOS_BROWSER_INTEGRATION: "1"
       ASCOS_FOUNDER_EVIDENCE_DIR: founder-evidence/day8
       ASCOS_VOICE_FOUNDER_EVIDENCE_DIR: founder-evidence/day9
+      ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,7 +47,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,browser]"
       - run: python -m playwright install --with-deps chromium
-      - name: Run browser, authentication, and voice end-user tests
+      - name: Run browser, authentication, voice, and PWA end-user tests
         run: >-
           python -m pytest -q
           tests/test_managed_product_browser.py
@@ -54,6 +55,8 @@ jobs:
           tests/test_managed_product_authentication_integration.py
           tests/test_managed_product_voice.py
           tests/test_managed_product_voice_integration.py
+          tests/test_managed_product_pwa.py
+          tests/test_managed_product_pwa_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,6 +71,14 @@ jobs:
         with:
           name: day9-founder-voice-verification
           path: founder-evidence/day9
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 10 PWA verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day10-founder-pwa-verification
+          path: founder-evidence/day10
           if-no-files-found: warn
           retention-days: 14
 
