@@ -352,7 +352,8 @@ def _free_port():
 _INDEX_FIXTURE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="/manifest.webmanifest"><title>SpeakMate PWA</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png" type="image/png"><title>SpeakMate PWA</title>
 </head><body><main data-testid="app-shell">SpeakMate ready offline</main>
 <script src="/app.js"></script></body></html>
 """

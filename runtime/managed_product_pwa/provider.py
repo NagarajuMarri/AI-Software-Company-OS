@@ -258,6 +258,7 @@ class PlaywrightPwaProvider:
                         raise AssertionError("PWA offline shell was unavailable")
                     claims.append("OFFLINE_SHELL_AVAILABLE")
                     screenshot = page.screenshot(full_page=True)
+                    phase = "CONSOLE"
                     if any(item["type"] in {"error", "pageerror"} for item in console):
                         raise AssertionError("PWA browser console contained an error")
                 except (PlaywrightError, PlaywrightTimeoutError, AssertionError, ValueError):
