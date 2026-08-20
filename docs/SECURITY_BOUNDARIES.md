@@ -253,6 +253,30 @@ The roadmap is `DRAFT` only. It does not approve a plan, estimate or schedule wo
 agents, select a pilot, connect a repository, create implementation tasks, generate or execute code,
 merge, deploy, bill, or release.
 
+# Customer roadmap-approval boundaries
+
+Day 18 trusts customer identity and CSRF only from the Day 12 session middleware. The approval form
+may carry only the exact rendered roadmap digest, one fixed confirmation value, and session CSRF; it
+cannot assert customer, upstream authority, roadmap identity, requirement mappings, item state,
+approver, time, or downstream authority. The service reloads the complete Day 11-17 chain
+server-side, compares every identity and digest binding, reconstructs the governed mapping, and
+fails closed on missing, stale, cross-customer, corrupt, tampered, or mismatched authority.
+
+The approval receipt is a closed canonical write-once record with a full integrity digest, bounded
+derived identity, exclusive mode-0600 creation, contained customer/request path, exact-retry
+idempotency, restart validation, and rejection of unknown entries and symlinks. The receipt is the
+only authority for the locked projection. That projection preserves exact stable roadmap-item IDs,
+order, requirement IDs, and priorities, changes only the roadmap/item statuses to `LOCKED`, records
+the authenticated customer and receipt time, and is revalidated on every read. Once locked, draft,
+review, and approval-entry routes redirect to the immutable receipt.
+
+The development adapter remains deterministic single-instance evidence. Production exposure
+requires transactional uniqueness spanning roadmap and receipt, encryption and managed keys,
+backup/restore, retention/deletion, observability, rate limits, abuse controls, and privacy review.
+A locked roadmap is immutable planning scope only: it grants no estimate, date, schedule, staffing,
+agent, repository, task, code, merge, deployment, billing, release, or official pilot-product
+authority.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

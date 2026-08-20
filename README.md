@@ -1,5 +1,14 @@
 # AI-Software-Company-OS (ASCOS)
 
+Day 18 adds explicit customer review, approval, and immutable locking for one exact Day 17 roadmap
+draft. The authenticated owner reviews every milestone and requirement mapping, provides a fixed
+affirmative confirmation, and receives a canonical write-once receipt bound to the complete
+request-to-roadmap digest chain. ASCOS projects the exact roadmap and every item into terminal
+`LOCKED` state while preserving all mappings and ordering. Mandatory Chromium CI proves approval and
+returning-customer recovery. This is immutable planning scope only: it creates no estimate, date,
+schedule, staffing or agent assignment, repository access, task, code, deployment, billing, release,
+or pilot-product authority. See `docs/CUSTOMER_ROADMAP_APPROVAL.md`.
+
 Day 17 adds deterministic customer roadmap-draft generation from one exact locked Day 16 PRD. The
 authenticated owner creates and reopens a canonical roadmap v0.1 whose stable milestones and items
 come from ASCOS's existing governed Product Requirements domain. Every locked requirement is mapped
@@ -149,6 +158,10 @@ Provide a durable engineering foundation for building hundreds of future softwar
 This repository now contains governance architecture, organizational architecture, engineering capability architecture, role architecture, digital twin architecture, decision architecture, skill architecture, tool architecture, knowledge architecture, and platform and delivery standards needed to support future product repository formation. The contents remain concise, reusable, and implementation-independent.
 
 ## Repository map
+
+- [docs/CUSTOMER_ROADMAP_APPROVAL.md](docs/CUSTOMER_ROADMAP_APPROVAL.md) — explicit roadmap
+  confirmation, write-once receipt, immutable item locking, exact mapping preservation, and browser
+  evidence.
 
 - [docs/CUSTOMER_ROADMAP_DRAFT.md](docs/CUSTOMER_ROADMAP_DRAFT.md) — deterministic governed
   milestones, exact locked-requirement mapping, immutable source binding, and browser evidence.

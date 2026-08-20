@@ -1,5 +1,30 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 18 acceptance
+
+Roadmap approval must require an authenticated customer, session CSRF, the complete rendered Day 17
+roadmap, one fixed affirmative confirmation, and the exact rendered roadmap digest. The service must
+reload and validate the complete request, requirements, requirements approval, PRD, PRD approval,
+roadmap, and governed mappings server-side. Missing, stale, false-confirmation, cross-customer,
+corrupt, tampered, invalid, or mismatched authority must fail closed before persistence.
+
+The write-once receipt must bind customer, request, product, PRD version and identity, roadmap
+identity, source-request digest, requirements digest, requirements-approval digest, PRD digest,
+PRD-approval digest, roadmap digest, confirmation contract, and UTC approval time. Its governed
+projection must make the roadmap and every item `LOCKED`, preserve exact ordering, stable item IDs,
+requirement IDs, priorities, and exactly-once requirement coverage, and record the authenticated
+customer and receipt time. The model must expose no estimate, date, schedule, staffing, agent,
+repository, task, implementation, deployment, billing, release, or pilot-product authority.
+
+Persistence must be customer scoped, canonical, integrity checked, mode 0600, write once, restart
+safe, exact-retry idempotent, path contained, closed to unknown entries, and reject symlinks and
+tampering. The web checkpoint must use a bounded closed form, escape customer text, redirect every
+locked draft/generation route to the receipt, and retain no-store, CSP, framing, sniffing, and
+referrer protections. Mandatory exact-head Chromium CI must prove signup through roadmap approval,
+complete locked mappings, logout/login, and recovery of the same receipt with a safe screenshot and
+digest manifest. Day 18 performs no estimate, schedule, agent, repository, task, coding, merge,
+deployment, billing, release, pilot selection, or Day 19 action.
+
 # Day 17 acceptance
 
 Roadmap generation must require an authenticated customer, session CSRF, one exact owned and locked
