@@ -56,6 +56,7 @@ class PlaywrightPwaProvider:
         offline = False
         installed_manifest_id: str | None = None
         browser_session = None
+        phase = "NAVIGATION"
 
         try:
             with sync_playwright() as playwright:
@@ -138,16 +139,19 @@ class PlaywrightPwaProvider:
                     if plan.shell_expected_text not in shell.inner_text():
                         raise AssertionError("PWA shell marker did not match authority")
 
+                    phase = "MANIFEST"
                     linked_manifest = page.locator("link[rel='manifest']").get_attribute("href")
                     if _resolved_path(linked_manifest, origin, page.url) != plan.manifest_path:
                         raise AssertionError("PWA manifest link did not match authority")
                     manifest = _fetch_json(context, f"{origin}{plan.manifest_path}")
                     icon_paths = _validate_manifest(manifest, plan)
                     claims.append("MANIFEST_VERIFIED")
+                    phase = "ICONS"
                     for path in icon_paths:
                         _fetch_icon(context, f"{origin}{path}")
                     claims.append("ICONS_VERIFIED")
 
+                    phase = "SERVICE_WORKER"
                     worker = page.evaluate(
                         """async expectedPath => {
                             const registration = await navigator.serviceWorker.ready;
@@ -171,18 +175,22 @@ class PlaywrightPwaProvider:
                         raise AssertionError("PWA service worker did not control the page")
                     claims.append("SERVICE_WORKER_CONTROLS_PAGE")
 
+                    phase = "INSTALLABILITY"
                     page_session = context.new_cdp_session(page)
                     installability = page_session.send("Page.getInstallabilityErrors")
                     if installability.get("installabilityErrors"):
                         raise AssertionError("Chromium reported PWA installability errors")
+                    phase = "MANIFEST_IDENTITY"
                     app_identity = page_session.send("Page.getAppId")
                     installed_manifest_id = app_identity.get("appId")
                     if installed_manifest_id != f"{origin}/":
                         raise AssertionError("PWA manifest identity did not match authority")
                     browser_session = browser.new_browser_cdp_session()
+                    phase = "INSTALL"
                     browser_session.send(
                         "PWA.install", {"manifestId": installed_manifest_id}
                     )
+                    phase = "STANDALONE_SETTING"
                     browser_session.send(
                         "PWA.changeAppUserSettings",
                         {
@@ -190,12 +198,14 @@ class PlaywrightPwaProvider:
                             "displayMode": "standalone",
                         },
                     )
+                    phase = "LAUNCH"
                     launched = browser_session.send(
                         "PWA.launch", {"manifestId": installed_manifest_id}
                     )
                     target_id = launched.get("targetId")
                     if not isinstance(target_id, str) or not target_id:
                         raise AssertionError("PWA standalone launch returned no target")
+                    phase = "LAUNCH_TARGET"
                     target = browser_session.send(
                         "Target.getTargetInfo", {"targetId": target_id}
                     ).get("targetInfo")
@@ -208,12 +218,14 @@ class PlaywrightPwaProvider:
                         raise AssertionError("PWA standalone launch target was unauthorized")
                     browser_session.send("Target.closeTarget", {"targetId": target_id})
                     claims.append("STANDALONE_DISPLAY")
+                    phase = "REFRESH"
                     page.reload(wait_until="networkidle")
                     shell = page.get_by_test_id(plan.shell_test_id)
                     if plan.shell_expected_text not in shell.inner_text():
                         raise AssertionError("PWA shell did not survive refresh")
                     claims.append("REFRESH_SURVIVES")
 
+                    phase = "OFFLINE_SHELL"
                     offline = True
                     context.set_offline(True)
                     page.reload(wait_until="domcontentloaded")
@@ -229,7 +241,7 @@ class PlaywrightPwaProvider:
                     if any(item["type"] in {"error", "pageerror"} for item in console):
                         raise AssertionError("PWA browser console contained an error")
                 except (PlaywrightError, PlaywrightTimeoutError, AssertionError, ValueError):
-                    failure_code = "PWA_VERIFICATION_FAILED"
+                    failure_code = f"PWA_{phase}_FAILED"
                     try:
                         screenshot = page.screenshot(full_page=True)
                     except (PlaywrightError, PlaywrightTimeoutError):
