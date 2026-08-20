@@ -37,6 +37,6 @@ secret-safe evidence/digest manifest.
 Day 9 proves the provider contracts, exact media delivery, non-silent signal, browser playback path,
 avatar lifecycle, and repeat-turn orchestration. Headless CI cannot prove a human heard a physical
 speaker, and the deterministic fixture is not a production microphone, STT/LLM/TTS provider, or
-deployed product. Production-provider and human UX acceptance remain explicit later gates. Day 10
+deployed product. Production-provider and human UX acceptance remain explicit later gates. Day 10 now
 adds PWA verification and safe complete-capability submission. No merge, deployment, or release is
 performed here.

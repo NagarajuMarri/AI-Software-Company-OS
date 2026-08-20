@@ -93,6 +93,21 @@ It excludes request/response bodies, credentials, cookies, browser storage, loca
 secrets. Deterministic CI uses no production STT, LLM, or TTS credential and is not a hostile-code,
 physical-speaker, production-provider, or human-listening acceptance boundary.
 
+# PWA verification and aggregate-submission boundaries
+
+Day 10 reloads immutable PWA authority and rechecks exact run, configuration, full-SHA, profile,
+provider, origin, path, shell-marker, and claim bindings before execution. Chromium blocks unrelated
+origins. Manifest and icon retrieval forbids redirects, credentials, queries/fragments, unbounded
+content, unsafe paths, unexpected media types, and incomplete installability metadata. Evidence omits
+console text, headers, cookies, request/response bodies, browser storage, query strings, credentials,
+and local paths. Offline verification changes only the disposable browser context and the managed exact-SHA
+environment is still stopped and removed afterward.
+
+Aggregate plans and receipts are path-contained canonical write-once records. Submission validates
+the exact Authentication, Voice, and PWA result digests, journey coverage, evidence links, and every
+content-addressed artifact before runtime acceptance changes. It exposes no human-acceptance, source
+write, merge, deployment, or release operation and stops at `RUNTIME_VERIFIED`.
+
 # Process and PostgreSQL boundaries
 
 Serializable worker configuration accepts connection references, never raw database

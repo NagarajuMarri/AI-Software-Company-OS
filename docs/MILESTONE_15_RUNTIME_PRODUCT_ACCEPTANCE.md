@@ -80,8 +80,8 @@ The adapter boundary permits Playwright or another approved browser provider wit
 to a product framework. Day 7 records bounded console data, allow-listed body/header-free network
 data, and masked final screenshots while the exact environment is ready. Day 8 adds the locked
 Authentication evidence slice, and Day 9 adds the locked deterministic Voice evidence slice. Partial
-evidence is not submitted to the acceptance aggregate until Day 10 binds PWA and complete capability
-evidence safely. Deterministic audio fixtures carry a hashed media artifact and expected transcript;
+evidence is not submitted to the acceptance aggregate until the Day 10 boundary binds PWA and
+complete capability evidence safely. Deterministic audio fixtures carry a hashed media artifact and expected transcript;
 production credentials and raw secrets are never evidence metadata.
 
 ## Completeness locks
