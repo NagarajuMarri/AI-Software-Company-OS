@@ -1,5 +1,29 @@
 # Runtime Roadmap
 
+# Day 25 — Engineering Agent Family
+
+Operationalize Backend, Frontend, AI, and Data Engineer Digital Twins through one shared bounded
+Engineering service on the Day 22 provider-neutral runtime. Each work order must select one exact
+role, ordered capability profile, ordered action profile, Twin, tenant, assignment, objective, and
+current delegated authority. Every role has zero tools, zero tool calls, and no live-provider
+authorization. The service must consume the exact persisted Day 24 architecture artifact and allow
+only target component IDs contained in that source.
+
+Each role produces a closed typed Engineering artifact containing role-specific implementation
+instructions, an interface contract, exact acceptance checks, engineering self-validation checks,
+handoff notes, and status. Rebuild the deterministic request and output, reconcile both digests with
+the terminal runtime receipt, and only then persist canonical mode-0600 write-once state. Exact retry
+and restart return the same receipt and artifact without repeating a provider effect. Mandatory
+exact-head Chromium CI inspects all four roles, exact architecture/work-order/receipt bindings,
+restrictive headers, browser health, and zero-tool authority using generic verification data.
+
+The architecture remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; Engineering artifacts remain
+`DRAFT_ENGINEERING_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 25 creates no product workspace,
+repository change, patch, command, migration, live AI call, QA plan or sign-off, security review,
+DevOps behavior, documentation workflow, multi-agent orchestration, commit, merge, deployment,
+release, billing, budget action, architecture approval, or official pilot selection. These later
+boundaries remain in Days 26–35.
+
 # Day 24 — Software Architect Agent
 
 Operationalize one `AgentRole.SOFTWARE_ARCHITECT` Digital Twin through the Day 22 runtime. It must

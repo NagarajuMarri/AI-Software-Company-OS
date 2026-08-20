@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 25 adds one governed Engineering agent family. Backend, Frontend, AI, and Data Engineer Digital
+Twins execute separate role-bound work orders through one shared provider-neutral service on the Day
+22 runtime. Every execution requires an exact ordered role/capability/action profile, current
+tenant-bound authority, immutable assignment, and the exact persisted Day 24 architecture digest.
+Untrusted provider output is rebuilt, receipt reconciled, validated through a closed typed schema,
+and stored as a canonical mode-0600 write-once artifact. The roles have zero tools and no filesystem,
+repository, command, network, credential, coding-workspace, QA, Security, DevOps, merge, deployment,
+release, orchestration, budget, or pilot-selection authority. Outputs remain
+`DRAFT_ENGINEERING_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`; architecture remains pending human review.
+See `docs/ENGINEERING_WORKFORCE_AGENTS.md`.
+
 Day 24 adds one bounded Software Architect Digital Twin. It consumes the exact persisted Day 23
 Product Manager plan and produces a typed draft architecture proposal: domain boundary, components,
 integration and data lifecycle, security and quality considerations, concrete technology
