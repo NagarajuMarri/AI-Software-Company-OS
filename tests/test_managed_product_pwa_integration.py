@@ -174,7 +174,12 @@ def test_real_pwa_install_standalone_refresh_and_offline_shell(tmp_path):
         thread.join(timeout=5)
         git_server.server_close()
 
-    assert result.stage is BrowserExecutionStage.COMPLETED
+    pwa_artifact = next(item for item in result.evidence if item.kind is EvidenceKind.PWA)
+    payload = artifacts.read_json(pwa_artifact.artifact_uri, pwa_artifact.digest)
+    assert result.stage is BrowserExecutionStage.COMPLETED, {
+        "failure_code": result.failure_code,
+        "claims": payload["claims"],
+    }
     assert result.commit_sha == commit
     assert result.journey_results[0].journey_id == "pwa.install_launch"
     assert result.journey_results[0].outcome is EvidenceOutcome.PASS
@@ -188,8 +193,6 @@ def test_real_pwa_install_standalone_refresh_and_offline_shell(tmp_path):
         EvidenceKind.PWA,
         EvidenceKind.SCREENSHOT,
     }
-    pwa_artifact = next(item for item in result.evidence if item.kind is EvidenceKind.PWA)
-    payload = artifacts.read_json(pwa_artifact.artifact_uri, pwa_artifact.digest)
     assert tuple(payload["claims"]) == tuple(item.value for item in LOCKED_PWA_CLAIMS)
     assert not any((tmp_path / "environments").rglob(plan.run_id))
     assert FileBrowserExecutionStore(tmp_path / "results").load(
