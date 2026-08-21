@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 31 adds the isolated product-workspace boundary. It consumes the exact persisted Day 30
+orchestration artifact and requires one current human-issued authority bound to one registered
+repository identity, approved base branch, exact commit, new `agent/*` feature branch, and contained
+workspace identity. The bounded local Git adapter rejects dirty or wrong bases, existing targets or
+branches, symlinks, submodules, executable Git configuration, path escape, and identity drift. It
+creates one generic-fixture worktree and branch, then proves the approved source branch, HEAD, tree,
+and clean status are unchanged and the workspace is clean at the same commit/tree. Exact retry and
+restart reopen one mode-0600 write-once artifact without another Git effect. No local host path is
+persisted. Day 31 provides no coding, general command, network, credential, product-file mutation,
+test, scan, commit, push, pull request, merge, deployment, release, budget, or pilot authority. See
+`docs/ISOLATED_PRODUCT_WORKSPACE.md`.
+
 Day 30 adds governed multi-agent workforce orchestration. It consumes the exact persisted Day
 23–29 artifact chain—CEO, Product Manager, Architecture, four ordered Engineering roles, QA,
 Security, DevOps, and Documentation—and produces an acyclic dependency graph, nine ordered waves,

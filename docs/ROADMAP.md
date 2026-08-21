@@ -1,5 +1,26 @@
 # Runtime Roadmap
 
+# Day 31 — Isolated Product Workspace
+
+Bind one current human-issued authority and work order to the exact persisted Day 30 orchestration
+artifact, registered repository identity, approved base branch, exact commit, new `agent/*` feature
+branch, and caller-owned workspace identity. Reject stale or unpersisted sources, wrong or dirty
+repositories, existing targets/branches, symlinks, submodules, executable Git configuration,
+protected branches, path escape, and authority drift before any Git write.
+
+Create one contained linked worktree and feature branch at the exact base through a specialized
+no-network Git adapter. Prove after creation that the approved source branch, HEAD, tree, and clean
+status did not change, while the new workspace is clean at the same HEAD/tree. Persist a canonical
+mode-0600 write-once artifact containing stable IDs and digests but no host path. Exact retry and
+restart return the same artifact without another Git effect. Mandatory exact-head Chromium CI uses
+a generic fixture to inspect the source binding, containment, exact refs/trees, preservation,
+browser health, and operational boundary.
+
+The workspace remains `READY_NOT_USED` and no official pilot is selected. Day 31 performs no
+coding, general command execution, network access, credentials use, product-file mutation, test or
+Security execution, commit, push, pull request, merge, deployment, release, billing, budget action,
+or risk acceptance. Coding and review remain Day 32.
+
 # Day 30 — Multi-agent Orchestration
 
 Coordinate the exact persisted Day 23–29 workforce chain through one provider-neutral planning

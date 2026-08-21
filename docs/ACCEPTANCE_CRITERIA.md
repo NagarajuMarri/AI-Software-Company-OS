@@ -1,5 +1,50 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 31 acceptance
+
+One isolated product-workspace work order and one current human-issued authority must bind the exact
+persisted Day 30 orchestration artifact, tenant, opportunity, registered repository identity,
+approved base branch, exact 40-character base commit, new `agent/*` feature branch, caller-owned
+workspace identity, ordered action profile, and one specialized `LOCAL_GIT_WORKTREE` tool. Missing,
+changed, fabricated, unpersisted, cross-tenant, expired, differently assigned, or elevated source or
+authority must fail before Git activity.
+
+Before workspace creation, the source must be a real non-symlink repository root, clean including
+untracked files, on the approved branch and exact commit, and configured with the exact registered
+HTTPS remote identity. The destination and feature branch must not exist. Tracked symlinks,
+submodules, protected metadata, repository-local filters, hook paths, fsmonitor, credentials, URL
+rewrites, path escape, unsafe roots, protected feature branches, and malformed identities must fail
+closed without overwrite, reset, deletion, cleanup, or adoption.
+
+The bounded provider must create exactly one linked worktree and one new feature branch at the
+approved base. It must then prove the approved source branch, HEAD, tree, and clean status remain
+unchanged, and the workspace branch, HEAD, tree, and clean status exactly match the request. Any
+partial, divergent, pre-existing, or ambiguous effect must require reconciliation. Git operations
+must use argument arrays with prompts, credentials, global/system configuration, and hooks disabled.
+No fetch, clone, push, network, or general command capability may be used.
+
+One artifact must retain the exact orchestration, work-order, authority, repository registration,
+workspace identity, base/feature refs, tree bindings, provider digest, bounded Git-operation count,
+and zero network/general-command/product-file-write/unrelated-change counts. It must retain no local
+host path. Its state must remain `ISOLATED_WORKSPACE_READY_FOR_AUTHORIZED_CODING`,
+`READY_NOT_USED`, `FEATURE_BRANCH_READY_AT_EXACT_BASE`, `CLEAN_AND_UNCHANGED`, with pilot state
+`NOT_SELECTED`.
+
+Persistence must be canonical, integrity checked, mode 0600, tenant/execution scoped, write once,
+bounded, path contained, restart safe, and exact-retry idempotent. Unknown entries or fields, unsafe
+permissions, symlinks, non-canonical content, identity mismatch, changed authority/source/workspace,
+and tampering must be rejected. An exact retry or process restart must return the same artifact
+without a second Git effect.
+
+Mandatory exact-head CI must create a generic fixture workspace and render real Chromium evidence.
+Chromium must inspect the exact Day 30 source binding, approved base, source preservation, isolated
+branch/workspace, equal Git trees, zero product-file/unrelated changes, zero network/general commands,
+restrictive headers, empty console/network failures, and no host path. Evidence must bind the exact
+commit, approved Day 30 base, work order, authority, orchestration digest, repository/workspace IDs,
+base/feature refs, states, provider result, artifact, and screenshot digest. Day 31 performs no
+coding, product tests, Security scans, commit, push, product pull request, merge, deployment, release,
+billing, budget action, risk acceptance, or official pilot selection, and it does not start Day 32.
+
 # Day 30 acceptance
 
 One bounded orchestration work order and one current tenant-bound authority must bind the exact
