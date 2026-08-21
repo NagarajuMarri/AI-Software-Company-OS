@@ -4,6 +4,16 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 36 adds the governed first end-to-end product pilot. It reloads seven exact persisted source
+records and proves one closed fixture customer idea traversed intake, locked PRD, approved roadmap,
+governed agents, QA/Security-reviewed code, controlled draft-PR delivery, a healthy isolated
+preview, and complete Chromium runtime acceptance. A human-issued authority binds the customer and
+runtime product identities, every source digest, repository/branch/commit/tree, draft PR, preview,
+and ordered journeys. The terminal write-once artifact reports eight passing stages and preserves
+zero repository-write, PR-mutation, preview-mutation, merge, production, release, billing,
+risk-acceptance, and Day 37 effects. The pilot is fixture-only; no live customer product or
+production target is selected. See `docs/FIRST_END_TO_END_PRODUCT_PILOT.md`.
+
 Day 35 adds governed complete runtime acceptance. It consumes the exact persisted Day 34 healthy
 preview, one persisted managed-product runtime configuration, and one persisted declarative browser
 plan bound to the same repository, feature branch, commit, preview origin, and locked acceptance

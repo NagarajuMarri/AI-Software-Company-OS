@@ -1,5 +1,26 @@
 # Runtime Roadmap
 
+# Day 36 — First End-to-End Product Pilot
+
+Bind one current human-issued pilot authority to seven exact persisted records: customer request,
+PRD, PRD approval, roadmap, roadmap approval, healthy preview, and complete runtime acceptance.
+Recheck the complete customer approval chain, explicit customer/runtime product binding,
+Day 26–35 execution digests, repository/branch/commit/tree, open draft PR, preview identity/origin,
+ordered journeys, validity windows, and budgets before composing pilot evidence.
+
+Produce eight ordered receipts covering customer idea, locked PRD, approved plan, governed agents,
+reviewed code and tests, draft PR, healthy preview, and complete runtime acceptance. The closed
+provider reads the verified snapshot only and has no repository, GitHub mutation, preview platform,
+browser, credential, deployment, billing, or command capability. Changed sources, missing approval,
+failed journeys, non-draft delivery, unhealthy preview, product-binding drift, or elevated authority
+fail closed.
+
+Persist one canonical mode-0600 write-once pilot artifact with every upstream digest and zero
+repository-write, PR-mutation, preview-mutation, merge, production, release, billing,
+risk-acceptance, or Day 37 counts. Exact retry/restart executes no second provider. The real
+Chromium fixture pilot proves the pipeline without choosing a live customer product or production
+target. Day 37 hardening and founder UAT remain separately authorized.
+
 # Day 35 — Complete Runtime Acceptance
 
 Bind one current human-issued authority to the exact persisted Day 34 healthy preview, exact

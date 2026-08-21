@@ -1,5 +1,35 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 36 acceptance
+
+One product-pilot work order and one current human-issued authority must bind the exact persisted
+customer request, PRD, PRD approval, roadmap, roadmap approval, Day 34 preview, and Day 35 runtime
+acceptance artifact. The binding must include tenant/customer/request/opportunity/assignment/pilot
+identities, an explicit customer-to-runtime product digest, every source digest, repository,
+isolated feature branch, commit/tree, open draft-PR number, preview origin/environment, and ordered
+runtime journeys. Missing, fabricated, changed, unpersisted, expired, cross-tenant, differently
+assigned, or elevated input must fail before the pilot evidence provider executes.
+
+The customer chain must prove one submitted idea, one deterministic PRD draft, an exact locked PRD
+receipt, one deterministic roadmap, and an exact locked roadmap receipt. The execution chain must
+retain the same Day 26/27/28/30/31/32/33/34/35 digests, exact reviewed code, one open draft PR,
+healthy isolated preview, and passing runtime acceptance. All declared journeys must have passed
+with authentication and screenshots; source or identity drift prevents terminal pilot evidence.
+
+The closed provider reads only the verified source snapshot and returns eight ordered stage
+receipts: customer idea, locked PRD, approved plan, governed agents, reviewed code/tests, draft pull
+request, healthy preview, and complete runtime acceptance. It has no repository, GitHub mutation,
+preview platform, deployment, credential, browser, billing, or general-command tool. Exact retry or
+restart returns the existing write-once artifact without a second provider execution.
+
+The terminal artifact must be canonical, bounded, tenant/execution scoped, mode 0600, path
+contained, restart safe, and tamper evident. Exact-head CI must rerun the complete fixture product
+journeys in real Chromium, render a legible founder-safe page with restrictive headers, bind the
+exact commit, and report eight passing stages, four passing journeys, empty console/network
+failures, and zero repository-write, PR-mutation, preview-mutation, merge, production, release,
+billing, risk-acceptance, or Day 37 effects. The fixture pilot selects no live customer product and
+does not authorize Day 37 hardening or founder UAT.
+
 # Day 35 acceptance
 
 One complete-runtime-acceptance work order and one current human-issued authority must bind the
