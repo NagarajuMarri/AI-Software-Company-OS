@@ -16,6 +16,37 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# DevOps workforce boundaries
+
+Day 28 treats the DevOps work order, persisted Architecture, ordered Engineering sources, exact QA
+and Security sources, provider result, six nested plans, and status as untrusted. Before provider
+activity, the composition requires the exact DevOps role, provider, ordered capability/action
+profiles, tenant, Twin, assignment, objective digest, current authority, work-order digest, and
+persisted Day 24–27 source chain. QA and Security must bind the same exact Architecture and four
+Engineering digests. Any source or state drift fails closed.
+
+The profile has an empty tool allowlist, zero tool-call budget, and no live-provider authorization.
+It receives only bounded non-secret upstream metadata through the typed Day 22 request. It receives
+no filesystem, environment, process, browser, repository, network, infrastructure, credential,
+secret, provider, product workspace, CI runner, deployment system, monitoring backend, release
+system, Documentation workflow, or orchestration capability. Closed schemas reject unknown fields,
+source substitution, cross-source components, changed QA or Security bindings, claimed execution,
+production targets, unbound rollback plans, and elevated states.
+
+After execution, the service rebuilds the provider request/output and requires both digests to
+match the terminal receipt. Only then may the canonical mode-0600 write-once store persist the
+result. Reads reject unsafe permissions, symlinks, unknown entries, non-canonical content, identity
+mismatch, oversized data, and tampering. Raw provider responses and exceptions, credentials,
+customer secrets, deployment URLs, infrastructure identifiers, and local paths are never stored.
+Exact retry and restart reopen the same receipt and artifact without a second provider effect.
+
+All six plans stay `NOT_EXECUTED`; all operational targets stay
+`ISOLATED_NON_PRODUCTION_PREVIEW`; complete output stays
+`DRAFT_DEVOPS_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 28 cannot run CI, provision, migrate,
+deploy, connect monitoring, roll back, promote, target production, release, perform Documentation
+or orchestration work, commit, merge, bill, allocate budget, accept risk, approve quality or
+security, or select a pilot.
+
 # Security workforce boundaries
 
 Day 27 treats the Security work order, persisted architecture, ordered Engineering sources, exact
