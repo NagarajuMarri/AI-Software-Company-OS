@@ -16,6 +16,32 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# End-to-end product pilot boundaries
+
+Day 36 treats the work order, human authority, customer request, PRD and approval, roadmap and
+approval, preview artifact, runtime-acceptance artifact, explicit customer/runtime product binding,
+provider observation, stage receipts, and founder evidence as untrusted. Before provider execution,
+ASCOS reloads all seven persisted records and proves exact tenant/customer/request/opportunity,
+product binding, repository/branch/commit/tree, open draft PR, healthy isolated preview, ordered
+journeys, upstream digests, current authority, and bounded source/stage/journey counts.
+
+The Day 36 provider receives a digest-only immutable snapshot. It cannot read credentials, open a
+browser, access a filesystem path, run a command, call GitHub or a deployment platform, write a
+repository, mutate a PR or preview, merge, deploy production, release, bill, spend budget, accept
+risk, or start Day 37. Raw passwords, tokens, cookies, authorization headers, provider payloads,
+host paths, and customer free text are prohibited from pilot work orders, artifacts, errors,
+manifests, and screenshots.
+
+All eight ordered stage receipts must bind their exact source digest and terminal state. Missing,
+duplicated, reordered, stale, cross-pilot, or fabricated receipts fail closed. The fixture product
+identity is verification data and is not a live customer or production selection. A failed or
+ambiguous pilot cannot be rewritten as passed; it requires a new authorized execution identity.
+
+Canonical mode-0600 write-once persistence rejects unknown fields/entries, unsafe permissions,
+symlinks, path escape, non-canonical content, identity drift, and tampering. Day 36 grants no source
+mutation, PR action, merge, production deployment, release, billing, risk acceptance, subjective
+founder acceptance, or Day 37 authority.
+
 # Complete runtime acceptance boundaries
 
 Day 35 treats the work order, human authority, persisted Day 34 preview, runtime configuration,
