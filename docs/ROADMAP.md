@@ -1,5 +1,29 @@
 # Runtime Roadmap
 
+# Day 28 — DevOps Engineer Agent
+
+Operationalize one `AgentRole.DEVOPS_ENGINEER` Digital Twin through the Day 22 provider-neutral
+runtime. The assignment binds one exact DevOps work order, ordered role/capability/action profile,
+current authority, persisted Day 24 architecture, four ordered Day 25 Engineering artifacts, exact
+Day 26 QA artifact, and exact Day 27 Security artifact. It has zero tools, zero tool calls, and no
+live-provider authorization. Missing, extra, reordered, stale, fabricated, or cross-tenant sources
+fail before provider activity.
+
+Produce a closed typed DevOps artifact containing CI-pipeline, isolated-preview, migration,
+deployment, monitoring, and rollback preparation plus coverage, handoff, and status. Rebuild the
+deterministic request and output, reconcile both digests with the terminal runtime receipt, and only
+then persist canonical mode-0600 write-once state. Exact retry and restart return the same receipt
+and artifact without a second provider effect. Mandatory exact-head Chromium CI inspects all six
+plans, exact Architecture/Engineering/QA/Security bindings, restrictive headers, browser health,
+and the zero-tool boundary using generic verification data.
+
+Every plan remains `NOT_EXECUTED`; preview/deployment/monitoring/rollback are constrained to
+`ISOLATED_NON_PRODUCTION_PREVIEW`; the artifact remains
+`DRAFT_DEVOPS_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 28 performs no infrastructure,
+credential, filesystem, workspace, repository, command, network, CI, provisioning, migration,
+deployment, monitoring, rollback, promotion, production, release, Documentation, orchestration,
+commit, merge, billing, budget, risk acceptance, approval, or official pilot-selection action.
+
 # Day 27 — Security Engineer Agent
 
 Operationalize one `AgentRole.SECURITY_ENGINEER` Digital Twin through the Day 22 provider-neutral

@@ -1,5 +1,55 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 28 acceptance
+
+One enabled Digital Twin must align exactly to `AgentRole.DEVOPS_ENGINEER`, provider
+`deterministic-devops-engineer-v1`, the ordered DevOps capability profile, and the ordered delegated
+action profile. It must have zero tools, zero tool calls, no live-provider authorization, one
+current tenant-bound authority, and one immutable DevOps work order whose assignment ID and
+objective digest match the delegation. Wrong role, provider, capability, action or order, tenant,
+Twin, assignment, objective, tool allowance, source, or elevated authority must fail before
+provider activity.
+
+The work order must consume the exact persisted Day 24 Software Architect artifact, exactly four
+ordered persisted Day 25 Engineering artifacts—Backend, Frontend, AI, and Data—the exact persisted
+Day 26 QA artifact, and the exact persisted Day 27 Security artifact. QA and Security must bind the
+same architecture and Engineering digests. Every source must share tenant, opportunity, status,
+and `NOT_SELECTED` pilot state. Missing, extra, reordered, fabricated, changed, cross-work-order,
+or cross-tenant sources must fail closed.
+
+One successful execution must produce exactly six typed plans: CI pipeline, isolated preview
+environment, migration, deployment, monitoring, and rollback. CI and deployment must bind all four
+Engineering digests plus the exact QA and Security digests. Migration must bind the Data Engineer
+artifact and only its components. Rollback must bind the exact deployment and migration plan IDs.
+Preview, deployment, monitoring, and rollback targets must be
+`ISOLATED_NON_PRODUCTION_PREVIEW`; production targets must be impossible.
+
+Every plan must remain `NOT_EXECUTED`; the complete artifact must remain
+`DRAFT_DEVOPS_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Architecture, Engineering, QA, and Security
+statuses remain unchanged. Day 28 may describe commands and infrastructure steps as reviewable
+text but cannot access a workspace, filesystem, repository, process, network, provider,
+infrastructure, credential, or secret; execute CI, provision resources, run migrations, deploy,
+connect monitoring, roll back, promote, release, or target production.
+
+Only closed typed content whose rebuilt provider request/output digests reconcile with the terminal
+runtime receipt may be stored. Persistence must be canonical, integrity checked, mode 0600,
+tenant/execution scoped, write once, bounded, path contained, restart safe, and exact-retry
+idempotent. It must reject unknown entries or fields, unsafe permissions, symlinks, non-canonical
+records, malformed nested fields, source drift, cross-source components, changed QA/Security
+bindings, claimed execution, production targets, identity mismatch, and tampering. Raw provider
+responses, exceptions, credentials, secrets, customer data, deployment URLs, and local paths must
+not be persisted.
+
+Mandatory exact-head CI must execute the DevOps profile through the real Digital Twin runtime using
+generic fixtures and real Chromium. Chromium must inspect all six plans, exact
+Architecture/Engineering/QA/Security bindings, receipt, zero-tool boundary, restrictive headers,
+empty console failures, and empty network failures. Founder evidence must bind the exact commit,
+approved Day 27 base, every upstream artifact, work order, profile, authority, assignment, provider
+request/output, receipt, plan states, and screenshot digest without credentials or local paths. Day
+28 performs no Documentation, multi-agent orchestration, product-workspace or repository access,
+filesystem, command, network, infrastructure, credential, CI, migration, deployment, monitoring,
+rollback, promotion, release, production, commit, merge, billing, budget, or pilot-selection action.
+
 # Day 27 acceptance
 
 One enabled Digital Twin must align exactly to `AgentRole.SECURITY_ENGINEER`, provider

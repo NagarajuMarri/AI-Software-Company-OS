@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 28 adds one governed DevOps Engineer Digital Twin. It consumes the exact persisted Day 24
+architecture, all four ordered Day 25 Engineering artifacts, the exact Day 26 QA artifact, and the
+exact Day 27 Security artifact. It produces typed CI-pipeline, isolated-preview, migration,
+deployment, monitoring, and rollback preparation plans through the Day 22 runtime with an exact
+capability/action profile, zero tools, closed schemas, immutable upstream bindings, restart-safe
+exact retries, and mandatory Chromium end-user evidence. Every operational action remains
+`NOT_EXECUTED`; every target is `ISOLATED_NON_PRODUCTION_PREVIEW`; and output remains
+`DRAFT_DEVOPS_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. No infrastructure, credentials, filesystem,
+workspace, repository, command, network, CI execution, provisioning, migration, deployment,
+monitoring connection, rollback, promotion, release, production, or pilot authority is granted.
+See `docs/DEVOPS_ENGINEER_WORKFORCE_AGENT.md`.
+
 Day 27 adds one governed Security Engineer Digital Twin. It consumes the exact persisted Day 24
 architecture, all four ordered Day 25 Engineering artifacts, and the exact persisted Day 26 QA
 artifact, then produces all six STRIDE threat records, four dependency-check specifications, four
