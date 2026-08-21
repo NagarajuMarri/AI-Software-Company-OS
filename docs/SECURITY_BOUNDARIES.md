@@ -16,6 +16,33 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Complete runtime acceptance boundaries
+
+Day 35 treats the work order, human authority, persisted Day 34 preview, runtime configuration,
+acceptance profile, browser plan, opaque-input resolver, browser provider result, console/network
+observations, screenshots, and terminal evidence as untrusted. Before Chromium launches, ASCOS
+reloads every persisted source and proves exact tenant/opportunity/product identity, registered
+repository, isolated feature branch, commit/tree, healthy preview origin and deployment, current
+authority, immutable configuration/profile/plan digests, ordered journey set, authentication
+journey, opaque login-reference set, and bounded execution budgets.
+
+Raw passwords, tokens, cookies, session values, and authorization headers are prohibited from work
+orders, authorities, plans, artifacts, errors, logs, metadata, screenshots, and manifests. Secret
+inputs cross the boundary only through bounded opaque references and are resolved immediately
+before provider invocation, retained only in in-memory input/redaction buffers, masked in
+screenshots, and cleared after the single browser execution.
+
+Every declared journey requires passing browser, console, network, and screenshot evidence bound to
+the exact plan and commit. Undeclared or duplicate journeys, failed evidence, wrong origins, missing
+screenshots, console errors, network failures, stale provider output, or secret-bearing evidence fail
+closed. A failed run remains failed and cannot be rewritten as accepted; a new acceptance attempt
+requires a new execution identity.
+
+Canonical mode-0600 write-once persistence rejects unknown fields/entries, unsafe permissions,
+symlinks, path escape, non-canonical content, identity drift, and tampering. Day 35 has no preview
+mutation, repository write, general command, PR approval, merge, production deployment, promotion,
+release, billing, budget, risk acceptance, official pilot selection, or Day 36 authority.
+
 # Preview deployment boundaries
 
 Day 34 treats the work order, human authority, persisted Day 33 delivery, persisted Day 28 plans,

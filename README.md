@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 35 adds governed complete runtime acceptance. It consumes the exact persisted Day 34 healthy
+preview, one persisted managed-product runtime configuration, and one persisted declarative browser
+plan bound to the same repository, feature branch, commit, preview origin, and locked acceptance
+profile. One current human-issued authority permits a single isolated Chromium launch, resolution
+of only the plan's opaque login references, and execution of every declared module-specific
+end-user journey. Each journey must pass with browser, console, network, and masked-screenshot
+evidence; any failure prevents a terminal artifact. Canonical write-once evidence records no raw
+credential or host path. Preview mutation, repository writes, PR approval, merge, production
+deployment, release, billing, risk acceptance, official pilot selection, and Day 36 work remain
+prohibited. See `docs/COMPLETE_RUNTIME_ACCEPTANCE.md`.
+
 Day 34 adds governed preview deployment. It consumes the exact persisted Day 33 delivery artifact
 and the matching persisted Day 28 DevOps plans, then requires a current human-issued authority bound
 to the exact repository, draft PR, feature branch, commit, tree, isolated preview identity, closed
@@ -12,8 +23,8 @@ provider-neutral platform adapter performs exactly one create-only non-productio
 preview migration, monitoring configuration, and two successful health checks. Duplicate or
 ambiguous environments require human reconciliation and are never adopted, overwritten, promoted,
 or blindly retried. Canonical evidence contains no raw secret or host path. PR approval, merge,
-production deployment, release, billing, risk acceptance, official pilot selection, and Day 35
-runtime journeys remain prohibited. See `docs/PREVIEW_DEPLOYMENT.md`.
+production deployment, release, billing, risk acceptance, and official pilot selection remain
+prohibited. See `docs/PREVIEW_DEPLOYMENT.md`.
 
 Day 33 adds controlled GitHub delivery. It consumes the exact persisted Day 32 coding/review
 artifact and independently verifies the source repository, dirty-but-unstaged isolated workspace,

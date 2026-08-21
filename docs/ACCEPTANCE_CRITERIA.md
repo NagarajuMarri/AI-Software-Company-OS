@@ -1,5 +1,43 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 35 acceptance
+
+One complete-runtime-acceptance work order and one current human-issued authority must bind the
+exact persisted Day 34 preview artifact, tenant, opportunity, product, repository, isolated feature
+branch, commit/tree, environment identity, preview origin, deployment revision, preview
+configuration digest, persisted runtime-configuration revision/digest, locked acceptance-profile
+identity/version/digest, persisted browser-plan identity/digest, ordered capability and journey IDs,
+authentication journey, and sorted opaque login-reference IDs. Missing, fabricated, changed,
+unpersisted, expired, cross-tenant, differently assigned, or elevated input must fail before
+Chromium launches.
+
+The Day 34 source must remain current, active, healthy, preview-only, bound to the exact deployed
+commit/tree, and retain two HTTP-200 health receipts with zero production, merge, release, billing,
+secret, unapproved-network, or general-command effects. The runtime configuration must target the
+same HTTPS preview origin and GitHub repository/branch/commit and carry the same acceptance-profile
+contract. The immutable browser plan must bind that exact configuration and profile and declare
+every capability journey in its exact order.
+
+The closed provider may resolve only the plan's opaque login references and invoke one approved
+browser provider once. Every declared journey must return PASS and provide passing browser,
+console, network, and exactly one masked-screenshot evidence record. The authentication journey is
+mandatory. Incomplete, duplicate, stale, wrong-plan, wrong-commit, console-error, network-failure,
+missing-screenshot, failed, or undeclared evidence must never produce a passing terminal artifact.
+
+The terminal artifact must bind the complete Day 26/27/28/30/31/32/33/34 source chain, exact
+runtime configuration, acceptance profile, browser plan and execution, ordered journey receipts,
+one browser launch, one authenticated session per journey, one screenshot per journey, and zero console,
+network, raw-secret, repository-write, preview-mutation, production, merge, release, billing, or
+pilot-selection counts. Exact retry and restart return the same artifact without launching a second
+browser.
+
+Persistence must be canonical, bounded, tenant/execution scoped, write once, mode 0600, path
+contained, restart safe, and tamper evident. Exact-head CI must run the complete declared journeys
+through real Chromium, render legible founder evidence with restrictive headers, bind the exact
+commit, and report empty console/network failures. Day 35 does not mutate the preview, approve or
+merge a PR, deploy production, release, accept subjective founder UX, select an official pilot, or
+start the Day 36 first end-to-end product pilot.
+
 # Day 34 acceptance
 
 One preview-deployment work order and one current human-issued preview authority must bind the exact
