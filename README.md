@@ -4,6 +4,16 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
+the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven
+ordered controls: security, one canonical backup, one deterministic recovery drill, a seven-entry
+tamper-evident audit chain, five healthy monitoring signals, seven required documentation records,
+and four end-user journeys ready for founder UAT. The Day 37 store persists a mode-0600 primary and
+byte-identical verified backup and supports explicit exact-state recovery. Real Chromium renders
+the final founder-safe UAT page. Subjective founder acceptance, repository or PR mutation, merge,
+production deployment, release, billing, and risk acceptance remain blocked and cannot be
+self-issued. See `docs/ASCOS_V1_HARDENING_AND_ACCEPTANCE.md`.
+
 Day 36 adds the governed first end-to-end product pilot. It reloads seven exact persisted source
 records and proves one closed fixture customer idea traversed intake, locked PRD, approved roadmap,
 governed agents, QA/Security-reviewed code, controlled draft-PR delivery, a healthy isolated

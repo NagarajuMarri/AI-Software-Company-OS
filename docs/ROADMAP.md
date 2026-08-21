@@ -1,5 +1,24 @@
 # Runtime Roadmap
 
+# Day 37 — ASCOS V1 Hardening and Acceptance
+
+Bind one current founder-issued start authority to the exact persisted Day 36 product-pilot
+artifact and seven immutable control contracts. Recheck the complete source chain, all eight pilot
+stages, four passing journeys, repository/branch/commit/tree/draft-PR/preview identity, zero
+elevated effects, validity windows, and fixed evidence budgets before any provider execution.
+
+Produce seven ordered, hash-chained receipts covering security, a verified canonical backup, an
+explicit exact-state recovery drill, tamper-evident audit, five healthy operational monitoring
+signals, seven required documentation records, and technical readiness for founder UAT. Persist
+one mode-0600 primary and one byte-identical recovery copy; strict reads fail on corruption or
+disagreement, while explicit recovery accepts only the verified backup.
+
+Rerun all four fixture end-user journeys and the final founder-safe page in real Chromium at the
+exact commit. The artifact must remain `PENDING_FOUNDER_ACCEPTANCE` and
+`BLOCKED_PENDING_FOUNDER_ACCEPTANCE`: automated verification cannot make a subjective founder
+decision. Day 37 does not mutate a repository, PR, or preview; merge; deploy production; release;
+bill; spend budget; accept risk; or select a live pilot product.
+
 # Day 36 — First End-to-End Product Pilot
 
 Bind one current human-issued pilot authority to seven exact persisted records: customer request,

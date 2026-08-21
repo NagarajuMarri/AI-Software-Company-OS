@@ -16,6 +16,35 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# ASCOS V1 hardening and founder-acceptance boundaries
+
+Day 37 treats the work order, founder-issued start authority, persisted Day 36 pilot, derived
+control contracts, provider observation, audit receipts, monitoring receipts, documentation
+bindings, primary artifact, backup artifact, recovery result, browser observations, manifest, and
+screenshot as untrusted. Before provider execution, ASCOS reloads the exact pilot and proves its
+identity/digest, eight passing stages, four passing journeys, complete upstream digests, isolated
+repository/branch/commit/tree/draft-PR/preview binding, and zero elevated effects.
+
+The provider receives only a digest-based immutable snapshot. It cannot read credentials or host
+paths; open a browser; run commands; access GitHub, a product repository, or deployment platform;
+mutate a PR or preview; merge; deploy production; release; bill; spend budget; accept risk; or
+record subjective founder acceptance. Raw passwords, tokens, cookies, authorization headers,
+provider payloads, customer free text, and local paths are prohibited from all Day 37 records and
+evidence.
+
+The primary and backup artifacts must be separate mode-0600 regular files with exact canonical byte
+equality. Strict loading rejects missing copies, unsafe permissions, symlinks, unknown directory
+entries, non-canonical content, identity drift, digest mismatch, or primary/backup disagreement.
+Explicit recovery may replace only a missing or corrupt regular primary after the backup
+independently validates and must reproduce the exact original artifact. All seven controls are
+ordered and linked by a previous-digest audit chain; reordered, missing, duplicate, unhealthy, or
+fabricated evidence fails closed.
+
+Day 37 prepares real-browser founder UAT evidence but keeps the decision
+`PENDING_FOUNDER_ACCEPTANCE`. Technical readiness is not merge, release, production readiness, or
+permission to select a live pilot. Those actions remain separately human authorized after final
+acceptance.
+
 # End-to-end product pilot boundaries
 
 Day 36 treats the work order, human authority, customer request, PRD and approval, roadmap and
