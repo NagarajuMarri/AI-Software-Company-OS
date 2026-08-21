@@ -99,7 +99,7 @@ and production deployment of ASCOS itself.
 
 ## Current bounded status
 
-Days 1–30 have founder acceptance for continuation. Day 31 is the active module. Approval to start a
+Days 1–31 have founder acceptance for continuation. Day 32 is the active module. Approval to start a
 later module never implies authority to merge, deploy, release, or select an official pilot product.
 Browser and workspace fixture products are test data only; no official ASCOS implementation pilot
 is selected.

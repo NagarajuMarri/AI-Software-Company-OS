@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 32 adds the governed coding and review loop. It consumes the exact persisted Day 30
+orchestration, Day 31 isolated workspace, Day 26 QA, and Day 27 Security artifacts. Four ordered
+Engineering assignments and one QA test path receive only role-owned UTF-8 text changes inside the
+isolated feature-branch worktree. A bounded deterministic provider runs real isolated pytest and
+static Security review; failed QA or Security findings return to the responsible Engineering role,
+and each revision must consume the exact feedback. The final generic fixture passes both reviews
+after three rounds, while the approved source repository stays clean and unchanged. The reviewed
+workspace remains dirty, unstaged, and uncommitted as
+`CODING_AND_REVIEWS_PASSED_AWAITING_CONTROLLED_GITHUB_DELIVERY`. No live provider, network,
+credentials, general command, staging, commit, push, pull request, merge, deployment, release,
+budget, risk acceptance, or pilot authority is granted. See `docs/CODING_REVIEW_LOOP.md`.
+
 Day 31 adds the isolated product-workspace boundary. It consumes the exact persisted Day 30
 orchestration artifact and requires one current human-issued authority bound to one registered
 repository identity, approved base branch, exact commit, new `agent/*` feature branch, and contained
