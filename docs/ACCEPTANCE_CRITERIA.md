@@ -1,5 +1,49 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 26 acceptance
+
+One enabled Digital Twin must align exactly to `AgentRole.QA_ENGINEER`, provider
+`deterministic-qa-engineer-v1`, the ordered QA capability profile, and the ordered delegated-action
+profile. It must have zero tools, zero tool calls, no live-provider authorization, one current
+tenant-bound authority, and one immutable QA work order whose assignment ID and objective digest
+match the delegation. Wrong role, provider, capability, action or order, tenant, Twin, assignment,
+objective, tool allowance, source, or elevated authority must fail before provider activity.
+
+The work order must consume the exact persisted Day 24 Software Architect artifact and exactly four
+ordered persisted Day 25 Engineering artifacts: Backend, Frontend, AI, and Data Engineer. Every
+source must share the tenant, opportunity, opportunity digest, architecture ID and digest, source
+status, and `NOT_SELECTED` pilot state. Missing, extra, reordered, fabricated, changed, or
+cross-work-order sources must fail closed. One successful execution must produce exactly four typed
+test-plan items, four automated-test specifications, two integration-test specifications, two draft
+defect reports, coverage requirements, handoff notes, and an explicit status report.
+
+Automated and integration records are executable specifications, not claims of product execution.
+Their state must remain `NOT_EXECUTED`; defects must remain
+`DRAFT_DEFECT_AWAITING_AUTHORIZED_TEST_EXECUTION`; the complete artifact must remain
+`DRAFT_QA_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Architecture and Engineering source statuses must
+remain unchanged. Day 26 may identify specification gaps and integration risks from the approved
+source chain, but it cannot write a test file, access a product workspace, execute product code,
+approve quality, or verify an observed runtime defect.
+
+Only closed typed content whose rebuilt provider request/output digests reconcile with the terminal
+runtime receipt may be stored. Persistence must be canonical, integrity checked, mode 0600,
+tenant/execution scoped, write once, bounded, path contained, restart safe, and exact-retry
+idempotent. It must reject unknown entries or fields, unsafe permissions, symlinks, non-canonical
+records, malformed nested fields, source drift, identity mismatch, claimed execution, elevated
+states, and tampering. Raw provider responses, exceptions, credentials, secrets, customer data, and
+local paths must not be persisted.
+
+Mandatory exact-head CI must execute the QA profile through the real Digital Twin runtime using
+generic fixtures and real Chromium. Chromium must inspect all four role plans, automated and
+integration specifications, draft defects, exact architecture and Engineering source bindings,
+receipt, zero-tool boundary, restrictive headers, empty console failures, and empty network
+failures. Founder evidence must bind the exact commit, approved Day 25 base, source artifacts,
+work order, profile, authority, assignment, provider request/output, receipt, output counts, and
+screenshot digest without credentials or local paths. Day 26 performs no Security, DevOps,
+Documentation, multi-agent orchestration, product-workspace or repository write, command, product
+test execution, quality approval, commit, merge, deployment, release, billing, budget action, or
+official pilot selection.
+
 # Day 25 acceptance
 
 One shared Engineering provider and service must support exactly `AgentRole.BACKEND_ENGINEER`,

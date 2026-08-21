@@ -53,6 +53,7 @@ jobs:
       ASCOS_DAY23_FOUNDER_EVIDENCE_DIR: founder-evidence/day23
       ASCOS_DAY24_FOUNDER_EVIDENCE_DIR: founder-evidence/day24
       ASCOS_DAY25_FOUNDER_EVIDENCE_DIR: founder-evidence/day25
+      ASCOS_DAY26_FOUNDER_EVIDENCE_DIR: founder-evidence/day26
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,6 +104,8 @@ jobs:
           tests/test_workforce_architecture_integration.py
           tests/test_workforce_engineering.py
           tests/test_workforce_engineering_integration.py
+          tests/test_workforce_qa.py
+          tests/test_workforce_qa_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -245,6 +248,14 @@ jobs:
         with:
           name: day25-founder-engineering-family
           path: founder-evidence/day25
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 26 QA Engineer verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day26-founder-qa-engineer
+          path: founder-evidence/day26
           if-no-files-found: warn
           retention-days: 14
 

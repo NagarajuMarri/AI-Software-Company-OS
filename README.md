@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 26 adds one governed QA Engineer Digital Twin. It consumes the exact persisted Day 24
+architecture and all four exact ordered Day 25 Engineering artifacts, then produces a typed test
+plan, automated-test specifications, integration-test specifications, draft defect reports, and a
+status report. The role executes through the Day 22 runtime with one exact capability/action
+profile, zero tools, immutable source bindings, closed output schemas, restart-safe exact retries,
+and mandatory Chromium evidence. No product test is executed and no test file is written because
+the isolated product workspace and coding/review loop remain Days 31–32. Outputs remain
+`DRAFT_QA_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`, defects remain
+`DRAFT_DEFECT_AWAITING_AUTHORIZED_TEST_EXECUTION`, and no quality approval, Security, DevOps,
+Documentation, orchestration, repository, merge, deployment, release, budget, or pilot authority is
+granted. See `docs/QA_ENGINEER_WORKFORCE_AGENT.md`.
+
 Day 25 adds one governed Engineering agent family. Backend, Frontend, AI, and Data Engineer Digital
 Twins execute separate role-bound work orders through one shared provider-neutral service on the Day
 22 runtime. Every execution requires an exact ordered role/capability/action profile, current
