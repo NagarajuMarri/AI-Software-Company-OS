@@ -16,6 +16,36 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Security workforce boundaries
+
+Day 27 treats the Security work order, persisted architecture, ordered Engineering sources, exact
+QA source, provider result, threats, dependency specifications, secret specifications, findings,
+and status as untrusted. Before provider activity, the composition requires the exact Security
+role, provider, ordered capability/action profiles, tenant, Twin, assignment, objective digest,
+current authority, work-order digest, persisted Day 24 architecture, persisted Day 25 Backend,
+Frontend, AI, and Data artifacts, and persisted Day 26 QA artifact. Source drift fails closed.
+
+The profile has an empty tool allowlist, zero tool-call budget, and no live-provider authorization.
+It receives only bounded non-secret upstream metadata through the typed Day 22 request. It receives
+no filesystem, environment, process, browser, repository, network, credential, product workspace,
+manifest, lockfile, SBOM, scanner, remediation, approval, DevOps, Documentation, orchestration,
+deployment, or release capability. Closed schemas reject unknown fields, source substitution,
+missing STRIDE coverage, cross-source components, changed check coverage, claimed scans, changed QA
+bindings, elevated findings, and approval or risk-acceptance states.
+
+After execution, the service rebuilds the provider request/output and requires both digests to
+match the terminal receipt. Only then may the canonical mode-0600 write-once store persist the
+result. Reads reject unsafe permissions, symlinks, unknown entries, non-canonical content, identity
+mismatch, oversized data, and tampering. Raw provider responses and exceptions, credentials,
+customer secrets, and local paths are never stored. Exact retry and restart reopen the same receipt
+and artifact without a second provider effect.
+
+Threats and check specifications stay `NOT_EXECUTED`; findings stay
+`DRAFT_FINDING_AWAITING_AUTHORIZED_SECURITY_VALIDATION`; complete output stays
+`DRAFT_SECURITY_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 27 cannot access or scan a workspace,
+remediate or approve a finding, accept risk, perform DevOps, Documentation, or orchestration work,
+commit, merge, deploy, release, bill, allocate budget, or select a pilot.
+
 # QA workforce boundaries
 
 Day 26 treats the QA work order, architecture source, four ordered Engineering sources, provider

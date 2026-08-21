@@ -1,5 +1,56 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 27 acceptance
+
+One enabled Digital Twin must align exactly to `AgentRole.SECURITY_ENGINEER`, provider
+`deterministic-security-engineer-v1`, the ordered Security capability profile, and the ordered
+delegated-action profile. It must have zero tools, zero tool calls, no live-provider authorization,
+one current tenant-bound authority, and one immutable Security work order whose assignment ID and
+objective digest match the delegation. Wrong role, provider, capability, action or order, tenant,
+Twin, assignment, objective, tool allowance, source, or elevated authority must fail before
+provider activity.
+
+The work order must consume the exact persisted Day 24 Software Architect artifact, exactly four
+ordered persisted Day 25 Engineering artifacts—Backend, Frontend, AI, and Data—and the exact
+persisted Day 26 QA artifact bound to those same sources. Every source must share tenant,
+opportunity, opportunity digest, architecture identity/digest, expected draft status, and
+`NOT_SELECTED` pilot state. Missing, extra, reordered, fabricated, changed, cross-work-order, or
+cross-tenant sources must fail closed.
+
+One successful execution must produce exactly six typed STRIDE threat records, four dependency-check
+specifications, four secret-check specifications, three draft security findings, coverage
+requirements, handoff notes, and a status report. Threats must identify asset, trust boundary,
+scenario, properties, mitigations, residual risk, exact Engineering sources, and source-owned
+components. Dependency and secret specifications must cover every Engineering role in order.
+Findings must bind the exact QA artifact and relevant Engineering sources.
+
+Threat validation and all check specifications must remain `NOT_EXECUTED`; findings must remain
+`DRAFT_FINDING_AWAITING_AUTHORIZED_SECURITY_VALIDATION`; the complete artifact must remain
+`DRAFT_SECURITY_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Architecture, Engineering, and QA statuses
+must remain unchanged. Day 27 may identify source-evidenced risks but cannot access a product
+workspace, inspect files or dependencies, execute a scanner, validate an observed vulnerability,
+remediate a finding, approve security or quality, or accept risk.
+
+Only closed typed content whose rebuilt provider request/output digests reconcile with the terminal
+runtime receipt may be stored. Persistence must be canonical, integrity checked, mode 0600,
+tenant/execution scoped, write once, bounded, path contained, restart safe, and exact-retry
+idempotent. It must reject unknown entries or fields, unsafe permissions, symlinks, non-canonical
+records, malformed nested fields, source drift, missing STRIDE coverage, cross-source components,
+changed QA binding, claimed scans, elevated findings, identity mismatch, and tampering. Raw
+provider responses, exceptions, credentials, secrets, customer data, and local paths must not be
+persisted.
+
+Mandatory exact-head CI must execute the Security profile through the real Digital Twin runtime
+using generic fixtures and real Chromium. Chromium must inspect all six threats, all Engineering
+role dependency and secret specifications, draft findings, exact architecture/Engineering/QA
+bindings, receipt, zero-tool boundary, restrictive headers, empty console failures, and empty
+network failures. Founder evidence must bind the exact commit, approved Day 26 base, all source
+artifacts, work order, profile, authority, assignment, provider request/output, receipt, counts, and
+screenshot digest without credentials or local paths. Day 27 performs no DevOps, Documentation,
+multi-agent orchestration, product-workspace or repository access, filesystem, command, network,
+credential, scan, remediation, approval, risk acceptance, commit, merge, deployment, release,
+billing, budget, or official pilot-selection action.
+
 # Day 26 acceptance
 
 One enabled Digital Twin must align exactly to `AgentRole.QA_ENGINEER`, provider

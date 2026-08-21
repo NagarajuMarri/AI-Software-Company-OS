@@ -1,5 +1,30 @@
 # Runtime Roadmap
 
+# Day 27 — Security Engineer Agent
+
+Operationalize one `AgentRole.SECURITY_ENGINEER` Digital Twin through the Day 22 provider-neutral
+runtime. The assignment must bind one exact Security work order, ordered role/capability/action
+profile, current authority, the persisted Day 24 architecture, exactly four ordered persisted Day
+25 Engineering artifacts, and the exact persisted Day 26 QA artifact. The profile has zero tools,
+zero tool calls, and no live-provider authorization. Missing, extra, reordered, stale, fabricated,
+or cross-tenant sources must fail before provider activity.
+
+Produce a closed typed Security artifact containing all six STRIDE threat categories, one
+dependency-check and one secret-check specification per Engineering source, three draft findings,
+coverage requirements, handoff notes, and status. Rebuild the deterministic request and output,
+reconcile both digests with the terminal runtime receipt, and only then persist canonical mode-0600
+write-once state. Exact retry and restart return the same receipt and artifact without a second
+provider effect. Mandatory exact-head Chromium CI inspects the plan, specifications, draft
+findings, exact architecture/Engineering/QA bindings, restrictive headers, browser health, and
+zero-tool boundary using generic verification data.
+
+Every threat validation, dependency check, and secret check remains `NOT_EXECUTED`; findings remain
+`DRAFT_FINDING_AWAITING_AUTHORIZED_SECURITY_VALIDATION`; the artifact remains
+`DRAFT_SECURITY_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 27 performs no scan, workspace or
+repository access, command, network request, credential access, remediation, security or quality
+approval, risk acceptance, DevOps, Documentation, orchestration, commit, merge, deployment,
+release, billing, budget action, or official pilot selection.
+
 # Day 26 — QA Engineer Agent
 
 Operationalize one `AgentRole.QA_ENGINEER` Digital Twin through the Day 22 provider-neutral runtime.
