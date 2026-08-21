@@ -65,6 +65,7 @@ jobs:
       ASCOS_DAY35_FOUNDER_EVIDENCE_DIR: founder-evidence/day35
       ASCOS_DAY36_FOUNDER_EVIDENCE_DIR: founder-evidence/day36
       ASCOS_DAY37_FOUNDER_EVIDENCE_DIR: founder-evidence/day37
+      ASCOS_LOCAL_UAT_EVIDENCE_DIR: founder-evidence/local-uat
     steps:
       - uses: actions/checkout@v4
         with:
@@ -139,6 +140,8 @@ jobs:
           tests/test_end_to_end_product_pilot_integration.py
           tests/test_v1_hardening_acceptance.py
           tests/test_v1_hardening_acceptance_integration.py
+          tests/test_local_uat.py
+          tests/test_local_uat_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -377,6 +380,14 @@ jobs:
         with:
           name: day37-founder-v1-hardening-acceptance
           path: founder-evidence/day37
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload unified local UAT verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascos-v1-unified-local-uat
+          path: founder-evidence/local-uat
           if-no-files-found: warn
           retention-days: 14
 

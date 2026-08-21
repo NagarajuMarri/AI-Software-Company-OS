@@ -4,6 +4,22 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+## Unified local UAT launcher
+
+ASCOS now includes one loopback-only browser application for founder UAT of the real customer
+journey. After installing the package, run:
+
+```console
+ascos-local-uat
+```
+
+The launcher opens `http://127.0.0.1:8765` and persists local test data in
+`.ascos-uat-data/`. It supports signup, product intake, requirements approval, PRD and roadmap
+approval, delivery estimation, project progress, and the truthful preview-evidence waiting state.
+It does not start live AI providers or perform repository, merge, deployment, release, or billing
+effects. See `docs/LOCAL_UAT_LAUNCHER.md` for Windows, macOS/Linux, testing, reset, and deployment
+guidance.
+
 Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
 the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven
 ordered controls: security, one canonical backup, one deterministic recovery drill, a seven-entry
