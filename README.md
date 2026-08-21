@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 30 adds governed multi-agent workforce orchestration. It consumes the exact persisted Day
+23–29 artifact chain—CEO, Product Manager, Architecture, four ordered Engineering roles, QA,
+Security, DevOps, and Documentation—and produces an acyclic dependency graph, nine ordered waves,
+one four-role Engineering parallel wave, eleven bounded context packages, seven draft handoffs,
+three fail-closed conflict routes, and three human-owned escalation records. The provider-neutral
+planning boundary has zero tools and no live-provider authorization. Canonical mode-0600 write-once
+persistence makes exact retry and restart side-effect free. Every node and wave remains
+`PLAN_ONLY_NOT_EXECUTED`; handoffs are not dispatched; conflicts are not silently resolved; and
+escalations cannot self-approve. No product workspace, repository, command, network, merge,
+deployment, release, billing, budget, risk acceptance, or pilot authority is granted. See
+`docs/MULTI_AGENT_ORCHESTRATION.md`.
+
 Day 29 adds one governed Documentation Engineer Digital Twin. It consumes the exact persisted Day
 24 architecture, four ordered Day 25 Engineering artifacts, Day 26 QA artifact, Day 27 Security
 artifact, and Day 28 DevOps artifact. It produces technical, user, API, operations, and release
