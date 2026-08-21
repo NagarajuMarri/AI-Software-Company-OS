@@ -1,5 +1,46 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 29 acceptance
+
+One enabled Digital Twin must align exactly to `AgentRole.DOCUMENTATION_ENGINEER`, provider
+`deterministic-documentation-engineer-v1`, the ordered Documentation capability profile, and the
+ordered delegated action profile. It must have zero tools, zero tool calls, no live-provider
+authorization, one current tenant-bound authority, and one immutable Documentation work order
+whose assignment ID and objective digest match the delegation. Profile, identity, source, or
+authority drift must fail before provider activity.
+
+The work order must consume the exact persisted Day 24 Software Architect artifact, exactly four
+ordered Day 25 Engineering artifacts, exact Day 26 QA artifact, exact Day 27 Security artifact,
+and exact Day 28 DevOps artifact. QA, Security, and DevOps must bind the same Architecture and
+Engineering digests; DevOps must bind the exact QA and Security digests. Every source must share
+tenant, opportunity, expected draft status, and `NOT_SELECTED` pilot state. Missing, extra,
+reordered, fabricated, changed, or cross-tenant sources must fail closed.
+
+One execution must produce exactly five typed records in order: technical, user, API, operations,
+and release. Technical must bind Architecture and all Engineering sources; user must bind Frontend
+and QA; API must bind Architecture, Backend, Frontend, and AI; operations must bind Security and
+DevOps; release must bind all eight upstream digests. One customer handoff must cover exactly all
+five record IDs. Every record must be `VALIDATED_AGAINST_EXACT_SOURCES`,
+`DRAFT_SOURCE_VALIDATED_AWAITING_HUMAN_REVIEW`, and `NOT_PUBLISHED`; the artifact must remain
+`DRAFT_DOCUMENTATION_OUTPUT_AWAITING_HUMAN_REVIEW`.
+
+Only closed typed content whose rebuilt provider request/output digests reconcile with the terminal
+receipt may be stored. Persistence must be canonical, integrity checked, mode 0600,
+tenant/execution scoped, write once, bounded, path contained, restart safe, and exact-retry
+idempotent. Unknown entries or fields, unsafe permissions, symlinks, non-canonical records,
+malformed nested fields, source drift, changed states, identity mismatch, and tampering must be
+rejected. Raw provider responses, exceptions, credentials, secrets, customer data, publication
+receipts, URLs, and local paths must not be persisted.
+
+Mandatory exact-head CI must execute the Documentation profile through the real Digital Twin
+runtime using generic fixtures and real Chromium. Chromium must inspect all five records, customer
+handoff, exact Day 24–28 bindings, zero-tool boundary, restrictive headers, empty console failures,
+and empty network failures. Founder evidence must bind the exact commit, approved Day 28 base,
+every upstream artifact, work order, profile, authority, assignment, provider request/output,
+receipt, document states, and screenshot digest. Day 29 performs no filesystem, repository,
+customer-channel, publication, product execution, deployment, release, approval, orchestration,
+commit, merge, billing, budget, or official pilot-selection action.
+
 # Day 28 acceptance
 
 One enabled Digital Twin must align exactly to `AgentRole.DEVOPS_ENGINEER`, provider

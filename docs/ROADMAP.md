@@ -1,5 +1,28 @@
 # Runtime Roadmap
 
+# Day 29 — Documentation Engineer Agent
+
+Operationalize one `AgentRole.DOCUMENTATION_ENGINEER` Digital Twin through the Day 22
+provider-neutral runtime. The assignment binds one exact Documentation work order, ordered
+role/capability/action profile, current authority, persisted Day 24 architecture, four ordered Day
+25 Engineering artifacts, exact Day 26 QA artifact, exact Day 27 Security artifact, and exact Day
+28 DevOps artifact. It has zero tools, zero tool calls, and no live-provider authorization.
+Missing, extra, reordered, stale, fabricated, differently bound, or cross-tenant sources fail
+before provider activity.
+
+Produce a closed typed Documentation artifact containing technical, user, API, operations, and
+release records plus one customer handoff, acceptance checks, coverage, and status. Rebuild the
+deterministic request and output, reconcile both digests with the terminal receipt, and only then
+persist canonical mode-0600 write-once state. Exact retry and restart return the same receipt and
+artifact without another provider effect. Mandatory exact-head Chromium CI inspects all five
+records, exact Day 24–28 bindings, restrictive headers, browser health, and the zero-tool boundary.
+
+Every record remains source-validated, draft, and `NOT_PUBLISHED`; the artifact remains
+`DRAFT_DOCUMENTATION_OUTPUT_AWAITING_HUMAN_REVIEW`. Day 29 performs no filesystem, workspace,
+repository, command, network, customer-channel, publication, product implementation, test, scan,
+CI, infrastructure, deployment, release, orchestration, commit, merge, billing, budget, approval,
+or official pilot-selection action.
+
 # Day 28 — DevOps Engineer Agent
 
 Operationalize one `AgentRole.DEVOPS_ENGINEER` Digital Twin through the Day 22 provider-neutral

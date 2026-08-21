@@ -16,6 +16,36 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Documentation workforce boundaries
+
+Day 29 treats the Documentation work order, persisted Day 24–28 artifact chain, provider result,
+five document records, customer handoff, and status as untrusted. Before provider activity, the
+composition requires the exact Documentation role, provider, ordered capability/action profiles,
+tenant, Twin, assignment, objective digest, current authority, work-order digest, and exact
+persisted Architecture, Engineering, QA, Security, and DevOps sources. Every downstream artifact
+must bind the same upstream identities and ordered digests; any drift fails closed.
+
+The profile has an empty tool allowlist, zero tool-call budget, and no live-provider authorization.
+It receives only bounded non-secret source metadata through the typed Day 22 request. It receives
+no filesystem, environment, process, browser, repository, network, credential, product workspace,
+customer channel, publication system, deployment, release, Documentation workspace, or
+orchestration capability. Closed schemas reject unknown fields, source substitution, missing or
+reordered document kinds, unsupported source digests, changed validation/publication states,
+unsupported execution claims, and pilot selection.
+
+After execution, the service rebuilds the provider request/output and requires both digests to
+match the terminal receipt. Only then may the canonical mode-0600 write-once store persist the
+result. Reads reject unsafe permissions, symlinks, unknown entries, non-canonical content, identity
+mismatch, oversized data, and tampering. Raw provider responses and exceptions, credentials,
+customer secrets, publication receipts, URLs, and local paths are never stored. Exact retry and
+restart reopen the same receipt and artifact without another provider effect.
+
+All records stay `DRAFT_SOURCE_VALIDATED_AWAITING_HUMAN_REVIEW` and `NOT_PUBLISHED`; complete
+output stays `DRAFT_DOCUMENTATION_OUTPUT_AWAITING_HUMAN_REVIEW`. Day 29 cannot access or write a
+workspace, repository, or customer channel; publish documentation; claim product execution;
+commit; merge; deploy; release; approve or accept risk; perform orchestration; bill; allocate
+budget; or select a pilot.
+
 # DevOps workforce boundaries
 
 Day 28 treats the DevOps work order, persisted Architecture, ordered Engineering sources, exact QA
