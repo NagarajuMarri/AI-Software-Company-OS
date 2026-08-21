@@ -64,6 +64,7 @@ jobs:
       ASCOS_DAY34_FOUNDER_EVIDENCE_DIR: founder-evidence/day34
       ASCOS_DAY35_FOUNDER_EVIDENCE_DIR: founder-evidence/day35
       ASCOS_DAY36_FOUNDER_EVIDENCE_DIR: founder-evidence/day36
+      ASCOS_DAY37_FOUNDER_EVIDENCE_DIR: founder-evidence/day37
     steps:
       - uses: actions/checkout@v4
         with:
@@ -136,6 +137,8 @@ jobs:
           tests/test_complete_runtime_acceptance_integration.py
           tests/test_end_to_end_product_pilot.py
           tests/test_end_to_end_product_pilot_integration.py
+          tests/test_v1_hardening_acceptance.py
+          tests/test_v1_hardening_acceptance_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -366,6 +369,14 @@ jobs:
         with:
           name: day36-founder-end-to-end-product-pilot
           path: founder-evidence/day36
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 37 V1 hardening and acceptance verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day37-founder-v1-hardening-acceptance
+          path: founder-evidence/day37
           if-no-files-found: warn
           retention-days: 14
 

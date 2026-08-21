@@ -1,5 +1,35 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 37 acceptance
+
+One final-hardening work order and one current founder-issued start authority must bind the exact
+persisted Day 36 pilot, its tenant/pilot/execution identities, source digest, repository, isolated
+branch, approved commit/tree, open draft PR, preview, ordered end-user journeys, seven immutable
+control digests, five monitoring signals, and seven documentation records. Missing, fabricated,
+changed, unpersisted, expired, cross-tenant, differently assigned, or elevated input must fail
+before the closed hardening provider executes.
+
+The Day 36 source must retain eight passing product stages, four passing end-user journeys, the
+complete QA/Security/DevOps/runtime chain, and zero repository-write, PR-mutation, preview-mutation,
+merge, production, release, billing, risk-acceptance, or prior Day 37 effects. Day 37 must return
+seven ordered receipts for security, backup, recovery, audit, monitoring, documentation, and
+founder-UAT readiness. Receipts must form one valid previous-digest audit chain; five declared
+signals must be healthy and the documentation profile must be complete.
+
+Persistence must write one canonical mode-0600 primary plus one byte-identical verified backup.
+Strict loading rejects missing copies, digest drift, unsafe permissions, unknown entries, symlinks,
+path escape, non-canonical content, and primary/backup disagreement. An explicit recovery operation
+may restore a missing or corrupt regular primary only from a fully validated backup and must return
+the exact original artifact. Exact retry/restart executes no second provider call.
+
+Exact-head CI must rerun the complete fixture end-user chain in real Chromium and render a legible
+founder-safe page with restrictive headers. Evidence must bind the exact Day 37 commit and approved
+Day 36 base, report seven verified gates, one backup, one recovery drill, seven audit entries, five
+healthy monitoring signals, seven documentation records, four founder-UAT journeys, empty
+console/network failures, and zero external/elevated effects. The terminal technical status remains
+`V1_HARDENING_COMPLETE_AWAITING_FOUNDER_UAT`; subjective founder acceptance, release, and
+production deployment cannot be issued by the module itself.
+
 # Day 36 acceptance
 
 One product-pilot work order and one current human-issued authority must bind the exact persisted
