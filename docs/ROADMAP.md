@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 30 — Multi-agent Orchestration
+
+Coordinate the exact persisted Day 23–29 workforce chain through one provider-neutral planning
+service. The work order and current authority bind CEO, Product Manager, Architecture, Backend,
+Frontend, AI, Data, QA, Security, DevOps, and Documentation artifacts in canonical order. Missing,
+extra, reordered, stale, fabricated, differently bound, or cross-tenant sources fail before the
+planning provider is invoked.
+
+Produce eleven dependency nodes, nine ordered waves, one four-way Engineering parallel wave,
+eleven source-limited context packages, seven draft handoffs, three fail-closed conflict routes,
+three human-owned escalation records, and explicit status. Exact retry and restart reopen the same
+mode-0600 write-once artifact without repeating provider planning. Mandatory exact-head Chromium CI
+inspects the graph, parallelism, context exclusions, handoffs, conflicts, escalations, all source
+bindings, restrictive headers, browser health, and authority boundary.
+
+Every node and wave remains `PLAN_ONLY_NOT_EXECUTED`; handoffs remain
+`DRAFT_HANDOFF_NOT_DISPATCHED`; conflicts remain `DRAFT_CONFLICT_POLICY_NOT_INVOKED`; escalations
+remain `PENDING_ONLY_IF_TRIGGERED`; and the artifact remains
+`DRAFT_ORCHESTRATION_PLAN_AWAITING_HUMAN_AUTHORIZATION`. Day 30 performs no agent or product
+execution, filesystem, workspace, repository, command, network, credential, approval, risk
+acceptance, merge, deployment, release, billing, budget, or official pilot-selection action.
+
 # Day 29 — Documentation Engineer Agent
 
 Operationalize one `AgentRole.DOCUMENTATION_ENGINEER` Digital Twin through the Day 22

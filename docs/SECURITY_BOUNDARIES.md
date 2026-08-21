@@ -16,6 +16,34 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Multi-agent orchestration boundaries
+
+Day 30 treats the work order, authority, all persisted Day 23–29 artifacts, provider draft,
+dependency graph, waves, contexts, handoffs, conflicts, escalations, and status as untrusted. Before
+planning, the service requires the exact canonical source chain, tenant, opportunity, pilot state,
+source-set digest, work-order digest, assignment, action order, empty tool profile, parallel limit,
+and current expiry window. Source substitution, omission, reordering, cross-tenant data, broken
+upstream binding, or authority drift fails before provider activity.
+
+The planning contract is provider neutral and grants no live provider, filesystem, environment,
+subprocess, browser, repository, network, credential, secret, persistence, customer channel,
+product workspace, deployment target, or external tool. Context is limited to exact artifact
+identity, digest, status, and bounded summaries. Every package explicitly excludes credentials,
+secrets, raw customer data, and local paths. Provider output cannot add unknown sources or nodes,
+create graph cycles, exceed the parallel limit, dispatch handoffs, silently resolve conflicts,
+accept risk, approve work, or execute an escalation decision.
+
+Only a validated draft may enter the canonical mode-0600 write-once store. Reads reject unsafe
+permissions, symlinks, unexpected directory entries, non-canonical content, oversized records,
+identity mismatch, source drift, unknown nested fields, elevated states, and digest tampering. Exact
+retry and restart reopen the same artifact without a second planning effect. Raw provider output,
+exceptions, credentials, customer secrets, URLs, and local paths are not persisted.
+
+All orchestration remains plan-only. Day 30 cannot create or modify a product workspace, run an
+agent or command, write code or tests, operate a repository, merge, deploy, publish, release, bill,
+allocate budget, approve architecture or quality, accept Security risk, select a pilot, or begin Day
+31. Those actions require their later locked modules and explicit human authorization.
+
 # Documentation workforce boundaries
 
 Day 29 treats the Documentation work order, persisted Day 24–28 artifact chain, provider result,

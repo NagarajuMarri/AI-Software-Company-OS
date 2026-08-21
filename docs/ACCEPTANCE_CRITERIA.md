@@ -1,5 +1,49 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 30 acceptance
+
+One bounded orchestration work order and one current tenant-bound authority must bind the exact
+persisted Day 23–29 workforce chain in canonical order: CEO, Product Manager, Software Architect,
+Backend Engineer, Frontend Engineer, AI Engineer, Data Engineer, QA Engineer, Security Engineer,
+DevOps Engineer, and Documentation Engineer. Product Manager must bind CEO; Architecture must bind
+Product Manager; every later artifact must retain the exact Architecture, Engineering, QA,
+Security, and DevOps sources required by its module. Missing, extra, reordered, fabricated,
+changed, cross-opportunity, or cross-tenant sources must fail before planning activity.
+
+Authority must bind the exact work-order and source-set digests, ordered orchestration action
+profile, empty tool allowlist, zero tool-call budget, no live-provider authorization, current time
+window, assignment identity, and maximum parallel-work limit. The replaceable planning provider may
+produce only one closed typed orchestration draft. Provider output cannot expand source context,
+dispatch a handoff, execute an agent, approve a conflict, accept risk, or trigger an escalation.
+
+One orchestration artifact must contain exactly eleven acyclic dependency nodes and nine ordered
+waves. Wave 4 must contain Backend, Frontend, AI, and Data nodes under bounded four-way parallelism;
+all other workforce waves remain dependency ordered, followed by one non-executed human-review
+gate. Exactly eleven context packages must match their target nodes' exact source digests and must
+exclude credentials, secrets, raw customer data, and local paths. Exactly seven handoffs must bind
+known nodes and sources. Exactly three conflict routes must block affected downstream work, and
+exactly three escalation records must name human owners and bounded decision options.
+
+Every node and wave must remain `PLAN_ONLY_NOT_EXECUTED`; every handoff must remain
+`DRAFT_HANDOFF_NOT_DISPATCHED`; every conflict must remain
+`DRAFT_CONFLICT_POLICY_NOT_INVOKED`; every escalation must remain `PENDING_ONLY_IF_TRIGGERED`; and
+the complete artifact must remain `DRAFT_ORCHESTRATION_PLAN_AWAITING_HUMAN_AUTHORIZATION` with
+pilot state `NOT_SELECTED`. No workspace, repository, command, network, deployment, release, merge,
+approval, risk acceptance, billing, budget, or product operation may be claimed.
+
+Persistence must be canonical, integrity checked, mode 0600, tenant/execution scoped, write once,
+bounded, path contained, restart safe, and exact-retry idempotent. Unknown entries or fields, unsafe
+permissions, symlinks, non-canonical content, identity mismatch, source drift, graph cycles,
+cross-source context, unknown handoff nodes, changed states, and tampering must be rejected. Raw
+provider data, credentials, secrets, customer content, URLs, and local paths must not be persisted.
+
+Mandatory exact-head CI must execute the Day 30 plan with generic fixtures and real Chromium.
+Chromium must inspect the source chain, nine waves, four-way Engineering parallelism, context
+exclusions, handoffs, conflicts, escalations, zero-tool boundary, restrictive headers, empty console
+failures, and empty network failures. Founder evidence must bind the exact commit, approved Day 29
+base, all source digests, work order, authority, provider output, artifact states, and screenshot
+digest. Day 30 does not create the Day 31 product workspace or start Day 31 behavior.
+
 # Day 29 acceptance
 
 One enabled Digital Twin must align exactly to `AgentRole.DOCUMENTATION_ENGINEER`, provider
