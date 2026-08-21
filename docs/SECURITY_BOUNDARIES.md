@@ -16,6 +16,33 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Isolated product-workspace boundaries
+
+Day 31 treats the work order, authority, persisted Day 30 orchestration artifact, repository
+registration, source repository, base/feature refs, destination, Git configuration/tree/status, and
+provider observation as untrusted. Before creation the service requires exact tenant, opportunity,
+assignment, source/work-order/authority digests, current expiry, ordered actions, one specialized
+tool, one-workspace budget, approved branch/SHA, and exact registered HTTPS identity.
+
+The local adapter accepts only a real clean repository root and caller-owned real workspace root.
+It rejects symlinks in either path, an existing target or branch, protected feature branches,
+tracked symlinks, submodules, `.git` entries, filters, custom hooks paths, fsmonitor, credentials,
+URL rewrites, wrong refs, and dirty tracked/untracked state. Git is invoked only with argument arrays,
+terminal prompts and hooks disabled, and system/global configuration and credential helpers removed.
+It never fetches, clones, pushes, contacts a network, runs a shell, or exposes Git stderr.
+
+After creation, exact source branch/HEAD/tree/status preservation and workspace branch/HEAD/tree/
+status equality are mandatory. Partial or divergent effects require reconciliation and are never
+reset, overwritten, deleted, cleaned, or adopted automatically. Only a validated artifact enters
+the canonical mode-0600 write-once store. Reads reject unsafe permissions, symlinks, unknown entries,
+non-canonical or oversized content, identity mismatch, state elevation, and digest tampering. The
+artifact retains only a stable workspace identity and root-relative name, never a local host path.
+
+Day 31 creates a generic fixture worktree and feature branch only. It grants no network, credentials,
+general command, coding provider, product-file mutation, QA execution, Security scan, commit, push,
+pull request, merge, deployment, release, billing, budget, risk acceptance, or official pilot
+selection. Those actions remain separately authorized later modules.
+
 # Multi-agent orchestration boundaries
 
 Day 30 treats the work order, authority, all persisted Day 23–29 artifacts, provider draft,

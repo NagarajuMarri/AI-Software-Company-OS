@@ -58,6 +58,7 @@ jobs:
       ASCOS_DAY28_FOUNDER_EVIDENCE_DIR: founder-evidence/day28
       ASCOS_DAY29_FOUNDER_EVIDENCE_DIR: founder-evidence/day29
       ASCOS_DAY30_FOUNDER_EVIDENCE_DIR: founder-evidence/day30
+      ASCOS_DAY31_FOUNDER_EVIDENCE_DIR: founder-evidence/day31
     steps:
       - uses: actions/checkout@v4
         with:
@@ -118,6 +119,8 @@ jobs:
           tests/test_workforce_documentation_integration.py
           tests/test_workforce_orchestration.py
           tests/test_workforce_orchestration_integration.py
+          tests/test_product_workspace.py
+          tests/test_product_workspace_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -300,6 +303,14 @@ jobs:
         with:
           name: day30-founder-multi-agent-orchestration
           path: founder-evidence/day30
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 31 isolated product workspace verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day31-founder-isolated-product-workspace
+          path: founder-evidence/day31
           if-no-files-found: warn
           retention-days: 14
 
