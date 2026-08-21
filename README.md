@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 33 adds controlled GitHub delivery. It consumes the exact persisted Day 32 coding/review
+artifact and independently verifies the source repository, dirty-but-unstaged isolated workspace,
+reviewed paths, and every file digest before any repository write. One current human-issued
+authorization permits exactly one reviewed-path commit, one non-force push of the isolated
+`agent/*` feature branch, and one open draft pull request bound to the exact commit. A duplicate
+remote branch or pull request fails before mutation; any partial effect requires human
+reconciliation and is never reset, overwritten, force-pushed, or adopted automatically. The
+canonical delivery artifact contains no local path, raw credential, or secret value. Merge,
+approval, deployment, release, risk acceptance, and official pilot selection remain prohibited.
+See `docs/CONTROLLED_GITHUB_DELIVERY.md`.
+
 Day 32 adds the governed coding and review loop. It consumes the exact persisted Day 30
 orchestration, Day 31 isolated workspace, Day 26 QA, and Day 27 Security artifacts. Four ordered
 Engineering assignments and one QA test path receive only role-owned UTF-8 text changes inside the

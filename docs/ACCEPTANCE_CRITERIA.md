@@ -1,5 +1,47 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 33 acceptance
+
+One controlled-delivery work order and one current human-issued product-repository authority must
+bind the exact persisted Day 32 coding/review artifact, tenant, opportunity, repository identity,
+workspace identity, base branch/commit/tree, isolated `agent/*` feature branch, sorted reviewed
+paths and content digests, final review-diff digest, commit message, and draft-PR title/body digest.
+Missing, fabricated, changed, unpersisted, cross-tenant, expired, differently assigned, or elevated
+source or authority must fail before any repository or network effect.
+
+Before delivery, independent Git inspection must prove the approved source remains clean and exact,
+and the isolated workspace remains on the Day 32 base with precisely the reviewed dirty paths, an
+empty index, the registered HTTPS GitHub identity, safe configuration, regular non-linked files,
+and exact content digests. Unreviewed paths, staged content, deletions, renames, symlinks, special
+files, hooks, filters, credential configuration, URL rewrites, push URLs, and identity drift must
+fail closed.
+
+The provider may stage only the named reviewed paths, create exactly one single-parent commit on the
+approved base, push exactly that feature branch without force, and create exactly one open draft
+pull request with the authorized base/head/title/body. A pre-existing remote feature branch or
+matching PR must stop before mutation. An error after a commit, push, or PR effect must require
+human reconciliation; ASCOS must not reset, delete, overwrite, force-push, retry blindly, or adopt
+ambiguous state.
+
+After delivery, the source must remain unchanged; the workspace must be clean on the exact new
+commit/tree; the commit path set and file digests must equal Day 32 evidence; the remote feature
+branch and draft PR head must equal that commit; and the PR must remain open, draft, and unmerged.
+Exactly one commit, push, and PR are permitted. Force push, protected-branch write, raw credential
+or secret exposure, unapproved network/general commands, unrelated paths, approval, merge,
+deployment, and release counts must remain zero.
+
+Persistence must be canonical, integrity checked, mode 0600, tenant/execution scoped, write once,
+bounded, path contained, restart safe, and exact-retry idempotent. Unknown fields/entries, unsafe
+permissions, symlinks, non-canonical content, identity drift, and tampering must be rejected. Exact
+retry and restart return the same artifact without another repository or GitHub effect.
+
+Mandatory exact-head CI must exercise a real isolated worktree and real bare Git remote, create the
+exact reviewed commit/branch, use a closed draft-PR gateway, and render real Chromium evidence.
+Evidence must show six reviewed paths, one commit, one non-force push, one draft PR, the exact Day
+26/27/30/31/32 chain, restrictive headers, empty browser console/network failures, and zero force,
+unreviewed, secret-exposure, merge, deployment, or release effects. Day 33 does not approve or merge
+the PR, select an official pilot, start preview deployment, or begin Day 34.
+
 # Day 32 acceptance
 
 One coding/review work order and one current human-issued authority must bind the exact persisted
