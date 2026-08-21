@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 35 — Complete Runtime Acceptance
+
+Bind one current human-issued authority to the exact persisted Day 34 healthy preview, exact
+persisted runtime-configuration revision, and exact persisted declarative browser plan. Recheck the
+tenant, opportunity, product, repository, feature branch, commit/tree, environment, preview origin,
+deployment revision, configuration digest, locked acceptance profile, ordered capability/journey
+set, authentication journey, opaque login references, validity windows, and budgets before opening
+Chromium.
+
+Resolve only opaque login inputs at invocation and execute the complete locked browser plan once.
+Every module-specific end-user journey must authenticate as required and return passing browser,
+console, network, and masked-screenshot evidence. Wrong sources, missing journeys, failed steps,
+console errors, network failures, incomplete screenshots, provider drift, or raw-secret material
+fail closed and never become terminal acceptance.
+
+Persist a canonical mode-0600 write-once artifact containing the Day
+26/27/28/30/31/32/33/34 chain, exact runtime configuration/profile/plan/execution, ordered passing
+journey receipts, one browser launch, one authenticated session per journey, and one screenshot per journey.
+Exact retry/restart causes no second browser run. Day 35 grants no preview mutation, repository
+write, PR approval, merge, production deployment, release, billing, budget, risk acceptance,
+official pilot, or Day 36 authority.
+
 # Day 34 — Preview Deployment
 
 Bind one current human-issued preview authority to the exact persisted Day 33 delivery and matching
