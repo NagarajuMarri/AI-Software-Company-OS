@@ -1,5 +1,42 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 34 acceptance
+
+One preview-deployment work order and one current human-issued preview authority must bind the exact
+persisted Day 33 delivery, matching persisted Day 28 DevOps artifact, tenant, opportunity,
+repository, open draft PR, isolated feature branch, exact commit/tree, preview environment ID and
+URL, preview/migration/deployment/monitoring/rollback plan digests, configuration digest, sorted
+opaque secret-reference IDs, health endpoints, and bounded preview lifetime. Missing, fabricated,
+changed, unpersisted, expired, cross-tenant, differently assigned, or elevated inputs must fail
+before any platform effect.
+
+The Day 33 source must still prove one reviewed commit, one non-force push, one open draft PR, exact
+remote/head equality, no merge/deployment/release, and no selected pilot. The Day 28 plans must bind
+the same QA and Security digests, remain `NOT_EXECUTED`, and target only
+`ISOLATED_NON_PRODUCTION_PREVIEW`. Production targets, protected-branch writes, PR approval, merge,
+promotion, release, billing, raw secrets, general commands, and unapproved network access are
+structurally prohibited.
+
+The closed platform provider may look up one isolated environment, create it once from the exact
+approved commit/tree, apply the preview-only migration plan, enable preview monitoring, and inspect
+the exact receipt. The declared health endpoints must return HTTP 200. Duplicate environments stop
+before another deployment. Any failure after a platform effect starts requires human
+reconciliation; ASCOS must not adopt, overwrite, delete, redeploy, promote, or blindly retry an
+ambiguous environment.
+
+The terminal artifact must bind the complete Day 26/27/28/30/31/32/33 source chain, exact commit and
+tree, one preview deployment, one migration, one monitoring configuration, healthy endpoint
+receipts, active isolated-preview state, and rollback readiness without rollback execution.
+Production-deployment, merge, release, billing, secret-exposure, unapproved-network, general-command,
+and official-pilot counts remain zero.
+
+Persistence must be canonical, bounded, tenant/execution scoped, write once, mode 0600, path
+contained, restart safe, and tamper evident. Exact retry and restart return the same artifact without
+another platform effect. Mandatory exact-head Chromium evidence must be legible, use restrictive
+headers, bind the exact commit, report empty console/network failures, and explicitly show that
+production remains untouched. Day 34 does not run the complete product login and module-specific
+Chrome journeys; those remain Day 35.
+
 # Day 33 acceptance
 
 One controlled-delivery work order and one current human-issued product-repository authority must

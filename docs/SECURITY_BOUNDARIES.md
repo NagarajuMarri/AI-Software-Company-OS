@@ -16,6 +16,33 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Preview deployment boundaries
+
+Day 34 treats the work order, human authority, persisted Day 33 delivery, persisted Day 28 plans,
+draft-PR receipt, commit/tree, platform lookup, deployment receipt, health evidence, configuration,
+and monitoring state as untrusted. Before an effect, ASCOS independently reloads both sources and
+proves the exact tenant/opportunity, QA/Security chain, open-draft-unmerged PR, remote commit, plan
+digests, isolated environment class, preview-only origin, opaque secret references, current
+authority, and bounded TTL.
+
+The provider exposes only environment lookup, create-only preview deployment, and exact inspection.
+There is no general infrastructure, shell, protected-branch, PR approval, merge, production,
+promotion, release, billing, or pilot operation. Raw secret values are never accepted by work-order,
+authority, observation, persistence, log, or evidence schemas; only bounded opaque reference IDs
+cross the platform boundary. Preview URLs are HTTPS origins under the closed non-production preview
+suffix, and health checks cannot escape that origin.
+
+A pre-existing environment stops before deployment. Any exception after creation may have begun is
+reconciliation-required: automatic adoption, overwrite, deletion, rollback, redeployment,
+promotion, or retry is forbidden. On success, the exact commit/tree, configuration digest, two HTTP
+200 health receipts, one migration, one monitoring configuration, active preview state, and rollback
+readiness are immutable. Rollback is prepared but not executed.
+
+Canonical mode-0600 write-once persistence rejects unknown fields/entries, path escape, unsafe
+permissions, symlinks, non-canonical content, identity drift, and tampering. Day 34 grants no
+production deployment, merge, release, risk acceptance, billing, budget, official pilot, or Day 35
+complete runtime-acceptance authority.
+
 # Controlled GitHub delivery boundaries
 
 Day 33 treats the authority, work order, persisted Day 32 artifact, repository/workspace state,

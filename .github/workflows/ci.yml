@@ -61,6 +61,7 @@ jobs:
       ASCOS_DAY31_FOUNDER_EVIDENCE_DIR: founder-evidence/day31
       ASCOS_DAY32_FOUNDER_EVIDENCE_DIR: founder-evidence/day32
       ASCOS_DAY33_FOUNDER_EVIDENCE_DIR: founder-evidence/day33
+      ASCOS_DAY34_FOUNDER_EVIDENCE_DIR: founder-evidence/day34
     steps:
       - uses: actions/checkout@v4
         with:
@@ -127,6 +128,8 @@ jobs:
           tests/test_coding_review_integration.py
           tests/test_github_delivery.py
           tests/test_github_delivery_integration.py
+          tests/test_preview_deployment.py
+          tests/test_preview_deployment_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -333,6 +336,14 @@ jobs:
         with:
           name: day33-founder-controlled-github-delivery
           path: founder-evidence/day33
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 34 preview deployment verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day34-founder-preview-deployment
+          path: founder-evidence/day34
           if-no-files-found: warn
           retention-days: 14
 
