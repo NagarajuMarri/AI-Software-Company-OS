@@ -1,5 +1,47 @@
 # Runtime Persistence Acceptance Criteria
 
+# Day 32 acceptance
+
+One coding/review work order and one current human-issued authority must bind the exact persisted
+Day 30 orchestration source set, Day 31 isolated workspace, Day 26 QA artifact, Day 27 Security
+artifact, tenant, opportunity, repository registration, workspace identity, base branch/commit/tree,
+isolated feature branch, four ordered Engineering assignments, QA test path, action profile, and
+specialized local tool profile. Missing, fabricated, changed, unpersisted, cross-tenant, expired,
+differently assigned, or elevated source or authority must fail before workspace mutation.
+
+Before coding, independent local Git inspection must prove the approved source repository is a real
+clean root on the exact base and registered HTTPS remote and the isolated workspace is a real clean
+worktree on the exact feature branch, commit, and tree. Only role-owned bounded UTF-8 text paths may
+change. Path escape, Git metadata, symlinks/reparse points, special files, deletions, renames,
+duplicate targets, wrong-role ownership, unexpected dirty files, and staging must fail closed.
+
+Every candidate round must materialize its complete validated patch set, run fixed-argv isolated
+pytest against the declared QA path, and—only after QA passes—run static Security checks for
+forbidden command/network capabilities, dynamic execution, unapproved dependencies, hard-coded
+secret-like values, and invalid syntax. Failed QA or Security findings must produce exact typed
+routes to the responsible Engineering role. The next round must consume exactly those finding
+codes. The final round must pass both reviews within the authorized round, write, and tool budgets.
+
+After review, the source branch/HEAD/tree/status and remote identity must remain exact. The workspace
+HEAD/tree must remain at the Day 31 base, its index must be empty, and its dirty paths and file
+digests must equal the role-owned reviewed output. The final artifact must report QA `PASS`,
+Security `PASS`, `DIRTY_REVIEWED_NOT_COMMITTED`, delivery `NOT_STARTED`, zero network, credential,
+general-command, stage, commit, push, and pull-request effects, and pilot `NOT_SELECTED`.
+
+Persistence must be canonical, integrity checked, mode 0600, tenant/execution scoped, write once,
+bounded, path contained, restart safe, and exact-retry idempotent. Unknown fields/entries, unsafe
+permissions, symlinks, non-canonical content, identity drift, changed authority/source/workspace,
+and tampering must be rejected. Exact retry and restart return the same artifact without another
+coding, QA, or Security effect.
+
+Mandatory exact-head CI must run the real three-round generic fixture and real Chromium evidence.
+Evidence must show four Engineering roles, six reviewed files, three QA executions, two Security
+executions, one QA return, one Security return, final dual pass, exact Day 26/27/30/31 bindings,
+restrictive headers, zero browser/network failures, and zero delivery authority. Day 32 performs no
+live-provider, network, credential, general-command, staging, commit, push, product PR, merge,
+deployment, release, billing, budget, risk acceptance, or official pilot selection, and it does not
+start Day 33.
+
 # Day 31 acceptance
 
 One isolated product-workspace work order and one current human-issued authority must bind the exact

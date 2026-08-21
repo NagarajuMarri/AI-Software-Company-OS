@@ -16,6 +16,35 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Coding and review boundaries
+
+Day 32 treats the work order, authority, persisted Day 26/27/30/31 chain, local source/workspace
+state, provider plans, text patches, test result, static findings, failure routes, and final file
+evidence as untrusted. Before mutation, the service independently proves the source repository is
+the exact clean approved base with its registered HTTPS identity and the isolated worktree is clean
+on the exact Day 31 feature branch, commit, and tree. Every source artifact must equal canonical
+persisted state and preserve its tenant, opportunity, status, pilot state, and upstream digests.
+
+The provider may write only bounded UTF-8 text to paths assigned to the declared Engineering or QA
+role. Component traversal rejects absolute paths, `..`, Git metadata, symlinks, reparse points,
+special files, duplicate targets, and role/path mismatch. Writes use exclusive same-directory
+staging, fsync, atomic replacement, and bounded effect counts. Deletion, rename, staging, and Git
+metadata mutation are not supported.
+
+QA executes only fixed-argv `python -m pytest` against declared test paths in the isolated
+workspace. The environment contains no inherited credentials, disables third-party pytest plugin
+autoload and bytecode/cache writes, and points HTTP proxies at a closed local endpoint. Static
+Security review parses changed Python and rejects forbidden network/command imports, dynamic
+execution, unapproved dependencies, hard-coded secret-like values, and unparsable source. No live
+provider is authorized. Review failures create closed routes to one responsible Engineering role;
+the next plan must consume the exact returned codes.
+
+After review, the service independently rechecks source preservation, unchanged workspace HEAD/tree,
+dirty allow-listed paths, empty Git index, and zero network, credential, general-command, commit,
+push, and PR counts. Only a QA/Security-passing observation can enter the canonical mode-0600
+write-once store. Local host paths and raw test output are not persisted. Day 32 ends before Day 33
+delivery and grants no merge, deployment, release, budget, risk acceptance, or pilot selection.
+
 # Isolated product-workspace boundaries
 
 Day 31 treats the work order, authority, persisted Day 30 orchestration artifact, repository

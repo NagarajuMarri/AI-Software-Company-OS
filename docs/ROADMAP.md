@@ -1,5 +1,29 @@
 # Runtime Roadmap
 
+# Day 32 — Coding and Review Loop
+
+Bind one current human-issued authority and work order to the exact persisted Day 30 source set,
+Day 31 isolated product workspace, Day 26 QA artifact, and Day 27 Security artifact. Require four
+ordered role-owned Engineering assignments, one bounded QA test path, exact repository/workspace
+identity, approved base commit/tree, isolated feature branch, and a strict local tool profile.
+Missing, fabricated, changed, unpersisted, differently assigned, cross-tenant, expired, or elevated
+sources or authority fail before workspace mutation.
+
+Apply UTF-8 text changes only to exact role-owned paths in the isolated workspace. Run fixed-argv
+pytest with a credential-free environment and no plugin cache, then run AST-based dependency,
+network/command-capability, dynamic-execution, and secret checks. A failed review creates a typed
+route to the responsible Engineering role; the next round must consume the exact finding codes.
+The generic fixture proves one QA failure and one Security failure before a third candidate passes
+both reviews. Source branch/HEAD/tree/status preservation, unchanged workspace HEAD/tree, a dirty
+but unstaged reviewed diff, zero delivery effects, and canonical mode-0600 write-once persistence
+are mandatory. Exact retry and restart return the same artifact without another coding effect.
+
+The final state is `DIRTY_REVIEWED_NOT_COMMITTED` and
+`CODING_AND_REVIEWS_PASSED_AWAITING_CONTROLLED_GITHUB_DELIVERY`. Day 32 performs no live-provider,
+network, credential, general-command, staging, commit, push, pull-request, merge, deployment,
+release, billing, budget, risk-acceptance, or pilot-selection action. Controlled GitHub delivery
+remains Day 33.
+
 # Day 31 — Isolated Product Workspace
 
 Bind one current human-issued authority and work order to the exact persisted Day 30 orchestration
