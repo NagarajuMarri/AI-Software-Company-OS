@@ -1,5 +1,31 @@
 # Runtime Roadmap
 
+# Day 26 — QA Engineer Agent
+
+Operationalize one `AgentRole.QA_ENGINEER` Digital Twin through the Day 22 provider-neutral runtime.
+The assignment must bind one exact QA work order, ordered role/capability/action profile, Twin,
+tenant, objective, current authority, persisted Day 24 architecture, and exactly four ordered
+persisted Day 25 Engineering outputs. The profile has zero tools, zero tool calls, and no
+live-provider authorization. Missing, extra, reordered, stale, fabricated, or cross-tenant sources
+must fail before provider activity.
+
+Produce a closed typed QA artifact containing one role-bound test-plan item and automated-test
+specification for each Engineering source, two cross-role integration-test specifications, two draft
+defect reports, coverage requirements, handoff notes, and status. Rebuild the deterministic request
+and output, reconcile both digests with the terminal runtime receipt, and only then persist canonical
+mode-0600 write-once state. Exact retry and restart return the same receipt and artifact without a
+second provider effect. Mandatory exact-head Chromium CI inspects the plan, specifications, draft
+defects, exact source/receipt bindings, restrictive headers, browser health, and zero-tool boundary
+using generic verification data.
+
+Every automated and integration specification remains `NOT_EXECUTED`; defects remain
+`DRAFT_DEFECT_AWAITING_AUTHORIZED_TEST_EXECUTION`; the artifact remains
+`DRAFT_QA_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 26 creates no test file, product workspace,
+repository change, command, product test execution, verified runtime defect, quality approval,
+Security review, DevOps behavior, Documentation workflow, multi-agent orchestration, commit, merge,
+deployment, release, billing, budget action, or official pilot selection. Those execution and
+delivery boundaries remain in later locked modules.
+
 # Day 25 — Engineering Agent Family
 
 Operationalize Backend, Frontend, AI, and Data Engineer Digital Twins through one shared bounded

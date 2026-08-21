@@ -16,6 +16,38 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# QA workforce boundaries
+
+Day 26 treats the QA work order, architecture source, four ordered Engineering sources, provider
+result, test plans, automated-test specifications, integration-test specifications, defect reports,
+and status fields as untrusted. Before provider activity, the composition requires the exact QA
+role, provider, ordered capability/action profiles, tenant, Twin, assignment, objective digest,
+current expiring authority, work-order digest, persisted Day 24 architecture, and persisted Backend,
+Frontend, AI, and Data Engineering artifacts. Missing, extra, reordered, fabricated, stale,
+cross-tenant, cross-opportunity, or mismatched sources fail closed.
+
+The QA profile has an empty tool allowlist, zero tool-call budget, and no live-provider
+authorization. It receives only bounded non-secret architecture, Engineering, and work-order fields
+through the Day 22 typed request. It receives no filesystem, environment, subprocess, browser,
+repository, network, credential, persistence, product workspace, approval, Security, DevOps,
+Documentation, orchestration, deployment, or release capability. Closed schemas reject unknown
+fields, source substitutions, malformed nested values, changed coverage, claimed execution,
+verified-defect claims, and elevated states.
+
+After runtime execution, the service rebuilds the deterministic provider request and output and
+requires both digests to match the terminal receipt. Only then may the canonical, mode-0600,
+write-once, tenant/execution-scoped artifact store persist the result. Reads reject unsafe
+permissions, symlinks, unknown directory entries, non-canonical content, identity mismatch,
+oversized data, and digest tampering. Raw provider responses and exceptions, credentials, customer
+secrets, and local paths are never stored. Exact retry and restart reopen the same receipt and
+artifact without a second provider effect.
+
+Automated and integration specifications stay `NOT_EXECUTED`; draft defects stay
+`DRAFT_DEFECT_AWAITING_AUTHORIZED_TEST_EXECUTION`; the complete output stays
+`DRAFT_QA_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 26 cannot write or run tests, access a product
+workspace or repository, approve quality, perform Security, DevOps, Documentation, or orchestration
+work, commit, merge, deploy, release, bill, allocate budget, or select a pilot.
+
 # Engineering workforce boundaries
 
 Day 25 treats every Engineering work order, provider result, nested implementation item, interface
