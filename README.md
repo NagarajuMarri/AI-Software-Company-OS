@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 34 adds governed preview deployment. It consumes the exact persisted Day 33 delivery artifact
+and the matching persisted Day 28 DevOps plans, then requires a current human-issued authority bound
+to the exact repository, draft PR, feature branch, commit, tree, isolated preview identity, closed
+configuration digest, opaque secret references, health endpoints, and preview lifetime. One closed
+provider-neutral platform adapter performs exactly one create-only non-production deployment,
+preview migration, monitoring configuration, and two successful health checks. Duplicate or
+ambiguous environments require human reconciliation and are never adopted, overwritten, promoted,
+or blindly retried. Canonical evidence contains no raw secret or host path. PR approval, merge,
+production deployment, release, billing, risk acceptance, official pilot selection, and Day 35
+runtime journeys remain prohibited. See `docs/PREVIEW_DEPLOYMENT.md`.
+
 Day 33 adds controlled GitHub delivery. It consumes the exact persisted Day 32 coding/review
 artifact and independently verifies the source repository, dirty-but-unstaged isolated workspace,
 reviewed paths, and every file digest before any repository write. One current human-issued

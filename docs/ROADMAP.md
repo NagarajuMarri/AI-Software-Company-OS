@@ -1,5 +1,25 @@
 # Runtime Roadmap
 
+# Day 34 — Preview Deployment
+
+Bind one current human-issued preview authority to the exact persisted Day 33 delivery and matching
+Day 28 DevOps plans. Recheck tenant, opportunity, repository, draft PR, feature branch, commit/tree,
+QA/Security source chain, isolated environment identity, preview-only URL, plan digests, closed
+configuration digest, opaque secret references, health endpoints, and TTL before a platform effect.
+
+Through a closed provider-neutral preview gateway, require the environment to be absent, deploy the
+exact approved commit once, apply preview-only migration preparation, enable monitoring, inspect the
+immutable receipt, and prove every declared health check returns HTTP 200. Duplicate or partially
+created environments require human reconciliation and are never adopted, overwritten, promoted,
+or blindly retried.
+
+Persist an exact mode-0600 write-once artifact containing the Day 26/27/28/30/31/32/33 chain,
+deployment revision, commit/tree, health receipts, active isolated-preview state, bounded expiry,
+and rollback readiness without raw credentials or host paths. Exact retry/restart performs no second
+effect. Exact-head Chromium evidence must show one preview deployment, one migration, one monitoring
+configuration, two healthy checks, and zero production, merge, release, billing, secret, or pilot
+effects. Complete module-specific product runtime acceptance remains separately authorized Day 35.
+
 # Day 33 — Controlled GitHub Delivery
 
 Bind one current human-issued product-repository authority and work order to the exact persisted Day
