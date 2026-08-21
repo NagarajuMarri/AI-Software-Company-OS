@@ -4,6 +4,18 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 27 adds one governed Security Engineer Digital Twin. It consumes the exact persisted Day 24
+architecture, all four ordered Day 25 Engineering artifacts, and the exact persisted Day 26 QA
+artifact, then produces all six STRIDE threat records, four dependency-check specifications, four
+secret-check specifications, three draft security findings, and a status report. The role executes
+through the Day 22 runtime with an exact capability/action profile, zero tools, immutable upstream
+bindings, closed schemas, restart-safe exact retries, and mandatory Chromium evidence. No scan,
+workspace access, remediation, approval, or risk acceptance occurs. Outputs remain
+`DRAFT_SECURITY_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`, checks remain `NOT_EXECUTED`, findings
+remain `DRAFT_FINDING_AWAITING_AUTHORIZED_SECURITY_VALIDATION`, and no DevOps, Documentation,
+orchestration, repository, merge, deployment, release, budget, or pilot authority is granted. See
+`docs/SECURITY_ENGINEER_WORKFORCE_AGENT.md`.
+
 Day 26 adds one governed QA Engineer Digital Twin. It consumes the exact persisted Day 24
 architecture and all four exact ordered Day 25 Engineering artifacts, then produces a typed test
 plan, automated-test specifications, integration-test specifications, draft defect reports, and a
