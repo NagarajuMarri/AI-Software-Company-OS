@@ -16,6 +16,33 @@ must restrict workspace roots, use least-privilege credentials, review audit
 records, reconcile interrupted operations, and rotate any credential suspected
 of exposure.
 
+# Controlled GitHub delivery boundaries
+
+Day 33 treats the authority, work order, persisted Day 32 artifact, repository/workspace state,
+reviewed file evidence, remote branch observation, commit receipt, push result, and PR response as
+untrusted. Before mutation, the service independently proves the exact successful persisted review
+chain, current authority, registered HTTPS GitHub repository, unchanged clean source, correct dirty
+workspace branch/base/tree, empty index, exact reviewed paths/digests, and safe Git configuration.
+
+The local adapter invokes Git only through argument arrays with prompts, hooks, system/global
+configuration, and credential helpers disabled. It stages named reviewed paths only, creates one
+single-parent non-GPG commit, and pushes one explicit same-name feature ref without force. The
+GitHub gateway is structurally limited to duplicate lookup and draft-PR creation. Repository names,
+base/head branches, commits, title, and body digest are closed inputs. No raw credential or secret
+value is returned or persisted.
+
+Pre-existing remote branches or matching PRs fail before staging. A failure after commit, push, or
+PR creation raises reconciliation-required state; automatic reset, cleanup, deletion, overwrite,
+force push, branch adoption, or blind retry is forbidden. After success, the approved source is
+unchanged, the workspace is clean on the exact reviewed commit/tree, and its remote branch and open
+draft PR point to the same commit. Mode-0600 canonical write-once persistence makes exact retries
+side-effect free and rejects tampering, unsafe permissions, unknown entries, and identity drift.
+
+Day 33 grants only the explicit reviewed commit, non-force feature-branch push, and open draft-PR
+creation. It grants no unreviewed path, general command, unapproved network, protected-branch write,
+force push, PR approval, merge, deployment, release, risk acceptance, billing, budget, or official
+pilot authority. Preview deployment remains separately authorized Day 34 work.
+
 # Coding and review boundaries
 
 Day 32 treats the work order, authority, persisted Day 26/27/30/31 chain, local source/workspace

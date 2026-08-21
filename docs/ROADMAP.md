@@ -1,5 +1,27 @@
 # Runtime Roadmap
 
+# Day 33 — Controlled GitHub Delivery
+
+Bind one current human-issued product-repository authority and work order to the exact persisted Day
+32 coding/review artifact, registered HTTPS GitHub identity, isolated workspace, approved base,
+feature branch, reviewed paths/digests, final diff, commit message, and draft-PR request. Reject
+changed or unpersisted sources, wrong tenants/assignments, stale authority, unsafe repository
+configuration, unrelated/staged/linked paths, digest drift, or elevated authority before mutation.
+
+Stage only exact reviewed paths; create one commit whose sole parent is the approved base; push only
+the isolated feature branch without force; and create one open draft PR with exact base/head/title/
+body binding. Duplicate remote branches or PRs stop before mutation. Any failure after an external
+effect requires human reconciliation and never triggers reset, deletion, overwrite, force push, or
+blind retry. Source preservation and exact workspace commit/tree/path/content/remote/PR equality are
+mandatory after delivery.
+
+Persist a canonical mode-0600 write-once artifact with stable identities, exact upstream digests,
+commit/tree/remote and draft-PR receipts, bounded counts, and no host path or raw credential. Exact
+retry/restart causes no second effect. Mandatory exact-head Chromium CI exercises real local Git
+commit/push behavior through a generic bare remote and a closed draft-PR gateway. Day 33 performs
+no approval, merge, preview or production deployment, release, risk acceptance, billing, budget
+action, or official pilot selection. Preview deployment remains Day 34.
+
 # Day 32 — Coding and Review Loop
 
 Bind one current human-issued authority and work order to the exact persisted Day 30 source set,
