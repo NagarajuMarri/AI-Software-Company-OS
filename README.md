@@ -4,6 +4,17 @@ The founder-authoritative ASCOS V1 sequence is the locked **37-module plan** in
 `docs/ASCOS_V1_37_MODULE_PLAN.md`. Module numbers and completion requirements must not be
 compressed, renumbered, or inferred from chat history.
 
+Day 29 adds one governed Documentation Engineer Digital Twin. It consumes the exact persisted Day
+24 architecture, four ordered Day 25 Engineering artifacts, Day 26 QA artifact, Day 27 Security
+artifact, and Day 28 DevOps artifact. It produces technical, user, API, operations, and release
+documentation records plus a customer handoff through the Day 22 runtime with zero tools, closed
+schemas, immutable upstream bindings, write-once persistence, restart-safe exact retries, and
+mandatory Chromium evidence. Validation is limited to exact-source and schema validation. Every
+record remains `DRAFT_SOURCE_VALIDATED_AWAITING_HUMAN_REVIEW` and `NOT_PUBLISHED`; the complete
+artifact remains `DRAFT_DOCUMENTATION_OUTPUT_AWAITING_HUMAN_REVIEW`. No filesystem, repository,
+customer channel, publication, product execution, deployment, release, orchestration, budget, or
+pilot authority is granted. See `docs/DOCUMENTATION_ENGINEER_WORKFORCE_AGENT.md`.
+
 Day 28 adds one governed DevOps Engineer Digital Twin. It consumes the exact persisted Day 24
 architecture, all four ordered Day 25 Engineering artifacts, the exact Day 26 QA artifact, and the
 exact Day 27 Security artifact. It produces typed CI-pipeline, isolated-preview, migration,
