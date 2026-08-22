@@ -1,5 +1,21 @@
 # Runtime Roadmap
 
+# ASCOS Completion Module 2 — Governed Codex SDK execution
+
+Completion Module 2 adds the supported Python Codex SDK as a real coding
+specialist behind the existing managed-product execution bridge. One approved
+task becomes one identifiable, schema-constrained Codex thread with read-only
+sandboxing and denied approval requests. The selected ChatGPT-plan or Platform
+API billing source is fail-closed and recorded in the durable provider receipt.
+Codex cannot write the workspace directly; ASCOS verifies unchanged Git state,
+validates returned file operations, applies them through the controlled patch
+boundary, and runs the already-approved quality gates. Live use requires both
+provider enablement and a separate usage-consumption confirmation.
+
+This module does not add automatic planning retries, customer-dashboard
+composition, GitHub credentials, merge, deployment, release, or a product
+pilot. Those remain later completion modules and human-controlled effects.
+
 # Day 37 — ASCOS V1 Hardening and Acceptance
 
 Bind one current founder-issued start authority to the exact persisted Day 36 product-pilot

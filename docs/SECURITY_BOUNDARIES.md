@@ -1,5 +1,26 @@
 # Security Boundaries
 
+# Governed Codex SDK execution boundaries
+
+Completion Module 2 treats all repository text and Codex output as untrusted.
+The SDK receives only the bounded context already selected by the managed
+execution plan. Its thread uses the exact isolated Git workspace, read-only
+sandboxing, and deny-all approval handling. A before/after Git digest and exact
+branch check must pass before a result can enter ASCOS.
+
+Authentication is explicit and fail-closed. ChatGPT mode clears API-key and
+access-token variables in the Codex child and verifies an active ChatGPT
+account. Platform mode requires `OPENAI_API_KEY`, clears personal authentication
+from the child, and uses a temporary isolated `CODEX_HOME`; no secret value,
+account email, auth cache, or raw provider response is persisted. Durable usage
+records name `chatgpt-plan` or `openai-platform` as the billing source.
+
+The model returns schema-constrained text file operations only. Existing path,
+symlink, secret, size, changed-file, line-count, branch, patch, and persistence
+controls remain authoritative. Codex cannot approve its task, mutate Git or
+GitHub, select a pilot, merge, deploy, release, or spend usage without both live
+provider authorization and a separate usage-consumption confirmation.
+
 Outbox payloads are schema-versioned, bounded, canonical, and reject
 credential-like keys. Raw claim tokens are never stored—only hashes. Events,
 attempts, metrics, audit summaries, and dead-letter views omit raw provider

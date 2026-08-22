@@ -499,6 +499,7 @@ class ManagedProductExecutionService:
     def accept_provider_result(
         self, project_id, plan_id, project_task_id, operation_id,
         provider_request, policy_id, *, allow_live_provider=False,
+        confirm_usage_consumption=False,
     ):
         """Run the provider boundary and feed ASCOS-observed changes into 12.3B."""
         if self.coding_provider_service is None:
@@ -510,7 +511,8 @@ class ManagedProductExecutionService:
         workspace = self.store.load_workspace(project_id, plan.workspace_identity)
         self.coding_provider_service.submit(
             project_id, operation_id, provider_request,
-            allow_live_provider=allow_live_provider)
+            allow_live_provider=allow_live_provider,
+            confirm_usage_consumption=confirm_usage_consumption)
         operation = self.coding_provider_service.poll(project_id, operation_id)
         if operation.state.value != "RESULT_AVAILABLE":
             raise ExecutionPolicyError("Provider result is not successful")

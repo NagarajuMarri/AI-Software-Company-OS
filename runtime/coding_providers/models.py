@@ -158,6 +158,8 @@ class ProviderUsage:
     model: str | None = None
     reported_cost: float | None = None
     currency: str | None = None
+    authentication_mode: str | None = None
+    billing_source: str | None = None
 
 
 @dataclass(frozen=True)

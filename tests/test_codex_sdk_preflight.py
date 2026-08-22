@@ -66,6 +66,10 @@ class FakeCodex:
             root.email = EMAIL
         return SimpleNamespace(account=SimpleNamespace(root=root))
 
+    def login_api_key(self, api_key):
+        self.observed["api_key_login"] = api_key
+        self.account_type = "apiKey"
+
 
 def bindings(observed=None, *, account_type="apiKey", account_plan="prolite"):
     observed = observed if observed is not None else {}
@@ -267,9 +271,10 @@ def test_live_preflight_uses_read_only_codex_and_preserves_workspace(tmp_path):
     assert "Do not inspect" in observed["prompt"]
     assert observed["closed"] is True
     environment = observed["sdk_configuration"].env
-    assert environment["CODEX_API_KEY"] == KEY
+    assert environment["CODEX_API_KEY"] == ""
     assert environment["OPENAI_API_KEY"] == ""
     assert environment["CODEX_ACCESS_TOKEN"] == ""
+    assert observed["api_key_login"] == KEY
     assert "CODEX_HOME" in environment
     assert not Path(environment["CODEX_HOME"]).exists()
     assert KEY not in repr(result)
@@ -293,6 +298,9 @@ def test_live_preflight_rejects_workspace_change_and_unexpected_response(tmp_pat
 
         def thread_start(self, **_kwargs):
             return SimpleNamespace(run=lambda _prompt: WrongResult())
+
+        def login_api_key(self, _api_key):
+            return None
 
     wrong = SimpleNamespace(
         Codex=lambda _configuration: WrongCodex(),

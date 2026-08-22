@@ -27,8 +27,12 @@ preflight with two explicit billing modes: a customer's ChatGPT-authenticated Co
 their trusted local runner, or a company's OpenAI Platform API key. Codex is the programmatic
 coding specialist; ChatGPT Work remains the founder supervision and approval surface. ASCOS
 verifies or isolates the selected authentication mode and never silently changes billing source.
-This preflight does not yet generate or apply product code. See
-`docs/CODEX_EXECUTION_PREFLIGHT.md` for the exact boundary and operator commands.
+This preflight does not itself generate or apply product code. Completion Module 2 adds a real
+Codex SDK coding adapter behind the existing managed-execution boundary. Codex receives bounded
+context in a read-only, deny-all thread and returns structured file operations; ASCOS independently
+validates and applies accepted operations, runs approved quality gates, and still requires human
+review before draft delivery. See `docs/CODEX_EXECUTION_PREFLIGHT.md` and
+`docs/CODEX_SDK_EXECUTION.md` for the exact boundaries.
 
 Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
 the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven

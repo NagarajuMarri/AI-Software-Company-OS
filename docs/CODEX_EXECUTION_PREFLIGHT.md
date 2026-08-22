@@ -103,14 +103,17 @@ billing source, safe credential-environment name when applicable, safe ChatGPT p
 applicable, sandbox, workspace digest, timestamp, and readiness state. It never contains a
 credential value, email address, authentication token, cache path, or raw provider response.
 
-Passing this preflight means `CONFIGURATION_READY` or `LIVE_VERIFIED`; it does **not** mean ASCOS
-can yet develop a product. The next completion module must adapt governed coding tasks to resumable
-Codex threads inside an isolated product workspace.
+Passing this preflight means `CONFIGURATION_READY` or `LIVE_VERIFIED`; it does **not** by itself
+mean ASCOS can develop a product. Completion Module 2 adds the governed Codex SDK execution adapter
+described in `CODEX_SDK_EXECUTION.md`. Later modules must still compose that adapter into the local
+customer application, bounded repair loop, founder review surface, and generic end-to-end readiness
+pilot.
 
-That integration must persist only the selected authentication mode and an opaque company-secret
-reference. It must never persist a raw API key, personal ChatGPT credential, Codex authentication
-cache, or email address. Every execution receipt must identify `chatgpt-plan` or `openai-platform`
-as the billing source, and changing that source requires a new explicit customer authorization.
+The execution integration persists only the selected authentication mode and an opaque
+company-secret reference. It never persists a raw API key, personal ChatGPT credential, Codex
+authentication cache, or email address. Every execution receipt identifies `chatgpt-plan` or
+`openai-platform` as the billing source, and changing that source requires a new explicit customer
+authorization.
 
 Official references: [Codex authentication](https://learn.chatgpt.com/docs/auth) and
 [Codex SDK](https://learn.chatgpt.com/docs/codex-sdk).

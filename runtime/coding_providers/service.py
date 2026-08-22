@@ -31,6 +31,9 @@ from runtime.coding_providers.models import (
 from runtime.coding_providers.redaction import redact
 
 
+_DURABLE_LIVE_PROVIDER_IDS = frozenset({"openai-codex", "openai-codex-sdk"})
+
+
 class CodingProviderService:
     def __init__(
         self, registry, store, context_builder, patch_applier,
@@ -108,15 +111,28 @@ class CodingProviderService:
         self.store.save_operation(operation)
         return operation, request
 
-    def submit(self, project_id, operation_id, request, *, allow_live_provider=False):
+    def submit(
+        self,
+        project_id,
+        operation_id,
+        request,
+        *,
+        allow_live_provider=False,
+        confirm_usage_consumption=False,
+    ):
         operation = self.store.load_operation(project_id, operation_id)
         self._require_state(operation, {
             ProviderOperationState.PREPARED,
             ProviderOperationState.UNCERTAIN,
             ProviderOperationState.SUBMITTED})
         provider = self.registry.get(operation.provider_id)
-        if operation.provider_id != "deterministic" and not allow_live_provider:
-            raise ProviderPolicyError("--allow-live-provider is required")
+        if operation.provider_id != "deterministic":
+            if not allow_live_provider:
+                raise ProviderPolicyError("--allow-live-provider is required")
+            if not confirm_usage_consumption:
+                raise ProviderPolicyError(
+                    "--confirm-usage-consumption is required"
+                )
         if operation.state in {
             ProviderOperationState.UNCERTAIN, ProviderOperationState.SUBMITTED
         }:
@@ -134,7 +150,7 @@ class CodingProviderService:
                 reconciliation_details=redact(str(error)),
                 updated_at=datetime.now(timezone.utc)))
             raise
-        if operation.provider_id == "openai-codex":
+        if operation.provider_id in _DURABLE_LIVE_PROVIDER_IDS:
             try:
                 receipt = self.store.load_receipt(project_id, operation_id)
                 result = self.store.load_result(project_id, operation_id)
@@ -232,14 +248,18 @@ class CodingProviderService:
         ):
             raise ProviderPolicyError("Provider cost budget exceeded")
         response_digest = hashlib.sha256(serialized).hexdigest()
-        receipt = ProviderResponseReceipt(
-            operation.provider_operation_id, result.provider_task_id,
-            result.external_task_id, operation.provider_id, operation.project_id,
-            operation.execution_plan_id, operation.plan_version,
-            operation.managed_task_id, operation.workspace_id, operation.branch,
-            operation.request_digest, operation.context_digest,
-            operation.provider_idempotency_key, response_digest,
-            datetime.now(timezone.utc), result.usage)
+        if operation.provider_id in _DURABLE_LIVE_PROVIDER_IDS:
+            receipt = self.store.load_receipt(project_id, operation_id)
+            self._verify_receipt(operation, receipt, result, response_digest)
+        else:
+            receipt = ProviderResponseReceipt(
+                operation.provider_operation_id, result.provider_task_id,
+                result.external_task_id, operation.provider_id, operation.project_id,
+                operation.execution_plan_id, operation.plan_version,
+                operation.managed_task_id, operation.workspace_id, operation.branch,
+                operation.request_digest, operation.context_digest,
+                operation.provider_idempotency_key, response_digest,
+                datetime.now(timezone.utc), result.usage)
         self.store.save_result(project_id, operation_id, result)
         self.store.save_receipt(receipt)
         self.store.save_operation(replace(

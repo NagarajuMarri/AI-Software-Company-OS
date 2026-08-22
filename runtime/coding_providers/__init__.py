@@ -18,6 +18,10 @@ from runtime.coding_providers.codex_sdk_preflight import (
     CodexSdkPreflightResult,
     CodexSdkPreflightStatus,
 )
+from runtime.coding_providers.codex_sdk_provider import (
+    CodexSdkExecutionConfiguration,
+    CodexSdkExecutionProvider,
+)
 from runtime.coding_providers.patching import ControlledPatchApplier
 from runtime.coding_providers.registry import CodingProviderRegistry
 from runtime.coding_providers.service import CodingProviderService
@@ -30,6 +34,7 @@ __all__ = [
     "OpenAICodexProvider", "CodexAuthenticationMode", "CodexBillingSource",
     "CodexSdkPreflight",
     "CodexSdkPreflightConfiguration", "CodexSdkPreflightResult",
-    "CodexSdkPreflightStatus", "ControlledPatchApplier", "CodingProviderRegistry",
-    "CodingProviderService", "ProviderOperationStore",
+    "CodexSdkPreflightStatus", "CodexSdkExecutionConfiguration",
+    "CodexSdkExecutionProvider", "ControlledPatchApplier",
+    "CodingProviderRegistry", "CodingProviderService", "ProviderOperationStore",
 ]
