@@ -1,5 +1,34 @@
 # Security Boundaries
 
+# Customer-dashboard governed delivery boundaries
+
+Completion Module 4 accepts no repository identity, branch, remote, credential,
+token, commit message, PR title/body, path, or command from the browser. The
+operator binds the local product workspace, GitHub `owner/name`, integration
+base branch, and remote name at launcher startup. Enabling delivery and
+confirming product repository writes are separate process flags; customer POST
+routes contain only CSRF, the exact review digest, and fixed confirmations.
+
+Review reloads the accepted Module 3 provider patch effect and independently
+verifies its customer/product/plan/workspace/branch/commit identities, accepted
+state, manifest digest, tracked Git diff, dirty path set, and content SHA-256.
+The browser receives a bounded HTML-escaped canonical patch; the local workspace
+path and remote URL remain operator-only. Persistence is path-contained,
+canonical, integrity checked, mode 0600 where supported, and closed to unknown
+entries.
+
+The delivery adapter has no shell interface. It invokes fixed Git and GitHub CLI
+argument vectors, disables Git hooks and signing, removes provider/API tokens
+from Git subprocesses, stages only reviewed paths, rejects changed evidence,
+checks that the remote branch and PR are absent, pushes without force, and
+requires one verified open draft PR. GitHub authentication remains in the
+operator's existing Git/`gh` configuration and is never accepted or persisted
+by ASCOS. Duplicate preflight state causes no local mutation. Any error after
+delivery intent may represent an external effect and therefore persists
+`RECONCILIATION_REQUIRED`; ASCOS never resets, deletes, overwrites, force-pushes,
+or blindly retries it. PR approval/merge, preview, production, release, and
+FamilyVault authority do not exist in this module.
+
 # Customer-dashboard governed execution boundaries
 
 Completion Module 3 adds no browser-controlled repository or credential input.

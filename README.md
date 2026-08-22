@@ -19,8 +19,11 @@ approval, delivery estimation, project progress, and the truthful preview-eviden
 By default it starts no live provider. Completion Module 3 can optionally bind a trusted local
 product repository and expose one exact-plan/usage-approved Codex turn; the browser never receives
 the repository path or a credential. The module stops with an uncommitted local patch awaiting
-human review and cannot push, create a PR, merge, deploy, release, or select FamilyVault. See
-`docs/LOCAL_UAT_LAUNCHER.md` and `docs/CUSTOMER_GOVERNED_EXECUTION.md`.
+human review. Completion Module 4 can separately bind a trusted GitHub repository and integration
+branch, show the exact escaped patch for customer review, and—only with two operator flags—create
+one reviewed commit, non-force feature-branch push, and open draft PR. It cannot approve or merge,
+deploy, release, or select FamilyVault. See `docs/LOCAL_UAT_LAUNCHER.md`,
+`docs/CUSTOMER_GOVERNED_EXECUTION.md`, and `docs/CUSTOMER_GOVERNED_DELIVERY.md`.
 
 ## Codex execution completion track
 
@@ -43,6 +46,15 @@ launcher startup. The customer creates and approves the durable task plan, then 
 one usage-bearing coding turn. ASCOS records authentication/billing usage and a patch manifest and
 stops at `REVIEW_REQUIRED`; no second task or Git delivery effect is automatic. See
 `docs/CUSTOMER_GOVERNED_EXECUTION.md`.
+
+Completion Module 4 consumes only the exact accepted Module 3 patch manifest. It reloads the
+provider effect, verifies branch/commit/status, file SHA-256 values, and the canonical review patch,
+then presents that escaped evidence in the authenticated dashboard. Customer review approval is
+separate from launcher-time repository-write authority. The closed delivery adapter stages only
+the reviewed files, creates one single-parent commit, pushes only the existing `agent/*` branch
+without force, verifies the remote SHA, and opens one draft PR with the locked base/head/title/body.
+Ambiguous post-effect failures stop at `RECONCILIATION_REQUIRED`; no retry, merge, preview,
+deployment, release, or FamilyVault work is automatic. See `docs/CUSTOMER_GOVERNED_DELIVERY.md`.
 
 Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
 the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven

@@ -44,8 +44,14 @@ _MAX_BODY = 4_096
 class CustomerExecutionApplication:
     """Expose only customer-scoped, CSRF-protected execution transitions."""
 
-    def __init__(self, service: CustomerExecutionService) -> None:
+    def __init__(
+        self,
+        service: CustomerExecutionService,
+        *,
+        delivery_available: bool = False,
+    ) -> None:
         self._service = service
+        self._delivery_available = delivery_available
 
     @staticmethod
     def handles(path: str) -> bool:
@@ -81,6 +87,7 @@ class CustomerExecutionApplication:
                         csrf,
                         configured=self._service.configured,
                         live_enabled=self._service.live_enabled,
+                        delivery_available=self._delivery_available,
                     ),
                 )
             if action is not None and method == "POST":
@@ -226,6 +233,7 @@ def _dashboard(
     *,
     configured: bool,
     live_enabled: bool,
+    delivery_available: bool = False,
 ) -> str:
     if plan is None:
         action = (
@@ -250,7 +258,7 @@ def _dashboard(
         return _layout("Governed execution · ASCOS", content, csrf)
 
     tasks = "".join(_task(value) for value in plan.tasks)
-    action = _action(plan, csrf, live_enabled)
+    action = _action(plan, csrf, live_enabled, delivery_available)
     receipt = _receipt(plan)
     content = f'''<section class="review"><a class="back" href="/customer/requests/{escape(request_id)}/progress">← Project progress</a>
 <div class="review-head"><div><span class="eyebrow">Completion Module 3 · Execution centre</span>
@@ -289,7 +297,12 @@ def _task(value: CustomerExecutionTask) -> str:
 Candidate context files: <code>{escape(candidates)}</code></div>{result}</article>'''
 
 
-def _action(plan: CustomerExecutionPlan, csrf: str, live_enabled: bool) -> str:
+def _action(
+    plan: CustomerExecutionPlan,
+    csrf: str,
+    live_enabled: bool,
+    delivery_available: bool = False,
+) -> str:
     target = f"/customer/requests/{escape(plan.request_id)}/execution"
     if plan.status is CustomerExecutionPlanStatus.AWAITING_APPROVAL:
         return f'''<form method="post" action="{target}/approve">
@@ -311,8 +324,13 @@ def _action(plan: CustomerExecutionPlan, csrf: str, live_enabled: bool) -> str:
 <span>I authorize one chargeable Codex turn billed to {escape(_billing(plan.billing_source))}.</span></label>
 <div class="actions"><button type="submit">Start one governed Codex coding turn</button></div></form>'''
     if plan.status is CustomerExecutionPlanStatus.REVIEW_REQUIRED:
-        return '''<div class="notice"><strong>Human review required</strong>
-<p>ASCOS applied the validated text patch locally and stopped. No additional task or repository effect is authorized.</p></div>'''
+        next_action = (
+            f'''<div class="actions"><a class="button" href="/customer/requests/{escape(plan.request_id)}/delivery">Review exact patch</a></div>'''
+            if delivery_available
+            else ""
+        )
+        return f'''<div class="notice"><strong>Human review required</strong>
+<p>ASCOS applied the validated text patch locally and stopped. No repository effect occurs until a separately configured Module 4 review.</p></div>{next_action}'''
     if plan.status is CustomerExecutionPlanStatus.RECONCILIATION_REQUIRED:
         return '''<div class="notice"><strong>Manual reconciliation required</strong>
 <p>ASCOS will not retry automatically because the provider or patch effect may already exist.</p></div>'''
