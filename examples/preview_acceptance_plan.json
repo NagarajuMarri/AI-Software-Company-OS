@@ -1,0 +1,29 @@
+{
+  "acceptance_profile_id": "customer-product-v1",
+  "acceptance_profile_version": "1.0",
+  "allowed_origins": [
+    "https://preview.example.com"
+  ],
+  "inputs": [],
+  "journeys": [
+    {
+      "capability_id": "product-preview-acceptance",
+      "journey_id": "landing-ready",
+      "start_path": "/",
+      "steps": [
+        {
+          "action": "ASSERT_VISIBLE",
+          "locator": {
+            "exact": true,
+            "kind": "TEXT",
+            "value": "Product ready"
+          },
+          "step_id": "product-ready-visible"
+        }
+      ],
+      "timeout_seconds": 30,
+      "title": "Product landing page is ready"
+    }
+  ],
+  "schema_version": 1
+}

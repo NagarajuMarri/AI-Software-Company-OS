@@ -9,6 +9,11 @@ import webbrowser
 from wsgiref.simple_server import make_server
 
 from runtime.coding_providers import CodexAuthenticationMode
+from runtime.customer_acceptance import (
+    CustomerAcceptanceConfiguration,
+    canonical_origin,
+    load_acceptance_plan,
+)
 from runtime.customer_delivery import CustomerDeliveryConfiguration
 from runtime.customer_execution import CustomerExecutionConfiguration
 from runtime.local_uat.application import create_local_uat_application
@@ -27,11 +32,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         execution = _execution_configuration(parser, arguments)
         delivery = _delivery_configuration(parser, arguments, execution)
+        acceptance = _acceptance_configuration(parser, arguments, delivery)
         application = create_local_uat_application(
             arguments.data_dir,
             origin,
             execution_configuration=execution,
             delivery_configuration=delivery,
+            acceptance_configuration=acceptance,
         )
         server = make_server(_HOST, arguments.port, application)
     except (OSError, ValueError) as error:
@@ -66,6 +73,19 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
         print("Delivery stop: OPEN DRAFT PR — no approval, merge, deploy, or release.", flush=True)
+    if acceptance is None:
+        print("Preview acceptance: NOT CONFIGURED", flush=True)
+    else:
+        state = "ENABLED" if acceptance.live_enabled else "PLAN ONLY"
+        print(
+            f"Preview acceptance: {state} · {acceptance.preview_environment_id} · "
+            f"{len(acceptance.journeys)} browser journey(s)",
+            flush=True,
+        )
+        print(
+            "Acceptance stop: EVIDENCE ACCEPT/REVISE — no PR merge, production, release, or FamilyVault.",
+            flush=True,
+        )
     print("Press Ctrl+C to stop.", flush=True)
     if not arguments.no_browser:
         threading.Timer(0.35, webbrowser.open, args=(origin,)).start()
@@ -161,6 +181,50 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="confirm product repository writes for this launcher process",
     )
+    parser.add_argument(
+        "--preview-url",
+        help="trusted canonical isolated-preview origin (operator-only)",
+    )
+    parser.add_argument(
+        "--preview-environment",
+        help="preview-* non-production environment identity",
+    )
+    parser.add_argument(
+        "--preview-workflow",
+        help="preview-only .github/workflows/*.yml workflow file",
+    )
+    parser.add_argument(
+        "--preview-test-job",
+        help="exact required automated-test workflow job name",
+    )
+    parser.add_argument(
+        "--preview-security-job",
+        help="exact required security workflow job name",
+    )
+    parser.add_argument(
+        "--browser-journey-plan",
+        type=Path,
+        help="trusted operator-owned declarative browser journey JSON",
+    )
+    parser.add_argument(
+        "--browser-cdp-reference",
+        help="optional opaque environment-variable name containing a cloud-browser CDP endpoint",
+    )
+    parser.add_argument(
+        "--enable-preview-acceptance",
+        action="store_true",
+        help="enable one isolated preview workflow and one browser run",
+    )
+    parser.add_argument(
+        "--confirm-preview-deployment",
+        action="store_true",
+        help="confirm one non-production preview deployment for this launcher process",
+    )
+    parser.add_argument(
+        "--confirm-browser-execution",
+        action="store_true",
+        help="confirm one locked Playwright execution for this launcher process",
+    )
     return parser
 
 
@@ -242,4 +306,71 @@ def _delivery_configuration(
             product_write_confirmed=arguments.confirm_product_repository_write,
         )
     except ValueError as error:
+        parser.error(str(error))
+
+
+def _acceptance_configuration(
+    parser: argparse.ArgumentParser,
+    arguments: argparse.Namespace,
+    delivery: CustomerDeliveryConfiguration | None,
+) -> CustomerAcceptanceConfiguration | None:
+    configured_values = bool(
+        arguments.preview_url
+        or arguments.preview_environment
+        or arguments.preview_workflow
+        or arguments.preview_test_job
+        or arguments.preview_security_job
+        or arguments.browser_journey_plan
+        or arguments.browser_cdp_reference
+        or arguments.enable_preview_acceptance
+        or arguments.confirm_preview_deployment
+        or arguments.confirm_browser_execution
+    )
+    if not configured_values:
+        return None
+    if delivery is None:
+        parser.error("preview acceptance configuration requires delivery configuration")
+    required = {
+        "--preview-url": arguments.preview_url,
+        "--preview-environment": arguments.preview_environment,
+        "--preview-workflow": arguments.preview_workflow,
+        "--preview-test-job": arguments.preview_test_job,
+        "--preview-security-job": arguments.preview_security_job,
+        "--browser-journey-plan": arguments.browser_journey_plan,
+    }
+    missing = [name for name, value in required.items() if value is None]
+    if missing:
+        parser.error(f"{', '.join(missing)} required for preview acceptance")
+    confirmations = (
+        arguments.confirm_preview_deployment,
+        arguments.confirm_browser_execution,
+    )
+    if any(confirmations) and not arguments.enable_preview_acceptance:
+        parser.error("preview effect confirmations require --enable-preview-acceptance")
+    if arguments.enable_preview_acceptance and not all(confirmations):
+        parser.error(
+            "--enable-preview-acceptance requires both preview and browser confirmations"
+        )
+    try:
+        profile_id, profile_version, origins, journeys, inputs = load_acceptance_plan(
+            arguments.browser_journey_plan
+        )
+        preview_url = canonical_origin(arguments.preview_url)
+        return CustomerAcceptanceConfiguration(
+            preview_environment_id=arguments.preview_environment,
+            preview_url=preview_url,
+            workflow_file=arguments.preview_workflow,
+            automated_test_job=arguments.preview_test_job,
+            security_job=arguments.preview_security_job,
+            acceptance_profile_id=profile_id,
+            acceptance_profile_version=profile_version,
+            allowed_origins=origins,
+            journeys=journeys,
+            inputs=inputs,
+            browser_cdp_reference=arguments.browser_cdp_reference,
+            enabled=arguments.enable_preview_acceptance,
+            preview_deployment_confirmed=arguments.confirm_preview_deployment,
+            browser_execution_confirmed=arguments.confirm_browser_execution,
+        )
+    except (OSError, ValueError) as error:
         parser.error(str(error))

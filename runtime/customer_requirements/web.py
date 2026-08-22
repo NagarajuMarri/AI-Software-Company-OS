@@ -72,6 +72,7 @@ class CustomerWorkspaceApplication:
         evidence: RoutedCustomerApplication | None = None,
         execution: RoutedCustomerApplication | None = None,
         delivery: RoutedCustomerApplication | None = None,
+        acceptance: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
@@ -88,6 +89,7 @@ class CustomerWorkspaceApplication:
                 evidence,
                 execution,
                 delivery,
+                acceptance,
             )
             if item is not None
         )
