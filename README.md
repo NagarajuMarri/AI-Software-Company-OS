@@ -16,9 +16,11 @@ ascos-local-uat
 The launcher opens `http://127.0.0.1:8765` and persists local test data in
 `.ascos-uat-data/`. It supports signup, product intake, requirements approval, PRD and roadmap
 approval, delivery estimation, project progress, and the truthful preview-evidence waiting state.
-It does not start live AI providers or perform repository, merge, deployment, release, or billing
-effects. See `docs/LOCAL_UAT_LAUNCHER.md` for Windows, macOS/Linux, testing, reset, and deployment
-guidance.
+By default it starts no live provider. Completion Module 3 can optionally bind a trusted local
+product repository and expose one exact-plan/usage-approved Codex turn; the browser never receives
+the repository path or a credential. The module stops with an uncommitted local patch awaiting
+human review and cannot push, create a PR, merge, deploy, release, or select FamilyVault. See
+`docs/LOCAL_UAT_LAUNCHER.md` and `docs/CUSTOMER_GOVERNED_EXECUTION.md`.
 
 ## Codex execution completion track
 
@@ -33,6 +35,14 @@ context in a read-only, deny-all thread and returns structured file operations; 
 validates and applies accepted operations, runs approved quality gates, and still requires human
 review before draft delivery. See `docs/CODEX_EXECUTION_PREFLIGHT.md` and
 `docs/CODEX_SDK_EXECUTION.md` for the exact boundaries.
+
+Completion Module 3 connects the authenticated customer dashboard to the locked request → PRD →
+roadmap → estimate authority chain and the accepted Completion Module 2 adapter. An operator binds
+one clean `agent/*` product branch, exact commit, path allow-list, and candidate context files at
+launcher startup. The customer creates and approves the durable task plan, then separately confirms
+one usage-bearing coding turn. ASCOS records authentication/billing usage and a patch manifest and
+stops at `REVIEW_REQUIRED`; no second task or Git delivery effect is automatic. See
+`docs/CUSTOMER_GOVERNED_EXECUTION.md`.
 
 Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
 the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven

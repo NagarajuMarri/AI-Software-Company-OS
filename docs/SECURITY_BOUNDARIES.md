@@ -1,5 +1,29 @@
 # Security Boundaries
 
+# Customer-dashboard governed execution boundaries
+
+Completion Module 3 adds no browser-controlled repository or credential input.
+The operator binds the product workspace, exact `agent/*` branch, model,
+authentication mode, allowed path prefixes, and candidate files when launching
+ASCOS. Customer POST routes accept only CSRF tokens, exact scope digests, and
+fixed affirmative confirmations. Unknown, duplicate, oversized, or stale fields
+fail closed.
+
+The durable plan binds the entire customer planning digest chain, workspace
+identity, branch, pre-turn commit, provider, model, billing source, and ordered
+tasks. Approval re-verifies the planning chain and a clean unchanged workspace.
+The coding POST then requires separate scope and usage confirmations, persists
+`EXECUTING` before provider activity, and permits exactly the first pending task.
+Any uncertain provider or patch outcome becomes `RECONCILIATION_REQUIRED` and is
+never automatically retried.
+
+Codex still runs read-only with approval requests denied. ASCOS applies only
+bounded UTF-8 text operations inside the operator allow-list and rejects Git,
+credential, CI workflow, deployment, infrastructure, migration, payment, key,
+environment, and binary changes. A successful turn records redacted usage and a
+patch manifest, leaves the Git commit unchanged, and stops at human review. No
+commit, push, PR, merge, deployment, release, or FamilyVault authority exists.
+
 # Governed Codex SDK execution boundaries
 
 Completion Module 2 treats all repository text and Codex output as untrusted.

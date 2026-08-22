@@ -11,7 +11,7 @@ import pytest
 
 from runtime.local_uat import create_local_uat_application
 from runtime.local_uat import cli
-from runtime.local_uat.cli import _parser
+from runtime.local_uat.cli import _execution_configuration, _parser
 
 
 def _request(application, path: str, method: str = "GET"):
@@ -118,6 +118,63 @@ def test_cli_contract_uses_safe_defaults_and_rejects_invalid_ports():
 
     with pytest.raises(SystemExit):
         _parser().parse_args(["--port", "0"])
+
+
+def test_cli_builds_operator_only_execution_configuration_and_fails_closed(tmp_path):
+    parser = _parser()
+    arguments = parser.parse_args(
+        [
+            "--execution-workspace",
+            str(tmp_path / "product"),
+            "--execution-auth-mode",
+            "chatgpt-subscription",
+            "--execution-allowed-path",
+            "src",
+            "--execution-candidate-file",
+            "src/app.py",
+            "--enable-live-execution",
+            "--confirm-live-operation",
+        ]
+    )
+    configuration = _execution_configuration(parser, arguments)
+    assert configuration is not None
+    assert configuration.enabled is True
+    assert configuration.live_operation_confirmed is True
+    assert configuration.allowed_paths == ("src",)
+    assert configuration.candidate_files == ("src/app.py",)
+    assert configuration.billing_source == "chatgpt-plan"
+
+    missing = _parser().parse_args(["--enable-live-execution"])
+    with pytest.raises(SystemExit):
+        _execution_configuration(_parser(), missing)
+
+
+def test_launcher_truthfully_reports_optional_governed_execution(tmp_path):
+    parser = _parser()
+    arguments = parser.parse_args(
+        [
+            "--execution-workspace",
+            str(tmp_path / "product"),
+            "--execution-allowed-path",
+            "src",
+            "--execution-candidate-file",
+            "src/app.py",
+            "--enable-live-execution",
+            "--confirm-live-operation",
+        ]
+    )
+    configuration = _execution_configuration(parser, arguments)
+    application = create_local_uat_application(
+        tmp_path / "uat-data",
+        "http://127.0.0.1:8765",
+        preauth_secret=b"u" * 32,
+        execution_configuration=configuration,
+        execution_adapter=object(),
+    )
+    welcome = _request(application, "/")
+    assert welcome["status"] == "200 OK"
+    assert b"run one chargeable governed Codex coding turn" in welcome["body"]
+    assert b"cannot commit, push, open a PR, merge, deploy, release" in welcome["body"]
 
 
 def test_cli_binds_only_loopback_reports_boundary_and_closes(tmp_path, monkeypatch, capsys):

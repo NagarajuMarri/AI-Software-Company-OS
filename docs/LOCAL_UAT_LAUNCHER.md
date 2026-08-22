@@ -16,12 +16,15 @@ The interactive path uses the persisted Days 11–21 application services:
 5. Generate, review, approve, and lock the roadmap.
 6. Generate the non-binding delivery-effort estimate.
 7. Inspect the read-only project-progress projection.
-8. Inspect the Preview and Evidence Centre's truthful waiting state.
-9. Stop and restart the launcher and verify that the account and product remain available.
+8. Open the governed execution centre. With optional operator configuration, create and approve an
+   exact task plan and authorize one Codex coding turn.
+9. Inspect the Preview and Evidence Centre's truthful waiting state.
+10. Stop and restart the launcher and verify that the account and product remain available.
 
-The `/uat` page also explains the Days 22–37 runtime boundary. Those modules are implemented and
-acceptance-tested, but this launcher does not silently start a live provider, create a product
-repository, push code, create a preview, deploy, release, or bill.
+The `/uat` page also explains the Days 22–37 runtime boundary. The default launcher does not start a
+live provider. If the operator explicitly binds a trusted product workspace and enables Completion
+Module 3, the customer may authorize one usage-bearing Codex turn. The launcher never creates the
+repository, commits, pushes, opens a PR, creates a preview, deploys, releases, or silently bills.
 
 ## Run on Windows PowerShell or the VS Code PowerShell terminal
 
@@ -74,6 +77,25 @@ Do not open the browser automatically:
 ```console
 ascos-local-uat --no-browser
 ```
+
+To opt into Completion Module 3, first prepare a separate clean product repository on an existing
+`agent/*` branch. Then declare only the product paths and existing context files Codex may use:
+
+```powershell
+ascos-local-uat `
+  --execution-workspace C:\Projects\customer-product `
+  --execution-model gpt-5.6-terra `
+  --execution-auth-mode chatgpt-subscription `
+  --execution-allowed-path src `
+  --execution-candidate-file src\app.py `
+  --enable-live-execution `
+  --confirm-live-operation
+```
+
+The customer must still approve the exact generated plan and then check two separate boxes for the
+first coding task and usage consumption. For company API billing, set `OPENAI_API_KEY` in the
+launcher environment and select `--execution-auth-mode platform-api-key`. Never paste a key into
+the dashboard. See `CUSTOMER_GOVERNED_EXECUTION.md` for the full flow and stop conditions.
 
 Press `Ctrl+C` in the terminal to stop the server. The health endpoint is
 `http://127.0.0.1:8765/healthz`.

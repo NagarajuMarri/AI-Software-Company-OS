@@ -70,6 +70,7 @@ class CustomerWorkspaceApplication:
         estimate: RoutedCustomerApplication | None = None,
         progress: RoutedCustomerApplication | None = None,
         evidence: RoutedCustomerApplication | None = None,
+        execution: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
@@ -84,6 +85,7 @@ class CustomerWorkspaceApplication:
                 estimate,
                 progress,
                 evidence,
+                execution,
             )
             if item is not None
         )
