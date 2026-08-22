@@ -10,6 +10,14 @@ from runtime.coding_providers.errors import (
 )
 from runtime.coding_providers.models import *
 from runtime.coding_providers.openai_codex_provider import OpenAICodexProvider
+from runtime.coding_providers.codex_sdk_preflight import (
+    CodexAuthenticationMode,
+    CodexBillingSource,
+    CodexSdkPreflight,
+    CodexSdkPreflightConfiguration,
+    CodexSdkPreflightResult,
+    CodexSdkPreflightStatus,
+)
 from runtime.coding_providers.patching import ControlledPatchApplier
 from runtime.coding_providers.registry import CodingProviderRegistry
 from runtime.coding_providers.service import CodingProviderService
@@ -19,6 +27,9 @@ __all__ = [
     "CodingContextBuilder", "DeterministicCodingProvider",
     "CodingProviderError", "ProviderConfigurationError", "ProviderPolicyError",
     "ProviderReconciliationError", "ProviderRegistryError", "ProviderStateError",
-    "OpenAICodexProvider", "ControlledPatchApplier", "CodingProviderRegistry",
+    "OpenAICodexProvider", "CodexAuthenticationMode", "CodexBillingSource",
+    "CodexSdkPreflight",
+    "CodexSdkPreflightConfiguration", "CodexSdkPreflightResult",
+    "CodexSdkPreflightStatus", "ControlledPatchApplier", "CodingProviderRegistry",
     "CodingProviderService", "ProviderOperationStore",
 ]
