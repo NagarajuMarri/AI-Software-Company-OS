@@ -278,8 +278,10 @@ def _action(review: CustomerDeliveryReview, csrf: str, live_enabled: bool) -> st
 <span>Create one exact commit, push only this agent/* branch without force, and open one draft PR. This does not merge or deploy.</span></label>
 <div class="actions"><button type="submit">Create reviewed draft delivery</button></div></form>'''
     if review.status is CustomerDeliveryStatus.DRAFT_PR_CREATED:
-        return '''<div class="notice"><strong>Draft review required on GitHub</strong>
-<p>ASCOS completed its bounded repository effect and stopped. Merge and deployment remain unavailable.</p></div>'''
+        return f'''<div class="notice"><strong>Draft delivery is ready</strong>
+<p>ASCOS completed Module 4. Merge remains unavailable; isolated preview acceptance requires a new exact approval.</p></div>
+<p>Merge and deployment remain unavailable until that separate Module 5 approval.</p>
+<div class="actions"><a class="button" href="/customer/requests/{escape(review.request_id)}/acceptance">Open preview acceptance</a></div>'''
     if review.status is CustomerDeliveryStatus.RECONCILIATION_REQUIRED:
         return '''<div class="notice"><strong>Manual reconciliation required</strong>
 <p>ASCOS will not retry because a commit, remote branch, or draft PR may already exist.</p></div>'''

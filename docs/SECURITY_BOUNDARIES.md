@@ -1,5 +1,31 @@
 # Security Boundaries
 
+# Customer-dashboard preview and browser acceptance boundaries
+
+Completion Module 5 accepts no preview URL, environment, workflow, job name, browser origin, journey
+step, secret, credential, repository, branch, commit, or PR identity from a browser form. The
+operator supplies one closed configuration at launcher startup. Customer POST routes contain only
+CSRF, the exact approval digest, and fixed affirmative confirmations.
+
+The GitHub gateway has only PR inspection, preview-workflow dispatch, run inspection, and run-watch
+operations. Fixed argument vectors are used without a shell. The configured workflow path must be a
+`.github/workflows/*preview*.yml` file, the environment must use a `preview-*` identity, and the PR
+must remain open, draft, unmerged, and bound to the exact commit. GitHub credentials stay in the
+operator's existing `gh` configuration and are never accepted, displayed, or persisted by ASCOS.
+
+Playwright receives only the canonical preview origin, explicit origin allow-list, immutable
+declarative steps, public inputs, and opaque secret references. Secret values are resolved from the
+launcher environment only at invocation, added to screenshot masks/redaction values, and cleared
+after execution. Evidence stores no cookies, headers, authorization values, bodies, browser storage,
+raw secret values, or host paths. Unknown origins are blocked and console/page/network failures are
+negative evidence. An optional cloud-browser CDP endpoint is likewise supplied only through an
+operator-owned opaque environment reference, added to redactions, and cleared after the one session.
+
+Preview intent is persisted before the first external effect. An ambiguous workflow, deployment,
+health, browser, evidence, or persistence failure becomes `RECONCILIATION_REQUIRED`; no automatic
+redispatch, preview adoption, promotion, overwrite, PR mutation, merge, production deployment,
+release, or FamilyVault action is available.
+
 # Customer-dashboard governed delivery boundaries
 
 Completion Module 4 accepts no repository identity, branch, remote, credential,

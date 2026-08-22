@@ -22,12 +22,16 @@ class LocalUatApplication:
         live_execution_enabled: bool = False,
         delivery_configured: bool = False,
         live_delivery_enabled: bool = False,
+        acceptance_configured: bool = False,
+        live_acceptance_enabled: bool = False,
     ) -> None:
         self._authenticated = authenticated
         self._execution_configured = execution_configured
         self._live_execution_enabled = live_execution_enabled
         self._delivery_configured = delivery_configured
         self._live_delivery_enabled = live_delivery_enabled
+        self._acceptance_configured = acceptance_configured
+        self._live_acceptance_enabled = live_acceptance_enabled
 
     def __call__(
         self,
@@ -45,6 +49,8 @@ class LocalUatApplication:
                     self._live_execution_enabled,
                     self._delivery_configured,
                     self._live_delivery_enabled,
+                    self._acceptance_configured,
+                    self._live_acceptance_enabled,
                 ),
                 head=method == "HEAD",
             )
@@ -77,12 +83,16 @@ class LocalUatWorkspaceApplication:
         live_execution_enabled: bool = False,
         delivery_configured: bool = False,
         live_delivery_enabled: bool = False,
+        acceptance_configured: bool = False,
+        live_acceptance_enabled: bool = False,
     ) -> None:
         self._customer_workspace = customer_workspace
         self._execution_configured = execution_configured
         self._live_execution_enabled = live_execution_enabled
         self._delivery_configured = delivery_configured
         self._live_delivery_enabled = live_delivery_enabled
+        self._acceptance_configured = acceptance_configured
+        self._live_acceptance_enabled = live_acceptance_enabled
 
     def __call__(
         self,
@@ -111,6 +121,8 @@ class LocalUatWorkspaceApplication:
                     self._live_execution_enabled,
                     self._delivery_configured,
                     self._live_delivery_enabled,
+                    self._acceptance_configured,
+                    self._live_acceptance_enabled,
                 ),
                 head=method == "HEAD",
             )
@@ -124,6 +136,8 @@ def _welcome(
     live_execution_enabled: bool = False,
     delivery_configured: bool = False,
     live_delivery_enabled: bool = False,
+    acceptance_configured: bool = False,
+    live_acceptance_enabled: bool = False,
 ) -> str:
     if execution_configured:
         provider_boundary = (
@@ -143,6 +157,14 @@ def _welcome(
                 if delivery_configured
                 else "It cannot commit, push, open a PR, merge, deploy, release, or select a "
                 "pilot product."
+            )
+            + (
+                " The final preview module is enabled for one isolated deployment and one locked "
+                "Playwright acceptance run; it still cannot merge or release."
+                if live_acceptance_enabled
+                else " The final preview module is configured but its deployment and browser effects remain disabled."
+                if acceptance_configured
+                else " The final preview module is not configured."
             )
         )
     else:
@@ -177,6 +199,8 @@ def _status(
     live_execution_enabled: bool = False,
     delivery_configured: bool = False,
     live_delivery_enabled: bool = False,
+    acceptance_configured: bool = False,
+    live_acceptance_enabled: bool = False,
 ) -> str:
     execution_state = (
         "One governed Codex turn is enabled behind exact plan and usage approvals."
@@ -192,6 +216,13 @@ def _status(
         if delivery_configured
         else "No repository delivery target is configured."
     )
+    acceptance_state = (
+        "One isolated preview and one locked end-user browser run are enabled."
+        if live_acceptance_enabled
+        else "Preview acceptance is configured, but external effects remain operator-disabled."
+        if acceptance_configured
+        else "No preview workflow or browser plan is configured."
+    )
     return _page(
         "ASCOS V1 UAT Status",
         f"""<header><a class="brand" href="/uat"><span>AS</span><strong>ASCOS</strong></a>
@@ -206,7 +237,7 @@ customer workflow below; the runtime and delivery capabilities keep their govern
 <section class="grid"><article><span>Interactive now</span><h2>Customer application</h2>
 <p>Signup, sessions, intake, requirements, approvals, PRD, roadmap, estimate, progress, execution planning, and the evidence waiting state.</p></article>
 <article><span>Verified baseline</span><h2>Workforce and delivery runtime</h2>
-<p>{escape(execution_state)} {escape(delivery_state)} Merge and deployment remain unavailable.</p></article>
+<p>{escape(execution_state)} {escape(delivery_state)} {escape(acceptance_state)} Production merge, deployment, and release remain unavailable.</p></article>
 <article><span>Truthful boundary</span><h2>No automatic deployment</h2>
 <p>Local acceptance is evidence for a deployment decision; it is not a production release.</p></article></section>
 <section class="notice"><strong>What to expect at the end</strong>

@@ -25,6 +25,13 @@ one reviewed commit, non-force feature-branch push, and open draft PR. It cannot
 deploy, release, or select FamilyVault. See `docs/LOCAL_UAT_LAUNCHER.md`,
 `docs/CUSTOMER_GOVERNED_EXECUTION.md`, and `docs/CUSTOMER_GOVERNED_DELIVERY.md`.
 
+Completion Module 5 is the final completion-track capability. It binds the exact Module 4 draft-PR
+receipt to an operator-owned preview-only GitHub Actions workflow and declarative Playwright plan.
+After separate customer and process confirmations, ASCOS can dispatch one isolated preview, require
+named automated-test and security jobs, run locked end-user journeys, and publish exact browser,
+console, network, screenshot, test, and security evidence for ACCEPT/REVISE review. It cannot merge,
+deploy production, release, or start FamilyVault. See `docs/CUSTOMER_PREVIEW_ACCEPTANCE.md`.
+
 ## Codex execution completion track
 
 The first ASCOS completion module adds a fail-closed Codex SDK configuration and read-only live

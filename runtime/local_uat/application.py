@@ -13,6 +13,16 @@ from runtime.customer_application import (
     CustomerProductRequestService,
     FileCustomerProductRequestStore,
 )
+from runtime.customer_acceptance import (
+    ControlledCustomerAcceptanceAdapter,
+    CustomerAcceptanceApplication,
+    CustomerAcceptanceConfiguration,
+    CustomerAcceptanceService,
+    EnvironmentBrowserInputResolver,
+    FileCustomerAcceptanceStore,
+    GitHubActionsPreviewGateway,
+    PlaywrightPreviewBrowserGateway,
+)
 from runtime.customer_authentication import (
     AuthenticatedCustomerApplication,
     CustomerAuthenticationService,
@@ -38,6 +48,11 @@ from runtime.customer_evidence import (
     CustomerPreviewEvidenceService,
     FileCustomerPreviewEvidenceStore,
     preview_origin,
+)
+from runtime.managed_product_browser import (
+    ContentAddressedBrowserArtifactStore,
+    FileBrowserExecutionStore,
+    FileBrowserJourneyPlanStore,
 )
 from runtime.customer_execution import (
     CustomerExecutionApplication,
@@ -94,6 +109,12 @@ def create_local_uat_application(
     delivery_configuration: CustomerDeliveryConfiguration | None = None,
     delivery_adapter=None,
     delivery_gateway=None,
+    acceptance_configuration: CustomerAcceptanceConfiguration | None = None,
+    acceptance_adapter=None,
+    preview_deployment_gateway=None,
+    preview_browser_gateway=None,
+    browser_input_resolver=None,
+    playwright_provider=None,
     codex_environment=None,
     codex_sdk_loader=None,
 ) -> LocalUatApplication:
@@ -105,7 +126,9 @@ def create_local_uat_application(
     Without a separately bound delivery configuration it never commits, pushes,
     or opens a PR. Completion Module 4 may create one reviewed commit, one
     non-force feature-branch push, and one open draft PR. It never merges,
-    deploys, releases, or selects a pilot product.
+    deploys production, releases, or selects a pilot product. Completion Module
+    5 may dispatch one operator-bound isolated preview workflow and run one
+    locked Playwright plan before publishing evidence for ACCEPT/REVISE review.
     """
 
     root = _prepare_root(data_dir)
@@ -160,10 +183,13 @@ def create_local_uat_application(
         clock,
     )
     progress = CustomerProjectProgressService(estimates)
+    evidence_origins = [canonical_origin]
+    if acceptance_configuration is not None:
+        evidence_origins.append(preview_origin(acceptance_configuration.preview_url + "/"))
     evidence = CustomerPreviewEvidenceService(
         FileCustomerPreviewEvidenceStore(root / "evidence"),
         progress,
-        (canonical_origin,),
+        tuple(dict.fromkeys(evidence_origins)),
         clock,
     )
     if execution_configuration is not None and execution_adapter is None:
@@ -203,6 +229,35 @@ def create_local_uat_application(
         delivery_adapter,
         clock,
     )
+    if acceptance_configuration is not None:
+        if delivery_configuration is None:
+            raise ValueError("Preview acceptance configuration requires delivery configuration")
+        artifacts = ContentAddressedBrowserArtifactStore(
+            root / "acceptance" / "browser-artifacts"
+        )
+        if acceptance_adapter is None:
+            browser = preview_browser_gateway or PlaywrightPreviewBrowserGateway(
+                FileBrowserExecutionStore(root / "acceptance" / "browser-results"),
+                artifacts,
+                browser_input_resolver or EnvironmentBrowserInputResolver(),
+                playwright_provider,
+            )
+            acceptance_adapter = ControlledCustomerAcceptanceAdapter(
+                acceptance_configuration,
+                preview_deployment_gateway or GitHubActionsPreviewGateway(),
+                browser,
+                artifacts,
+                clock=clock,
+            )
+    acceptance_service = CustomerAcceptanceService(
+        FileCustomerAcceptanceStore(root / "acceptance" / "records"),
+        FileBrowserJourneyPlanStore(root / "acceptance" / "browser-plans"),
+        delivery_service,
+        evidence,
+        acceptance_configuration,
+        acceptance_adapter,
+        clock,
+    )
 
     customer_workspace = CustomerWorkspaceApplication(
         CustomerPortalApplication(requests),
@@ -220,6 +275,7 @@ def create_local_uat_application(
             delivery_available=delivery_configuration is not None,
         ),
         CustomerDeliveryApplication(delivery_service),
+        CustomerAcceptanceApplication(acceptance_service),
     )
     workspace = LocalUatWorkspaceApplication(
         customer_workspace,
@@ -227,6 +283,8 @@ def create_local_uat_application(
         live_execution_enabled=execution_service.live_enabled,
         delivery_configured=delivery_configuration is not None,
         live_delivery_enabled=delivery_service.live_enabled,
+        acceptance_configured=acceptance_configuration is not None,
+        live_acceptance_enabled=acceptance_service.live_enabled,
     )
     authentication = CustomerAuthenticationService(
         FileCustomerAccountStore(root / "authentication"),
@@ -246,6 +304,8 @@ def create_local_uat_application(
         live_execution_enabled=execution_service.live_enabled,
         delivery_configured=delivery_configuration is not None,
         live_delivery_enabled=delivery_service.live_enabled,
+        acceptance_configured=acceptance_configuration is not None,
+        live_acceptance_enabled=acceptance_service.live_enabled,
     )
 
 

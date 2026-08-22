@@ -11,7 +11,12 @@ import pytest
 
 from runtime.local_uat import create_local_uat_application
 from runtime.local_uat import cli
-from runtime.local_uat.cli import _delivery_configuration, _execution_configuration, _parser
+from runtime.local_uat.cli import (
+    _acceptance_configuration,
+    _delivery_configuration,
+    _execution_configuration,
+    _parser,
+)
 
 
 def _request(application, path: str, method: str = "GET"):
@@ -221,6 +226,109 @@ def test_cli_requires_separate_operator_delivery_authority(tmp_path):
     )
     with pytest.raises(SystemExit):
         _delivery_configuration(_parser(), missing_execution, None)
+
+
+def test_cli_requires_closed_operator_preview_and_browser_authority(tmp_path):
+    plan = tmp_path / "acceptance.json"
+    plan.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "acceptance_profile_id": "product-v1",
+                "acceptance_profile_version": "1.0",
+                "allowed_origins": ["https://preview.example.test"],
+                "inputs": [],
+                "journeys": [
+                    {
+                        "journey_id": "landing-ready",
+                        "capability_id": "preview-ready",
+                        "title": "Landing is ready",
+                        "start_path": "/",
+                        "steps": [
+                            {
+                                "step_id": "ready-visible",
+                                "action": "ASSERT_VISIBLE",
+                                "locator": {"kind": "TEXT", "value": "Ready"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    parser = _parser()
+    arguments = parser.parse_args(
+        [
+            "--execution-workspace",
+            str(tmp_path / "product"),
+            "--execution-allowed-path",
+            "src",
+            "--execution-candidate-file",
+            "src/app.py",
+            "--delivery-repository",
+            "example/product",
+            "--delivery-base-branch",
+            "main",
+            "--preview-url",
+            "https://preview.example.test",
+            "--preview-environment",
+            "preview-product",
+            "--preview-workflow",
+            ".github/workflows/ascos-preview.yml",
+            "--preview-test-job",
+            "automated-tests",
+            "--preview-security-job",
+            "security-review",
+            "--browser-journey-plan",
+            str(plan),
+            "--enable-preview-acceptance",
+            "--confirm-preview-deployment",
+            "--confirm-browser-execution",
+        ]
+    )
+    execution = _execution_configuration(parser, arguments)
+    delivery = _delivery_configuration(parser, arguments, execution)
+    acceptance = _acceptance_configuration(parser, arguments, delivery)
+    assert acceptance is not None
+    assert acceptance.live_enabled
+    assert acceptance.preview_environment_id == "preview-product"
+    assert acceptance.preview_url == "https://preview.example.test"
+    assert acceptance.journeys[0].journey_id == "landing-ready"
+
+    application = create_local_uat_application(
+        tmp_path / "uat-data",
+        "http://127.0.0.1:8765",
+        preauth_secret=b"u" * 32,
+        execution_configuration=execution,
+        execution_adapter=object(),
+        delivery_configuration=delivery,
+        delivery_adapter=object(),
+        acceptance_configuration=acceptance,
+        acceptance_adapter=object(),
+    )
+    welcome = _request(application, "/")
+    assert b"one isolated deployment and one locked Playwright acceptance run" in welcome["body"]
+    assert b"cannot merge or release" in welcome["body"]
+
+    missing_delivery = _parser().parse_args(
+        [
+            "--preview-url",
+            "https://preview.example.test",
+            "--preview-environment",
+            "preview-product",
+            "--preview-workflow",
+            ".github/workflows/ascos-preview.yml",
+            "--preview-test-job",
+            "automated-tests",
+            "--preview-security-job",
+            "security-review",
+            "--browser-journey-plan",
+            str(plan),
+        ]
+    )
+    with pytest.raises(SystemExit):
+        _acceptance_configuration(_parser(), missing_delivery, None)
 
 
 def test_cli_binds_only_loopback_reports_boundary_and_closes(tmp_path, monkeypatch, capsys):

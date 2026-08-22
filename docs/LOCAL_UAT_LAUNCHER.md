@@ -124,6 +124,47 @@ operator-managed; no token is entered in the ASCOS dashboard. The customer must
 still approve the exact displayed patch and separately confirm draft delivery.
 Success stops at an open draft PR. See `CUSTOMER_GOVERNED_DELIVERY.md`.
 
+To configure Completion Module 5, first copy and tailor
+`examples/preview_acceptance_plan.json` for the product. The product repository must already contain
+a preview-only `workflow_dispatch` workflow with the fixed `ascos_*` inputs documented in
+`CUSTOMER_PREVIEW_ACCEPTANCE.md`. Add the operator-owned bindings without enabling effects:
+
+Append these arguments to the Module 3 and Module 4 launcher command above:
+
+```powershell
+  --preview-url https://preview.example.com `
+  --preview-environment preview-customer-product `
+  --preview-workflow .github/workflows/ascos-preview.yml `
+  --preview-test-job automated-tests `
+  --preview-security-job security-review `
+  --browser-journey-plan .\examples\preview_acceptance_plan.json
+```
+
+To run Playwright through an approved cloud-browser provider, set its CDP endpoint in the launcher
+environment and add only the opaque variable name, for example
+`--browser-cdp-reference ASCOS_BROWSER_CDP_ENDPOINT`. Omit this option to run local headless
+Chromium on the trusted runner.
+
+This exposes only the exact non-effecting plan and approval page. After review UAT succeeds,
+intentionally enable one preview workflow and one browser run by adding all three flags:
+
+```powershell
+  --enable-preview-acceptance `
+  --confirm-preview-deployment `
+  --confirm-browser-execution
+```
+
+Install the browser extra and Chromium on the trusted runner before live acceptance:
+
+```powershell
+python -m pip install -e ".[codex,browser,dev]"
+python -m playwright install chromium
+```
+
+The customer must still approve the exact preview plan and separately confirm deployment and browser
+execution in the dashboard. Success opens the existing evidence centre for ACCEPT/REVISE. No merge,
+production deployment, release, or FamilyVault execution occurs.
+
 Press `Ctrl+C` in the terminal to stop the server. The health endpoint is
 `http://127.0.0.1:8765/healthz`.
 

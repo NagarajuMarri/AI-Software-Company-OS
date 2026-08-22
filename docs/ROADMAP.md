@@ -1,5 +1,20 @@
 # Runtime Roadmap
 
+# ASCOS Completion Module 5 — Isolated preview and end-user acceptance
+
+Completion Module 5 consumes one exact Module 4 `DRAFT_PR_CREATED` record and adds no Codex call or
+source mutation. Operator-owned configuration binds a canonical isolated preview origin, a
+preview-only GitHub Actions workflow, exact automated-test/security job names, and one immutable
+declarative browser plan. The customer separately approves the exact delivery/configuration/plan
+digest and confirms preview deployment and browser execution.
+
+The closed adapter rechecks the open draft PR and exact head commit, dispatches one correlated
+preview workflow, requires both named CI gates and preview health, then executes all locked
+Playwright journeys with origin allow-listing, opaque input resolution, secret masking, and
+content-addressed browser/console/network/screenshot evidence. Success publishes one exact evidence
+package for customer ACCEPT/REVISE review. Ambiguous post-dispatch failure is reconciliation-only.
+Module 5 cannot approve or merge the PR, target production, release, or start FamilyVault.
+
 # ASCOS Completion Module 4 — Governed review and draft delivery
 
 Completion Module 4 consumes the exact accepted Module 3 `REVIEW_REQUIRED`

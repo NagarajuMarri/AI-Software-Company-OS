@@ -1,5 +1,28 @@
 # Runtime Persistence Acceptance Criteria
 
+# Completion Module 5 acceptance — isolated preview and end-user browser evidence
+
+- The authenticated route consumes only one exact Module 4 `DRAFT_PR_CREATED` receipt and its
+  unchanged repository, branches, commit, tree, and open draft PR. It invokes no Codex turn.
+- Preview origin/environment/workflow, required test/security job names, browser origins, journey
+  steps, and opaque input references are operator-owned launcher configuration and never browser
+  form fields.
+- Preparing the immutable plan performs no external effect. Customer approval binds the exact
+  delivery, configuration, and browser plan digests. Execution requires separate preview and browser
+  confirmations plus all process enablement flags.
+- Preflight proves the PR remains open, draft, unmerged, and at the exact commit. One correlated
+  preview-only workflow dispatch must complete successfully with the exact required test and
+  security jobs, followed by a bounded healthy no-redirect preview check.
+- Every locked Playwright journey runs once against the approved origin. Unapproved origins are
+  blocked; opaque inputs are resolved only at invocation, masked, and cleared. Required browser,
+  console, network, and screenshot evidence is content-addressed and exact-commit bound.
+- Success publishes automated-test, security, browser, console, network, and screenshot evidence to
+  the customer evidence centre. Passing evidence may be ACCEPTed; failed evidence requires REVISE.
+- Exact successful retry creates no second effect. Any uncertain state after dispatch persists
+  `RECONCILIATION_REQUIRED` and cannot be automatically retried.
+- Terminal authority excludes PR approval/merge, production deployment, release, risk acceptance,
+  billing, and FamilyVault selection or execution.
+
 # Completion Module 4 acceptance — governed review and draft delivery
 
 - The authenticated delivery route consumes only one exact Module 3 plan in
