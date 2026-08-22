@@ -20,6 +20,16 @@ It does not start live AI providers or perform repository, merge, deployment, re
 effects. See `docs/LOCAL_UAT_LAUNCHER.md` for Windows, macOS/Linux, testing, reset, and deployment
 guidance.
 
+## Codex execution completion track
+
+The first ASCOS completion module adds a fail-closed Codex SDK configuration and read-only live
+preflight with two explicit billing modes: a customer's ChatGPT-authenticated Codex session on
+their trusted local runner, or a company's OpenAI Platform API key. Codex is the programmatic
+coding specialist; ChatGPT Work remains the founder supervision and approval surface. ASCOS
+verifies or isolates the selected authentication mode and never silently changes billing source.
+This preflight does not yet generate or apply product code. See
+`docs/CODEX_EXECUTION_PREFLIGHT.md` for the exact boundary and operator commands.
+
 Day 37 adds final governed ASCOS V1 hardening and founder-UAT readiness. It independently reloads
 the exact persisted Day 36 pilot, verifies its complete zero-elevated-effect chain, and binds seven
 ordered controls: security, one canonical backup, one deterministic recovery drill, a seven-entry

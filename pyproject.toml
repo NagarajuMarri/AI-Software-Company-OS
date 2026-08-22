@@ -11,6 +11,7 @@ dependencies = []
 
 [project.scripts]
 ascos-local-uat = "runtime.local_uat.cli:main"
+ascos-codex-preflight = "runtime.coding_providers.codex_preflight_cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -20,6 +21,9 @@ dev = [
 ]
 browser = [
   "playwright==1.55.0",
+]
+codex = [
+  "openai-codex==0.147.0",
 ]
 postgres = [
   "psycopg[binary]>=3.2,<4",
