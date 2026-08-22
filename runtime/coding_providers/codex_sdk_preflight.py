@@ -218,19 +218,17 @@ class CodexSdkPreflight:
                 codex_home = stack.enter_context(
                     TemporaryDirectory(prefix="ascos-codex-preflight-")
                 )
-                environment.update(
-                    {
-                        "CODEX_API_KEY": self.environment[configuration.api_key_environment],
-                        "CODEX_HOME": codex_home,
-                    }
-                )
+                environment["CODEX_HOME"] = codex_home
             sdk_configuration = bindings.CodexConfig(env=environment)
             codex = stack.enter_context(bindings.Codex(sdk_configuration))
-            account_plan = (
-                self._verify_chatgpt_account(codex)
-                if configuration.authentication_mode == CodexAuthenticationMode.CHATGPT_SUBSCRIPTION
-                else None
-            )
+            if configuration.authentication_mode == CodexAuthenticationMode.CHATGPT_SUBSCRIPTION:
+                account_plan = self._verify_chatgpt_account(codex)
+            else:
+                codex.login_api_key(
+                    self.environment[configuration.api_key_environment]
+                )
+                self._verify_platform_account(codex)
+                account_plan = None
         except (ProviderConfigurationError, ProviderPolicyError):
             stack.close()
             raise
@@ -258,6 +256,15 @@ class CodexSdkPreflight:
         if not isinstance(value, str) or not value:
             return "unknown"
         return value
+
+    def _verify_platform_account(self, codex) -> None:
+        response = codex.account()
+        account = getattr(response, "account", None)
+        root = getattr(account, "root", None)
+        if getattr(root, "type", None) != "apiKey":
+            raise ProviderConfigurationError(
+                "Active Codex account does not match the explicitly selected billing mode"
+            )
 
     def _result(
         self,

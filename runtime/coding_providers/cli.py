@@ -20,6 +20,7 @@ def build_parser():
     submit = sub.add_parser("provider-submit")
     submit.add_argument("operation_id")
     submit.add_argument("--allow-live-provider", action="store_true")
+    submit.add_argument("--confirm-usage-consumption", action="store_true")
     cancel = sub.add_parser("provider-cancel")
     cancel.add_argument("operation_id")
     cancel.add_argument("--actor", required=True)
@@ -62,7 +63,8 @@ def run_provider_command(service, registry, store, argv, *, prepared_requests=No
                 "Prepared bounded request is unavailable in this process") from error
         operation = service.submit(
             args.project_id, args.operation_id, request,
-            allow_live_provider=args.allow_live_provider)
+            allow_live_provider=args.allow_live_provider,
+            confirm_usage_consumption=args.confirm_usage_consumption)
         return {"operation_id": args.operation_id, "state": operation.state.value}
     if args.command == "provider-cancel":
         operation = service.cancel(
