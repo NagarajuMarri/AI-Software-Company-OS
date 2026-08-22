@@ -11,7 +11,7 @@ import pytest
 
 from runtime.local_uat import create_local_uat_application
 from runtime.local_uat import cli
-from runtime.local_uat.cli import _execution_configuration, _parser
+from runtime.local_uat.cli import _delivery_configuration, _execution_configuration, _parser
 
 
 def _request(application, path: str, method: str = "GET"):
@@ -175,6 +175,52 @@ def test_launcher_truthfully_reports_optional_governed_execution(tmp_path):
     assert welcome["status"] == "200 OK"
     assert b"run one chargeable governed Codex coding turn" in welcome["body"]
     assert b"cannot commit, push, open a PR, merge, deploy, release" in welcome["body"]
+
+
+def test_cli_requires_separate_operator_delivery_authority(tmp_path):
+    parser = _parser()
+    arguments = parser.parse_args(
+        [
+            "--execution-workspace",
+            str(tmp_path / "product"),
+            "--execution-allowed-path",
+            "src",
+            "--execution-candidate-file",
+            "src/app.py",
+            "--delivery-repository",
+            "example/product",
+            "--delivery-base-branch",
+            "main",
+            "--enable-product-delivery",
+            "--confirm-product-repository-write",
+        ]
+    )
+    execution = _execution_configuration(parser, arguments)
+    delivery = _delivery_configuration(parser, arguments, execution)
+    assert delivery is not None
+    assert delivery.repository_full_name == "example/product"
+    assert delivery.base_branch == "main"
+    assert delivery.enabled and delivery.product_write_confirmed
+
+    application = create_local_uat_application(
+        tmp_path / "uat-data",
+        "http://127.0.0.1:8765",
+        preauth_secret=b"u" * 32,
+        execution_configuration=execution,
+        execution_adapter=object(),
+        delivery_configuration=delivery,
+        delivery_adapter=object(),
+    )
+    welcome = _request(application, "/")
+    assert welcome["status"] == "200 OK"
+    assert b"one commit, non-force branch push, and open draft PR" in welcome["body"]
+    assert b"cannot approve or merge, deploy, release" in welcome["body"]
+
+    missing_execution = _parser().parse_args(
+        ["--delivery-repository", "example/product", "--delivery-base-branch", "main"]
+    )
+    with pytest.raises(SystemExit):
+        _delivery_configuration(_parser(), missing_execution, None)
 
 
 def test_cli_binds_only_loopback_reports_boundary_and_closes(tmp_path, monkeypatch, capsys):

@@ -1,5 +1,22 @@
 # Runtime Roadmap
 
+# ASCOS Completion Module 4 — Governed review and draft delivery
+
+Completion Module 4 consumes the exact accepted Module 3 `REVIEW_REQUIRED`
+patch and adds no new Codex call. It independently reloads the provider patch
+effect, verifies the customer/execution/workspace/branch/pre-turn-commit chain,
+checks every changed file digest, and renders a bounded canonical patch in the
+authenticated dashboard. Customer approval binds the exact review digest.
+
+Repository delivery has a separate operator-owned repository, base branch,
+remote, enablement, and product-write confirmation. The closed adapter stages
+only reviewed paths, creates one single-parent commit, performs one non-force
+push of the existing `agent/*` branch, verifies the remote commit, and opens one
+open draft PR with exact base/head/title/body bindings. Duplicate remote state
+fails before mutation; any ambiguous post-effect error becomes
+`RECONCILIATION_REQUIRED` and is never blindly retried. Module 4 cannot approve
+or merge the PR, deploy preview or production, release, or start FamilyVault.
+
 # ASCOS Completion Module 3 — Customer dashboard to governed execution
 
 Completion Module 3 connects the authenticated ASCOS customer dashboard to the

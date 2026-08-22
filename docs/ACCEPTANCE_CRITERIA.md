@@ -1,5 +1,31 @@
 # Runtime Persistence Acceptance Criteria
 
+# Completion Module 4 acceptance — governed review and draft delivery
+
+- The authenticated delivery route consumes only one exact Module 3 plan in
+  `REVIEW_REQUIRED` and its accepted provider patch effect. It invokes no Codex
+  turn and consumes no model/API usage.
+- Review preparation rechecks customer/product/plan/workspace identity,
+  `agent/*` branch, unchanged pre-turn commit, dirty path set, manifest digest,
+  tracked Git diff digest, and SHA-256 for every reviewed UTF-8 text file.
+- The dashboard renders a bounded escaped canonical patch, repository identity,
+  base/head branches, file digests, and change counts without exposing the local
+  path, credential, token, remote URL, shell command, or arbitrary form input.
+- Customer approval binds the exact immutable review digest. Repository writes
+  additionally require operator-supplied repository configuration, live
+  delivery enablement, process-level product-write confirmation, and a final
+  fixed customer confirmation.
+- Preflight proves the local evidence is unchanged and that neither the remote
+  feature branch nor matching PR exists. Delivery stages only reviewed paths,
+  creates one single-parent commit, pushes the `agent/*` head without force,
+  verifies its remote SHA, and opens one open draft PR with exact locked fields.
+- Exact successful retry returns the existing receipt without another effect.
+  Duplicate preflight state stops before mutation; a failure after delivery
+  intent persists `RECONCILIATION_REQUIRED` and cannot be retried automatically.
+- Success ends at `DRAFT_PR_CREATED`, open, draft, unapproved, unmerged, and
+  undeployed. Preview, production, release, risk acceptance, and FamilyVault
+  selection remain later separately authorized modules.
+
 # Completion Module 3 acceptance — customer governed execution
 
 - The authenticated customer execution route derives tasks only from the exact

@@ -9,6 +9,7 @@ import webbrowser
 from wsgiref.simple_server import make_server
 
 from runtime.coding_providers import CodexAuthenticationMode
+from runtime.customer_delivery import CustomerDeliveryConfiguration
 from runtime.customer_execution import CustomerExecutionConfiguration
 from runtime.local_uat.application import create_local_uat_application
 
@@ -25,10 +26,12 @@ def main(argv: list[str] | None = None) -> int:
     origin = f"http://{_HOST}:{arguments.port}"
     try:
         execution = _execution_configuration(parser, arguments)
+        delivery = _delivery_configuration(parser, arguments, execution)
         application = create_local_uat_application(
             arguments.data_dir,
             origin,
             execution_configuration=execution,
+            delivery_configuration=delivery,
         )
         server = make_server(_HOST, arguments.port, application)
     except (OSError, ValueError) as error:
@@ -48,7 +51,21 @@ def main(argv: list[str] | None = None) -> int:
             f"{execution.model}",
             flush=True,
         )
-        print("Product repository delivery: REVIEW ONLY — no commit, push, PR, or deploy.", flush=True)
+        print("Codex stop: HUMAN PATCH REVIEW before any separate repository effect.", flush=True)
+    if delivery is None:
+        print("Draft delivery: NOT CONFIGURED", flush=True)
+    else:
+        state = (
+            "ENABLED"
+            if delivery.enabled and delivery.product_write_confirmed
+            else "REVIEW ONLY"
+        )
+        print(
+            f"Draft delivery: {state} · {delivery.repository_full_name} · "
+            f"{delivery.base_branch} ← product agent branch",
+            flush=True,
+        )
+        print("Delivery stop: OPEN DRAFT PR — no approval, merge, deploy, or release.", flush=True)
     print("Press Ctrl+C to stop.", flush=True)
     if not arguments.no_browser:
         threading.Timer(0.35, webbrowser.open, args=(origin,)).start()
@@ -121,6 +138,29 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="persistently confirm live provider use for this launcher process",
     )
+    parser.add_argument(
+        "--delivery-repository",
+        help="trusted GitHub repository in owner/name form (operator-only)",
+    )
+    parser.add_argument(
+        "--delivery-base-branch",
+        help="approved integration branch targeted by the draft PR",
+    )
+    parser.add_argument(
+        "--delivery-remote-name",
+        default="origin",
+        help="trusted Git remote name (default: origin)",
+    )
+    parser.add_argument(
+        "--enable-product-delivery",
+        action="store_true",
+        help="enable one reviewed commit, non-force branch push, and draft PR",
+    )
+    parser.add_argument(
+        "--confirm-product-repository-write",
+        action="store_true",
+        help="confirm product repository writes for this launcher process",
+    )
     return parser
 
 
@@ -164,6 +204,42 @@ def _execution_configuration(
             tuple(arguments.execution_candidate_file),
             enabled=arguments.enable_live_execution,
             live_operation_confirmed=arguments.confirm_live_operation,
+        )
+    except ValueError as error:
+        parser.error(str(error))
+
+
+def _delivery_configuration(
+    parser: argparse.ArgumentParser,
+    arguments: argparse.Namespace,
+    execution: CustomerExecutionConfiguration | None,
+) -> CustomerDeliveryConfiguration | None:
+    configured_values = bool(
+        arguments.delivery_repository
+        or arguments.delivery_base_branch
+        or arguments.enable_product_delivery
+        or arguments.confirm_product_repository_write
+    )
+    if not configured_values:
+        return None
+    if execution is None:
+        parser.error("delivery configuration requires execution configuration")
+    if not arguments.delivery_repository:
+        parser.error("--delivery-repository is required for delivery configuration")
+    if not arguments.delivery_base_branch:
+        parser.error("--delivery-base-branch is required for delivery configuration")
+    if arguments.confirm_product_repository_write and not arguments.enable_product_delivery:
+        parser.error(
+            "--confirm-product-repository-write requires --enable-product-delivery"
+        )
+    try:
+        return CustomerDeliveryConfiguration(
+            execution.workspace_root,
+            arguments.delivery_repository,
+            arguments.delivery_base_branch,
+            arguments.delivery_remote_name,
+            enabled=arguments.enable_product_delivery,
+            product_write_confirmed=arguments.confirm_product_repository_write,
         )
     except ValueError as error:
         parser.error(str(error))

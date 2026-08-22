@@ -97,6 +97,33 @@ first coding task and usage consumption. For company API billing, set `OPENAI_AP
 launcher environment and select `--execution-auth-mode platform-api-key`. Never paste a key into
 the dashboard. See `CUSTOMER_GOVERNED_EXECUTION.md` for the full flow and stop conditions.
 
+To opt into Completion Module 4 review only, add the trusted GitHub repository
+and integration target. This prepares and displays evidence but still performs
+no repository write:
+
+```powershell
+ascos-local-uat `
+  --execution-workspace C:\Projects\customer-product `
+  --execution-allowed-path src `
+  --execution-candidate-file src\app.py `
+  --delivery-repository company/customer-product `
+  --delivery-base-branch main
+```
+
+After local review UAT succeeds, intentionally enable one commit, non-force
+feature-branch push, and open draft PR by adding both repository-write flags:
+
+```powershell
+  --enable-product-delivery `
+  --confirm-product-repository-write
+```
+
+The product workspace must already use the approved `agent/*` branch. Git push
+authentication and an authenticated GitHub CLI (`gh auth status`) are
+operator-managed; no token is entered in the ASCOS dashboard. The customer must
+still approve the exact displayed patch and separately confirm draft delivery.
+Success stops at an open draft PR. See `CUSTOMER_GOVERNED_DELIVERY.md`.
+
 Press `Ctrl+C` in the terminal to stop the server. The health endpoint is
 `http://127.0.0.1:8765/healthz`.
 

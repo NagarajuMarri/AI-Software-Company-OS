@@ -24,6 +24,15 @@ from runtime.customer_estimate import (
     CustomerDeliveryEstimateService,
     FileCustomerDeliveryEstimateStore,
 )
+from runtime.coding_providers import ProviderOperationStore
+from runtime.customer_delivery import (
+    ControlledCustomerDeliveryAdapter,
+    CustomerDeliveryApplication,
+    CustomerDeliveryConfiguration,
+    CustomerDeliveryService,
+    FileCustomerDeliveryStore,
+    GitHubCliDraftPullRequestGateway,
+)
 from runtime.customer_evidence import (
     CustomerPreviewEvidenceApplication,
     CustomerPreviewEvidenceService,
@@ -82,6 +91,9 @@ def create_local_uat_application(
     preauth_secret: bytes | None = None,
     execution_configuration: CustomerExecutionConfiguration | None = None,
     execution_adapter=None,
+    delivery_configuration: CustomerDeliveryConfiguration | None = None,
+    delivery_adapter=None,
+    delivery_gateway=None,
     codex_environment=None,
     codex_sdk_loader=None,
 ) -> LocalUatApplication:
@@ -90,8 +102,10 @@ def create_local_uat_application(
     Without an execution configuration the launcher preserves the Day 21-only
     boundary. With an operator-bound configuration, explicit customer approval
     may invoke one governed Codex turn and apply its validated local patch. It
-    never commits, pushes, opens a PR, merges, deploys, releases, or selects a
-    pilot product.
+    Without a separately bound delivery configuration it never commits, pushes,
+    or opens a PR. Completion Module 4 may create one reviewed commit, one
+    non-force feature-branch push, and one open draft PR. It never merges,
+    deploys, releases, or selects a pilot product.
     """
 
     root = _prepare_root(data_dir)
@@ -167,6 +181,28 @@ def create_local_uat_application(
         execution_adapter,
         clock,
     )
+    if delivery_configuration is not None:
+        if execution_configuration is None:
+            raise ValueError("Delivery configuration requires execution configuration")
+        if (
+            delivery_configuration.workspace_root.resolve()
+            != execution_configuration.workspace_root.resolve()
+        ):
+            raise ValueError("Delivery and execution must bind the same product workspace")
+        if delivery_adapter is None:
+            gateway = delivery_gateway or GitHubCliDraftPullRequestGateway()
+            delivery_adapter = ControlledCustomerDeliveryAdapter(
+                delivery_configuration,
+                gateway,
+            )
+    delivery_service = CustomerDeliveryService(
+        FileCustomerDeliveryStore(root / "delivery" / "reviews"),
+        execution_service,
+        ProviderOperationStore(root / "execution" / "provider-state"),
+        delivery_configuration,
+        delivery_adapter,
+        clock,
+    )
 
     customer_workspace = CustomerWorkspaceApplication(
         CustomerPortalApplication(requests),
@@ -179,12 +215,18 @@ def create_local_uat_application(
         CustomerDeliveryEstimateApplication(estimates),
         CustomerProjectProgressApplication(progress),
         CustomerPreviewEvidenceApplication(evidence),
-        CustomerExecutionApplication(execution_service),
+        CustomerExecutionApplication(
+            execution_service,
+            delivery_available=delivery_configuration is not None,
+        ),
+        CustomerDeliveryApplication(delivery_service),
     )
     workspace = LocalUatWorkspaceApplication(
         customer_workspace,
         execution_configured=execution_configuration is not None,
         live_execution_enabled=execution_service.live_enabled,
+        delivery_configured=delivery_configuration is not None,
+        live_delivery_enabled=delivery_service.live_enabled,
     )
     authentication = CustomerAuthenticationService(
         FileCustomerAccountStore(root / "authentication"),
@@ -202,6 +244,8 @@ def create_local_uat_application(
         authenticated,
         execution_configured=execution_configuration is not None,
         live_execution_enabled=execution_service.live_enabled,
+        delivery_configured=delivery_configuration is not None,
+        live_delivery_enabled=delivery_service.live_enabled,
     )
 
 
