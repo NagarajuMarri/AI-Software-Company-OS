@@ -1,5 +1,28 @@
 # Runtime Persistence Acceptance Criteria
 
+# Completion Module 3 acceptance — customer governed execution
+
+- The authenticated customer execution route derives tasks only from the exact
+  locked request, PRD, roadmap approval, estimate, and progress digests.
+- Repository path, credentials, model choice, candidate files, and write
+  allow-lists are operator-owned launcher configuration and never browser form
+  inputs or customer-persisted host paths.
+- Planning is non-chargeable and invokes no provider. Customer approval binds
+  the exact plan digest, `agent/*` branch, pre-turn commit, provider, model,
+  authentication mode, billing source, paths, and ordered tasks.
+- Live execution requires launcher enablement plus a separate customer scope
+  confirmation and usage-consumption confirmation. Exactly one first pending
+  task may reach the accepted Completion Module 2 Codex adapter.
+- Codex uses read-only sandboxing and denied approval requests. ASCOS validates
+  and applies the returned bounded text patch and records provider task ID,
+  usage, billing source, changed paths, and patch-manifest digest.
+- Success ends at `REVIEW_REQUIRED` with the product branch uncommitted and its
+  HEAD unchanged. No automatic next task, stage, commit, push, PR, merge,
+  deployment, release, or FamilyVault selection is possible.
+- Stale authority, dirty/wrong workspaces, cross-customer access, malformed
+  forms, billing mismatch, and uncertain provider/patch outcomes fail closed;
+  uncertain effects require manual reconciliation and are not retried.
+
 # Day 37 acceptance
 
 One final-hardening work order and one current founder-issued start authority must bind the exact

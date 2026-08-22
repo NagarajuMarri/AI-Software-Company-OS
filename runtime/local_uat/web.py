@@ -14,8 +14,16 @@ WsgiApplication = Callable[[dict[str, object], StartResponse], Iterable[bytes]]
 class LocalUatApplication:
     """Expose a public welcome/health shell around authenticated ASCOS."""
 
-    def __init__(self, authenticated: WsgiApplication) -> None:
+    def __init__(
+        self,
+        authenticated: WsgiApplication,
+        *,
+        execution_configured: bool = False,
+        live_execution_enabled: bool = False,
+    ) -> None:
         self._authenticated = authenticated
+        self._execution_configured = execution_configured
+        self._live_execution_enabled = live_execution_enabled
 
     def __call__(
         self,
@@ -25,7 +33,12 @@ class LocalUatApplication:
         path = str(environ.get("PATH_INFO", "/"))
         method = str(environ.get("REQUEST_METHOD", "GET")).upper()
         if path == "/" and method in {"GET", "HEAD"}:
-            return _html(start_response, "200 OK", _welcome(), head=method == "HEAD")
+            return _html(
+                start_response,
+                "200 OK",
+                _welcome(self._execution_configured, self._live_execution_enabled),
+                head=method == "HEAD",
+            )
         if path == "/healthz" and method in {"GET", "HEAD"}:
             return _json(
                 start_response,
@@ -47,8 +60,16 @@ class LocalUatApplication:
 class LocalUatWorkspaceApplication:
     """Add a truthful authenticated UAT status page to the customer workspace."""
 
-    def __init__(self, customer_workspace: WsgiApplication) -> None:
+    def __init__(
+        self,
+        customer_workspace: WsgiApplication,
+        *,
+        execution_configured: bool = False,
+        live_execution_enabled: bool = False,
+    ) -> None:
         self._customer_workspace = customer_workspace
+        self._execution_configured = execution_configured
+        self._live_execution_enabled = live_execution_enabled
 
     def __call__(
         self,
@@ -70,7 +91,12 @@ class LocalUatWorkspaceApplication:
             return _html(
                 start_response,
                 "200 OK",
-                _status(customer_id, csrf),
+                _status(
+                    customer_id,
+                    csrf,
+                    self._execution_configured,
+                    self._live_execution_enabled,
+                ),
                 head=method == "HEAD",
             )
         if path == "/uat":
@@ -78,18 +104,32 @@ class LocalUatWorkspaceApplication:
         return self._customer_workspace(environ, start_response)
 
 
-def _welcome() -> str:
+def _welcome(execution_configured: bool = False, live_execution_enabled: bool = False) -> str:
+    if execution_configured:
+        provider_boundary = (
+            "The operator has bound a product workspace. After exact customer approval, this "
+            + (
+                "launcher can run one chargeable governed Codex coding turn. "
+                if live_execution_enabled
+                else "launcher still has live Codex execution disabled. "
+            )
+            + "It cannot commit, push, open a PR, merge, deploy, release, or select a pilot product."
+        )
+    else:
+        provider_boundary = (
+            "This launcher writes only to its local data directory. It does not call an AI provider, "
+            "create a repository, publish preview evidence, merge code, deploy, release, or bill."
+        )
     return _page(
         "ASCOS V1 Local UAT",
-        """<main class="landing"><span class="pill">Unified local UAT launcher</span>
+        f"""<main class="landing"><span class="pill">Unified local UAT launcher</span>
 <h1>Test the ASCOS product journey in one browser application.</h1>
 <p class="lead">Create a local account, describe a product idea, refine and approve its scope,
-generate the PRD and roadmap, review the delivery estimate, and inspect project progress.</p>
+generate the PRD and roadmap, review the delivery estimate, inspect project progress, and open the governed execution centre.</p>
 <div class="actions"><a class="button" href="/signup">Create local account</a>
 <a class="button secondary" href="/login">Sign in</a></div>
 <section class="notice"><strong>Local UAT only — not production</strong>
-<p>This launcher writes only to its local data directory. It does not call an AI provider,
-create a repository, publish preview evidence, merge code, deploy, release, or bill.</p></section>
+<p>{escape(provider_boundary)}</p></section>
 <section class="grid"><article><span>Days 11–21</span><h2>Interactive customer flow</h2>
 <p>The browser pages and persisted customer artifacts are real.</p></article>
 <article><span>Days 22–37</span><h2>Governed runtime baseline</h2>
@@ -100,7 +140,19 @@ create a repository, publish preview evidence, merge code, deploy, release, or b
     )
 
 
-def _status(customer_id: str, csrf: str) -> str:
+def _status(
+    customer_id: str,
+    csrf: str,
+    execution_configured: bool = False,
+    live_execution_enabled: bool = False,
+) -> str:
+    execution_state = (
+        "One governed Codex turn is enabled behind exact plan and usage approvals."
+        if live_execution_enabled
+        else "Governed execution is configured but live Codex turns remain operator-disabled."
+        if execution_configured
+        else "No product workspace or live provider is configured."
+    )
     return _page(
         "ASCOS V1 UAT Status",
         f"""<header><a class="brand" href="/uat"><span>AS</span><strong>ASCOS</strong></a>
@@ -113,9 +165,9 @@ customer workflow below; the runtime and delivery capabilities keep their govern
 <div class="actions"><a class="button" href="/customer">Open customer workspace</a>
 <a class="button secondary" href="/customer/requests/new">Describe a product</a></div>
 <section class="grid"><article><span>Interactive now</span><h2>Customer application</h2>
-<p>Signup, sessions, intake, requirements, approvals, PRD, roadmap, estimate, progress, and the evidence waiting state.</p></article>
+<p>Signup, sessions, intake, requirements, approvals, PRD, roadmap, estimate, progress, execution planning, and the evidence waiting state.</p></article>
 <article><span>Verified baseline</span><h2>Workforce and delivery runtime</h2>
-<p>Days 22–37 are implemented and acceptance-tested, but this launcher does not start live providers or external effects.</p></article>
+<p>{escape(execution_state)} No repository delivery or deployment effects are available.</p></article>
 <article><span>Truthful boundary</span><h2>No automatic deployment</h2>
 <p>Local acceptance is evidence for a deployment decision; it is not a production release.</p></article></section>
 <section class="notice"><strong>What to expect at the end</strong>

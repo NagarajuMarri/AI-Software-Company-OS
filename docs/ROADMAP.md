@@ -1,5 +1,22 @@
 # Runtime Roadmap
 
+# ASCOS Completion Module 3 — Customer dashboard to governed execution
+
+Completion Module 3 connects the authenticated ASCOS customer dashboard to the
+exact locked planning chain and the accepted Completion Module 2 Codex SDK
+adapter. An operator—not a browser user—binds one trusted clean local product
+workspace, existing `agent/*` branch, exact commit, allowed path prefixes, and
+candidate context files. The customer creates an immutable task plan, approves
+its exact digest, and separately confirms both task scope and usage consumption
+before one Codex turn.
+
+The dashboard displays the selected provider, model, authentication mode,
+billing source, branch, commit, ordered tasks, usage receipt, changed paths, and
+patch-manifest digest. Codex remains read-only and deny-all; ASCOS alone validates
+and applies the text patch. Execution stops at `REVIEW_REQUIRED` with an
+uncommitted dirty product workspace. Module 3 cannot commit, push, open a pull
+request, merge, deploy, release, or start FamilyVault.
+
 # ASCOS Completion Module 2 — Governed Codex SDK execution
 
 Completion Module 2 adds the supported Python Codex SDK as a real coding
