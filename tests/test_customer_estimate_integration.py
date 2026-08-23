@@ -245,7 +245,7 @@ def test_real_customer_generates_and_reopens_traceable_delivery_estimate(tmp_pat
                 page.get_by_role("button", name="Generate estimate draft").click()
 
             page.get_by_text("Draft generated", exact=True).wait_for()
-            assert page.get_by_text("23–32 engineering days", exact=True).first.is_visible()
+            assert page.get_by_text("28–38 engineering days", exact=True).first.is_visible()
             assert page.get_by_text("ConfidenceMedium", exact=True).is_visible()
             assert page.get_by_text("REQ-JOURNEY-001", exact=True).is_visible()
             assert page.get_by_text("Estimate assumptions").is_visible()
@@ -291,7 +291,7 @@ def test_real_customer_generates_and_reopens_traceable_delivery_estimate(tmp_pat
     assert estimate.roadmap_digest == roadmap.digest
     assert estimate.roadmap_approval_digest == roadmap_approval.digest
     assert estimate.requirement_ids == roadmap.requirement_ids
-    assert (estimate.total_minimum_effort_days, estimate.total_maximum_effort_days) == (23, 32)
+    assert (estimate.total_minimum_effort_days, estimate.total_maximum_effort_days) == (28, 38)
 
     target = os.environ.get("ASCOS_DAY19_FOUNDER_EVIDENCE_DIR")
     if target:

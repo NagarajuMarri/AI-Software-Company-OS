@@ -116,12 +116,27 @@ def _build(
             f"REQ-FEATURE-{index:03d}",
             feature,
             f"The product must provide the approved capability: {feature}.",
-            draft.success_metrics,
+            _feature_acceptance_criteria(feature, draft.platforms),
             RequirementCategory.FUNCTIONAL,
             priority,
             f"must_have_features[{index}]",
         )
         for index, feature in enumerate(draft.must_have_features, 1)
+    )
+    requirements.extend(
+        CustomerPrdRequirement(
+            f"REQ-CONSTRAINT-{index:03d}",
+            f"Honor approved constraint {index}",
+            f"The product must satisfy the approved constraint: {constraint}",
+            (
+                f"The delivered product demonstrably satisfies this constraint: {constraint}",
+                "Pre-delivery review records passing evidence for this constraint.",
+            ),
+            RequirementCategory.NON_FUNCTIONAL,
+            RequirementPriority.HIGH,
+            f"request.constraints[{index}]",
+        )
+        for index, constraint in enumerate(request.constraints, 1)
     )
     requirements.append(
         CustomerPrdRequirement(
@@ -151,7 +166,7 @@ def _build(
             "data_sensitivity",
         )
     )
-    exclusions = _dedupe(request.constraints + draft.non_goals)
+    exclusions = _dedupe(draft.non_goals)
     return CustomerPrdDraft(
         artifact_id,
         request.customer_id,
@@ -174,6 +189,22 @@ def _build(
         draft.data_sensitivity,
         draft.delivery_priority,
         generated_at,
+    )
+
+
+def _feature_acceptance_criteria(
+    feature: str,
+    platforms: tuple[str, ...],
+) -> tuple[str, ...]:
+    boundary = " and ".join(platform.title() for platform in platforms)
+    return (
+        f'Given an authorized user and valid inputs, when they use "{feature}" through the '
+        f"approved {boundary} delivery boundary, then the capability completes and presents an "
+        "observable success result.",
+        f'Given invalid inputs, when a user attempts "{feature}", then the request is rejected '
+        "with a controlled validation response and no partial success.",
+        f'Given an unauthorized user, when they attempt "{feature}", then access is denied and '
+        "no protected product data is disclosed.",
     )
 
 

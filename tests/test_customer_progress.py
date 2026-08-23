@@ -81,7 +81,7 @@ def test_progress_projects_exact_scope_through_existing_project_manager_domain(t
     assert snapshot.projected_at == estimate.generated_at
     assert snapshot.estimate_digest == estimate.digest
     assert snapshot.roadmap_digest == roadmap.digest
-    assert snapshot.total_tasks == len(prd.requirements) == 5
+    assert snapshot.total_tasks == len(prd.requirements) == 6
     assert snapshot.completed_tasks == 0
     assert snapshot.in_progress_tasks == 0
     assert snapshot.blocked_tasks == 0
@@ -166,7 +166,7 @@ def test_progress_dashboard_is_customer_scoped_read_only_and_hardened(tmp_path):
     assert status == "200 OK"
     assert b"Project progress dashboard" in content
     assert b"0% complete" in content
-    assert b"0/5 complete" in content
+    assert b"0/6 complete" in content
     assert b"No operational agents assigned" in content
     assert b"Open blockers" in content
     assert b"Governed decisions" in content

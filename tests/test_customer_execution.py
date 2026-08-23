@@ -165,7 +165,7 @@ def test_customer_creates_exact_plan_without_calling_provider(tmp_path):
     assert plan.status is CustomerExecutionPlanStatus.AWAITING_APPROVAL
     assert plan.workspace_branch == "agent/customer-product"
     assert plan.workspace_commit == before.commit
-    assert len(plan.tasks) == 5
+    assert len(plan.tasks) == 6
     assert all(value.status is CustomerExecutionTaskStatus.PENDING for value in plan.tasks)
     assert all(value.allowed_paths == ("src",) for value in plan.tasks)
     assert plan.authentication_mode == "chatgpt-subscription"

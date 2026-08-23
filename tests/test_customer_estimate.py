@@ -101,8 +101,8 @@ def test_estimate_is_deterministic_and_maps_every_locked_requirement(tmp_path):
     assert estimate.roadmap_digest == roadmap.digest
     assert estimate.roadmap_approval_digest == approval.digest
     assert estimate.requirement_ids == roadmap.requirement_ids
-    assert estimate.total_minimum_effort_days == 20
-    assert estimate.total_maximum_effort_days == 27
+    assert estimate.total_minimum_effort_days == 25
+    assert estimate.total_maximum_effort_days == 34
     assert estimate.confidence is EstimateConfidence.MEDIUM
     assert estimate.milestones[0].effort_band is EffortBand.LARGE
     assert set(estimate.requirement_ids) == {
@@ -119,11 +119,11 @@ def test_estimate_exposes_visible_deterministic_drivers_and_assumptions(tmp_path
     estimate = _generate(values[18], values[16])
     milestone = estimate.milestones[0]
 
-    assert milestone.complexity_points == 20
+    assert milestone.complexity_points == 25
     assert milestone.drivers == (
-        "5 locked requirements",
+        "6 locked requirements",
         "Priorities: High, Medium",
-        "Scope types: Architecture, Functional, Privacy",
+        "Scope types: Architecture, Functional, Non Functional, Privacy",
         "Declared data class: Personal Data",
         "Approved platforms: Web",
     )
@@ -269,7 +269,7 @@ def test_customer_generates_and_reopens_exact_estimate_draft(tmp_path):
     status, _, content = _call(application, path=headers["Location"])
     assert status == "200 OK"
     assert b"Draft generated" in content
-    assert "20–27 engineering days".encode() in content
+    assert "25–34 engineering days".encode() in content
     assert b"REQ-JOURNEY-001" in content
     assert b"Estimate assumptions" in content
     assert b"no commitment or execution authority" in content
