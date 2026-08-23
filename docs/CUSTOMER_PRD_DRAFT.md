@@ -14,8 +14,8 @@ request, revision, source-request digest, requirements digest, and receipt diges
 `ascos-deterministic-customer-prd-v1` maps the approved baseline without an external model call:
 
 - the primary journey and desired outcomes become `REQ-JOURNEY-001`;
-- each ordered must-have feature becomes `REQ-FEATURE-NNN` with capability-specific,
-  testable success, validation-failure, and authorization criteria;
+- each ordered must-have feature becomes `REQ-FEATURE-NNN` with an initial bounded safety template
+  that cannot be approved until the customer replaces it at the governed criteria checkpoint;
 - each source constraint becomes a mandatory, traceable `REQ-CONSTRAINT-NNN` requirement;
 - platforms become `REQ-PLATFORM-001`;
 - declared data sensitivity becomes `REQ-DATA-001`;
@@ -26,6 +26,10 @@ request, revision, source-request digest, requirements digest, and receipt diges
 The result has stable artifact, product, and PRD identifiers, version `0.1`, and immutable digest
 bindings. Projection into `ProductRequirementsDocument` must pass `validate_prd`; its document and
 requirements remain `DRAFT`, its approver is empty, and its future roadmap is empty.
+
+Before approval, every feature must pass the provider-free criteria refinement workflow documented
+in `CUSTOMER_PRD_CRITERIA_REFINEMENT.md`. The generated template is not treated as sufficient
+product acceptance authority.
 
 ## Browser journey and evidence
 

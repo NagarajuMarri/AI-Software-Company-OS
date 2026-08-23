@@ -143,6 +143,24 @@ def test_founder_runs_unified_local_uat_and_reopens_persisted_product(tmp_path):
             page.get_by_role("link", name="Create PRD draft").click()
             with page.expect_navigation(wait_until="networkidle"):
                 page.get_by_role("button", name="Generate PRD draft").click()
+            page.get_by_role("link", name="Refine acceptance criteria").click()
+            page.locator('textarea[name="criteria__REQ-FEATURE-001"]').fill(
+                "A founder can save a product idea with a title and summary.\n"
+                "The saved idea appears once in the founder workspace."
+            )
+            page.locator('textarea[name="criteria__REQ-FEATURE-002"]').fill(
+                "A founder can review and explicitly approve one exact scope digest.\n"
+                "Approval is rejected when the rendered scope digest is stale."
+            )
+            page.locator('textarea[name="criteria__REQ-FEATURE-003"]').fill(
+                "The workspace displays the current governed delivery-readiness state.\n"
+                "The readiness view never reports execution or deployment before authority exists."
+            )
+            page.get_by_text(
+                "I reviewed every feature criterion and lock this exact criteria baseline."
+            ).click()
+            with page.expect_navigation(wait_until="networkidle"):
+                page.get_by_role("button", name="Lock refined criteria").click()
             page.get_by_role("link", name="Review and approve PRD").click()
             page.get_by_text(
                 "I reviewed this exact PRD and approve it as the immutable product scope."

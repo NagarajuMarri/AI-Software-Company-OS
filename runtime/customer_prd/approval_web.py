@@ -76,6 +76,11 @@ class CustomerPrdApprovalApplication:
                         start_response,
                         f"/customer/requests/{approve.group(1)}/prd",
                     )
+                if not self._service.criteria_locked(customer_id, approve.group(1)):
+                    return _redirect(
+                        start_response,
+                        f"/customer/requests/{approve.group(1)}/prd/criteria",
+                    )
                 return _respond(start_response, "200 OK", _approval_form(prd, csrf))
             if approve and method == "POST":
                 return self._approve(

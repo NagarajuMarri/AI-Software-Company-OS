@@ -14,6 +14,7 @@ from runtime.customer_prd.approval_models import (
     prd_approval_id_for,
 )
 from runtime.customer_prd.approval_persistence import FileCustomerPrdApprovalStore
+from runtime.customer_prd.criteria_service import CustomerPrdCriteriaService
 from runtime.customer_prd.errors import CustomerPrdApprovalConflict
 from runtime.customer_prd.models import CustomerPrdDraft
 from runtime.customer_prd.service import CustomerPrdService
@@ -39,10 +40,12 @@ class CustomerPrdApprovalService:
         store: FileCustomerPrdApprovalStore,
         prds: CustomerPrdService,
         clock: Callable[[], datetime] | None = None,
+        criteria: CustomerPrdCriteriaService | None = None,
     ) -> None:
         self._store = store
         self._prds = prds
         self._clock = clock or (lambda: datetime.now(timezone.utc))
+        self._criteria = criteria
 
     def context(
         self,
@@ -55,11 +58,16 @@ class CustomerPrdApprovalService:
         CustomerPrdDraft | None,
         CustomerPrdApproval | None,
     ]:
-        request, draft, requirements_approval, prd = self._prds.context(
+        request, draft, requirements_approval, raw_prd = self._prds.context(
             customer_id,
             request_id,
         )
         receipt = self._store.find(customer_id, request_id)
+        prd = raw_prd
+        if self._criteria is not None:
+            refinement = self._criteria.context(customer_id, request_id)[1]
+            if refinement is not None:
+                prd = self._criteria.effective_prd(customer_id, request_id, required=True)
         if receipt is not None:
             if (
                 prd is None
@@ -116,6 +124,10 @@ class CustomerPrdApprovalService:
             raise CustomerPrdApprovalConflict("Customer PRD approval form is stale")
         if existing is not None:
             return existing
+        if self._criteria is not None and not self._criteria.is_locked(customer_id, request_id):
+            raise CustomerPrdApprovalConflict(
+                "Locked feature acceptance criteria are required before PRD approval"
+            )
         value = CustomerPrdApproval(
             prd_approval_id_for(request_id),
             customer_id,
@@ -140,6 +152,11 @@ class CustomerPrdApprovalService:
 
     def is_locked(self, customer_id: str, request_id: str) -> bool:
         return self._store.is_locked(customer_id, request_id)
+
+    def criteria_locked(self, customer_id: str, request_id: str) -> bool:
+        """Return whether the required criteria checkpoint is complete."""
+
+        return self._criteria is None or self._criteria.is_locked(customer_id, request_id)
 
     def governed_document(
         self,

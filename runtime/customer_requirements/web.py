@@ -73,6 +73,7 @@ class CustomerWorkspaceApplication:
         execution: RoutedCustomerApplication | None = None,
         delivery: RoutedCustomerApplication | None = None,
         acceptance: RoutedCustomerApplication | None = None,
+        prd_criteria: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
@@ -90,6 +91,7 @@ class CustomerWorkspaceApplication:
                 execution,
                 delivery,
                 acceptance,
+                prd_criteria,
             )
             if item is not None
         )

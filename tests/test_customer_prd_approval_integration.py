@@ -25,8 +25,11 @@ from runtime.customer_prd import (
     CustomerPrdApplication,
     CustomerPrdApprovalApplication,
     CustomerPrdApprovalService,
+    CustomerPrdCriteriaApplication,
+    CustomerPrdCriteriaService,
     CustomerPrdService,
     FileCustomerPrdApprovalStore,
+    FileCustomerPrdCriteriaStore,
     FileCustomerPrdStore,
 )
 from runtime.customer_requirements import (
@@ -81,17 +84,26 @@ def test_real_customer_approves_locks_and_reopens_exact_prd(tmp_path):
         requirements_approvals,
         lambda: NOW,
     )
-    prd_approvals = CustomerPrdApprovalService(
-        FileCustomerPrdApprovalStore(tmp_path / "prd-approvals"),
+    prd_approval_store = FileCustomerPrdApprovalStore(tmp_path / "prd-approvals")
+    prd_criteria = CustomerPrdCriteriaService(
+        FileCustomerPrdCriteriaStore(tmp_path / "prd-criteria"),
         prds,
         lambda: NOW,
+        prd_approval_locked=prd_approval_store.is_locked,
+    )
+    prd_approvals = CustomerPrdApprovalService(
+        prd_approval_store,
+        prds,
+        lambda: NOW,
+        criteria=prd_criteria,
     )
     workspace = CustomerWorkspaceApplication(
         CustomerPortalApplication(requests),
         CustomerRequirementsApplication(requirements),
         CustomerRequirementsApprovalApplication(requirements_approvals),
-        CustomerPrdApplication(prds, prd_approvals),
+        CustomerPrdApplication(prds, prd_approvals, criteria=prd_criteria),
         CustomerPrdApprovalApplication(prd_approvals),
+        prd_criteria=CustomerPrdCriteriaApplication(prd_criteria, prd_approvals),
     )
     authentication = CustomerAuthenticationService(
         FileCustomerAccountStore(tmp_path / "authentication"),
@@ -191,6 +203,33 @@ def test_real_customer_approves_locks_and_reopens_exact_prd(tmp_path):
 
             page.get_by_text("Draft generated", exact=True).wait_for()
             assert page.get_by_text("REQ-FEATURE-003", exact=True).is_visible()
+            page.get_by_role("link", name="Refine acceptance criteria").click()
+            page.get_by_role(
+                "heading", name="Refine feature acceptance criteria"
+            ).wait_for()
+            page.locator('textarea[name="criteria__REQ-FEATURE-001"]').fill(
+                "An organiser can publish a workshop with a title, date, capacity, and location.\n"
+                "The published workshop appears in the workshop list immediately."
+            )
+            page.locator('textarea[name="criteria__REQ-FEATURE-002"]').fill(
+                "A participant can reserve an available place and receives a confirmation.\n"
+                "A registration is rejected when no places remain."
+            )
+            page.locator('textarea[name="criteria__REQ-FEATURE-003"]').fill(
+                "A schedule reminder is generated for every confirmed registration.\n"
+                "A changed schedule produces one updated reminder with the new details."
+            )
+            page.get_by_text(
+                "I reviewed every feature criterion and lock this exact criteria baseline."
+            ).click()
+            with page.expect_navigation(wait_until="networkidle"):
+                page.get_by_role("button", name="Lock refined criteria").click()
+
+            assert page.get_by_text("Refine acceptance criteria").count() == 0
+            assert page.get_by_text("Review and approve PRD").is_visible()
+            assert page.get_by_text(
+                "The published workshop appears in the workshop list immediately."
+            ).is_visible()
             page.get_by_role("link", name="Review and approve PRD").click()
             page.get_by_role(
                 "heading",
@@ -244,6 +283,7 @@ def test_real_customer_approves_locks_and_reopens_exact_prd(tmp_path):
     )
     assert draft is not None and requirements_approval is not None
     assert prd is not None and prd_approval is not None
+    assert prd_criteria.is_locked(customer_id, product.request_id)
     governed = prd_approvals.governed_document(customer_id, product.request_id)
     assert governed.status.value == "LOCKED"
     assert all(item.status.value == "LOCKED" for item in governed.requirements)
