@@ -17,6 +17,7 @@ from runtime.customer_prd.errors import (
     CustomerPrdCorrupt,
 )
 from runtime.customer_prd.models import CustomerPrdDraft, CustomerPrdRequirement
+from runtime.customer_prd.criteria_service import CustomerPrdCriteriaService
 from runtime.customer_prd.service import CustomerPrdService
 from runtime.customer_requirements import (
     RequirementsApprovalConflict,
@@ -47,9 +48,11 @@ class CustomerPrdApplication:
         self,
         service: CustomerPrdService,
         approvals: CustomerPrdApprovalLookup | None = None,
+        criteria: CustomerPrdCriteriaService | None = None,
     ) -> None:
         self._service = service
         self._approvals = approvals
+        self._criteria = criteria
 
     @staticmethod
     def handles(path: str) -> bool:
@@ -127,7 +130,22 @@ class CustomerPrdApplication:
                         start_response,
                         f"/customer/requests/{review.group(1)}/prd/approved",
                     )
-                return _respond(start_response, "200 OK", _prd_review(prd, csrf))
+                criteria_locked = self._criteria is None
+                if self._criteria is not None:
+                    criteria_locked = self._criteria.is_locked(customer_id, review.group(1))
+                    if criteria_locked:
+                        effective = self._criteria.effective_prd(
+                            customer_id,
+                            review.group(1),
+                            required=True,
+                        )
+                        assert effective is not None
+                        prd = effective
+                return _respond(
+                    start_response,
+                    "200 OK",
+                    _prd_review(prd, csrf, criteria_locked=criteria_locked),
+                )
         except ProductRequestNotFound:
             return _respond(
                 start_response,
@@ -250,7 +268,12 @@ def _generation_checkpoint(
     return _layout(f"Create PRD for {product_name} · ASCOS", content, csrf)
 
 
-def _prd_review(value: CustomerPrdDraft, csrf: str) -> str:
+def _prd_review(
+    value: CustomerPrdDraft,
+    csrf: str,
+    *,
+    criteria_locked: bool = True,
+) -> str:
     requirements = "".join(_requirement_card(item) for item in value.requirements)
     exclusions = (
         "".join(f"<li>{escape(item)}</li>" for item in value.explicit_exclusions)
@@ -258,6 +281,16 @@ def _prd_review(value: CustomerPrdDraft, csrf: str) -> str:
         else "<li>None declared</li>"
     )
     metrics = "".join(f"<li>{escape(item)}</li>" for item in value.success_metrics)
+    next_action = (
+        f'<a class="button" href="/customer/requests/{escape(value.request_id)}/prd/approve">Review and approve PRD</a>'
+        if criteria_locked
+        else f'<a class="button" href="/customer/requests/{escape(value.request_id)}/prd/criteria">Refine acceptance criteria</a>'
+    )
+    criteria_notice = (
+        "Feature acceptance criteria are refined and locked."
+        if criteria_locked
+        else "Feature acceptance criteria must be refined and locked before PRD approval."
+    )
     content = f'''<section class="review"><a class="back" href="/customer/requests/{escape(value.request_id)}/requirements/approved">← Approved requirements</a>
 <div class="review-head"><div><span class="eyebrow">PRD {escape(value.version)} · Product manager draft</span>
 <h1>{escape(value.title)}</h1><p>Traceable draft generated from the exact customer-approved baseline.</p></div>
@@ -273,10 +306,10 @@ def _prd_review(value: CustomerPrdDraft, csrf: str) -> str:
 <span><strong>Data</strong>{escape(value.data_sensitivity.value.replace('_', ' ').title())}</span>
 <span><strong>Priority</strong>{escape(value.delivery_priority.value.replace('_', ' ').title())}</span></div>
 <div class="notice"><strong>PRD draft only — no implementation has started</strong>
-<p>Review and approval are required before any later roadmap module. Planning, agents, repository access, coding, and deployment have not started.</p></div>
+<p>{escape(criteria_notice)} Review and approval are required before any later roadmap module. Planning, agents, repository access, coding, and deployment have not started.</p></div>
 <div class="actions"><a class="button secondary" href="/customer">Return to workspace</a>
 <a class="button secondary" href="/customer/requests/{escape(value.request_id)}/requirements/approved">View approved source</a>
-<a class="button" href="/customer/requests/{escape(value.request_id)}/prd/approve">Review and approve PRD</a></div>
+{next_action}</div>
 <footer>PRD <code>{escape(value.prd_id)}</code> · Artifact <code>{escape(value.digest)}</code><br>
 Approved source <code>{escape(value.approval_digest)}</code> · Profile <code>{escape(value.generation_profile)}</code></footer></section>'''
     return _layout(f"{value.title} · ASCOS", content, csrf)

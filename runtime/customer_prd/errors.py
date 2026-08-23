@@ -17,6 +17,22 @@ class CustomerPrdCorrupt(CustomerPrdError):
     """Persisted customer PRD authority failed integrity validation."""
 
 
+class CustomerPrdCriteriaError(CustomerPrdError):
+    """Base customer PRD acceptance-criteria refinement error."""
+
+
+class CustomerPrdCriteriaNotFound(CustomerPrdCriteriaError):
+    """No locked acceptance-criteria refinement exists for the request."""
+
+
+class CustomerPrdCriteriaConflict(CustomerPrdCriteriaError):
+    """Acceptance-criteria authority is missing, stale, or conflicting."""
+
+
+class CustomerPrdCriteriaCorrupt(CustomerPrdCriteriaError):
+    """Persisted acceptance-criteria authority failed integrity validation."""
+
+
 class CustomerPrdApprovalError(CustomerPrdError):
     """Base customer PRD approval error."""
 

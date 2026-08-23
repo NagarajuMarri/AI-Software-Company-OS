@@ -11,9 +11,10 @@ references, version, and artifact digest. Submission requires session CSRF, the 
 digest, and one fixed affirmative confirmation.
 
 The service reloads the customer-owned product request, requirements draft, requirements approval,
-and PRD. It accepts no customer, product, authority identity, lifecycle state, or timestamp from the
-form. One `customer-prd-v1` receipt binds all identities plus the source-request, requirements,
-requirements-approval, and PRD digests.
+PRD, and locked feature-criteria baseline. New PRDs cannot enter this checkpoint until every feature
+has customer-refined criteria. It accepts no customer, product, authority identity, lifecycle state,
+or timestamp from the form. One `customer-prd-v1` receipt binds all identities plus the
+source-request, requirements, requirements-approval, and effective refined-PRD digests.
 
 ## Governed lifecycle
 
@@ -30,8 +31,9 @@ locked document is deterministically reconstructed and revalidated on every read
 
 ## Browser journey and evidence
 
-The customer reviews the Day 15 draft, opens the approval checkpoint, selects the required
-confirmation, receives the locked receipt, signs out, signs back in, and reopens the same locked PRD.
+The customer reviews the Day 15 draft, refines and locks every feature criterion, opens the approval
+checkpoint, selects the required confirmation, receives the locked receipt, signs out, signs back in,
+and reopens the same locked PRD.
 Mandatory Chromium CI uploads `prd-approved-and-locked.png` and a redacted manifest containing only
 safe identities, digests, result claims, and the explicit no-pilot fixture contract.
 

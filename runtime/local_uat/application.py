@@ -64,9 +64,12 @@ from runtime.customer_execution import (
 from runtime.customer_prd import (
     CustomerPrdApplication,
     CustomerPrdApprovalApplication,
+    CustomerPrdCriteriaApplication,
+    CustomerPrdCriteriaService,
     CustomerPrdApprovalService,
     CustomerPrdService,
     FileCustomerPrdApprovalStore,
+    FileCustomerPrdCriteriaStore,
     FileCustomerPrdStore,
 )
 from runtime.customer_progress import (
@@ -162,10 +165,18 @@ def create_local_uat_application(
         requirements_approvals,
         clock,
     )
-    prd_approvals = CustomerPrdApprovalService(
-        FileCustomerPrdApprovalStore(root / "prd-approvals"),
+    prd_approval_store = FileCustomerPrdApprovalStore(root / "prd-approvals")
+    prd_criteria = CustomerPrdCriteriaService(
+        FileCustomerPrdCriteriaStore(root / "prd-criteria"),
         prds,
         clock,
+        prd_approval_locked=prd_approval_store.is_locked,
+    )
+    prd_approvals = CustomerPrdApprovalService(
+        prd_approval_store,
+        prds,
+        clock,
+        criteria=prd_criteria,
     )
     roadmaps = CustomerRoadmapService(
         FileCustomerRoadmapStore(root / "roadmaps"),
@@ -263,7 +274,7 @@ def create_local_uat_application(
         CustomerPortalApplication(requests),
         CustomerRequirementsApplication(requirements),
         CustomerRequirementsApprovalApplication(requirements_approvals),
-        CustomerPrdApplication(prds, prd_approvals),
+        CustomerPrdApplication(prds, prd_approvals, criteria=prd_criteria),
         CustomerPrdApprovalApplication(prd_approvals),
         CustomerRoadmapApplication(roadmaps, roadmap_approvals),
         CustomerRoadmapApprovalApplication(roadmap_approvals),
@@ -276,6 +287,7 @@ def create_local_uat_application(
         ),
         CustomerDeliveryApplication(delivery_service),
         CustomerAcceptanceApplication(acceptance_service),
+        prd_criteria=CustomerPrdCriteriaApplication(prd_criteria, prd_approvals),
     )
     workspace = LocalUatWorkspaceApplication(
         customer_workspace,
