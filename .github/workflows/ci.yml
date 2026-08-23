@@ -34,6 +34,7 @@ jobs:
     timeout-minutes: 20
     env:
       ASCOS_BROWSER_INTEGRATION: "1"
+      ASCOS_EVIDENCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       ASCOS_FOUNDER_EVIDENCE_DIR: founder-evidence/day8
       ASCOS_VOICE_FOUNDER_EVIDENCE_DIR: founder-evidence/day9
       ASCOS_PWA_FOUNDER_EVIDENCE_DIR: founder-evidence/day10
@@ -45,6 +46,26 @@ jobs:
       ASCOS_DAY16_FOUNDER_EVIDENCE_DIR: founder-evidence/day16
       ASCOS_DAY17_FOUNDER_EVIDENCE_DIR: founder-evidence/day17
       ASCOS_DAY18_FOUNDER_EVIDENCE_DIR: founder-evidence/day18
+      ASCOS_DAY19_FOUNDER_EVIDENCE_DIR: founder-evidence/day19
+      ASCOS_DAY20_FOUNDER_EVIDENCE_DIR: founder-evidence/day20
+      ASCOS_DAY21_FOUNDER_EVIDENCE_DIR: founder-evidence/day21
+      ASCOS_DAY22_FOUNDER_EVIDENCE_DIR: founder-evidence/day22
+      ASCOS_DAY23_FOUNDER_EVIDENCE_DIR: founder-evidence/day23
+      ASCOS_DAY24_FOUNDER_EVIDENCE_DIR: founder-evidence/day24
+      ASCOS_DAY25_FOUNDER_EVIDENCE_DIR: founder-evidence/day25
+      ASCOS_DAY26_FOUNDER_EVIDENCE_DIR: founder-evidence/day26
+      ASCOS_DAY27_FOUNDER_EVIDENCE_DIR: founder-evidence/day27
+      ASCOS_DAY28_FOUNDER_EVIDENCE_DIR: founder-evidence/day28
+      ASCOS_DAY29_FOUNDER_EVIDENCE_DIR: founder-evidence/day29
+      ASCOS_DAY30_FOUNDER_EVIDENCE_DIR: founder-evidence/day30
+      ASCOS_DAY31_FOUNDER_EVIDENCE_DIR: founder-evidence/day31
+      ASCOS_DAY32_FOUNDER_EVIDENCE_DIR: founder-evidence/day32
+      ASCOS_DAY33_FOUNDER_EVIDENCE_DIR: founder-evidence/day33
+      ASCOS_DAY34_FOUNDER_EVIDENCE_DIR: founder-evidence/day34
+      ASCOS_DAY35_FOUNDER_EVIDENCE_DIR: founder-evidence/day35
+      ASCOS_DAY36_FOUNDER_EVIDENCE_DIR: founder-evidence/day36
+      ASCOS_DAY37_FOUNDER_EVIDENCE_DIR: founder-evidence/day37
+      ASCOS_LOCAL_UAT_EVIDENCE_DIR: founder-evidence/local-uat
     steps:
       - uses: actions/checkout@v4
         with:
@@ -81,6 +102,46 @@ jobs:
           tests/test_customer_roadmap_integration.py
           tests/test_customer_roadmap_approval.py
           tests/test_customer_roadmap_approval_integration.py
+          tests/test_customer_estimate.py
+          tests/test_customer_estimate_integration.py
+          tests/test_customer_progress.py
+          tests/test_customer_progress_integration.py
+          tests/test_customer_evidence.py
+          tests/test_customer_evidence_integration.py
+          tests/test_digital_twin_runtime.py
+          tests/test_digital_twin_integration.py
+          tests/test_workforce_leadership.py
+          tests/test_workforce_leadership_integration.py
+          tests/test_workforce_architecture.py
+          tests/test_workforce_architecture_integration.py
+          tests/test_workforce_engineering.py
+          tests/test_workforce_engineering_integration.py
+          tests/test_workforce_qa.py
+          tests/test_workforce_qa_integration.py
+          tests/test_workforce_security.py
+          tests/test_workforce_security_integration.py
+          tests/test_workforce_devops.py
+          tests/test_workforce_devops_integration.py
+          tests/test_workforce_documentation.py
+          tests/test_workforce_documentation_integration.py
+          tests/test_workforce_orchestration.py
+          tests/test_workforce_orchestration_integration.py
+          tests/test_product_workspace.py
+          tests/test_product_workspace_integration.py
+          tests/test_coding_review.py
+          tests/test_coding_review_integration.py
+          tests/test_github_delivery.py
+          tests/test_github_delivery_integration.py
+          tests/test_preview_deployment.py
+          tests/test_preview_deployment_integration.py
+          tests/test_complete_runtime_acceptance.py
+          tests/test_complete_runtime_acceptance_integration.py
+          tests/test_end_to_end_product_pilot.py
+          tests/test_end_to_end_product_pilot_integration.py
+          tests/test_v1_hardening_acceptance.py
+          tests/test_v1_hardening_acceptance_integration.py
+          tests/test_local_uat.py
+          tests/test_local_uat_integration.py
       - name: Upload founder-safe Day 8 verification
         if: always()
         uses: actions/upload-artifact@v4
@@ -167,6 +228,166 @@ jobs:
         with:
           name: day18-founder-customer-roadmap-approval
           path: founder-evidence/day18
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 19 customer delivery estimate verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day19-founder-customer-delivery-estimate
+          path: founder-evidence/day19
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 20 customer project progress verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day20-founder-customer-project-progress
+          path: founder-evidence/day20
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 21 customer preview evidence verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day21-founder-customer-preview-evidence
+          path: founder-evidence/day21
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 22 Digital Twin runtime verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day22-founder-digital-twin-runtime
+          path: founder-evidence/day22
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 23 leadership workforce verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day23-founder-leadership-workforce
+          path: founder-evidence/day23
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 24 Software Architect verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day24-founder-software-architect
+          path: founder-evidence/day24
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 25 Engineering family verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day25-founder-engineering-family
+          path: founder-evidence/day25
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 26 QA Engineer verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day26-founder-qa-engineer
+          path: founder-evidence/day26
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 27 Security Engineer verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day27-founder-security-engineer
+          path: founder-evidence/day27
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 28 DevOps Engineer verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day28-founder-devops-engineer
+          path: founder-evidence/day28
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 29 Documentation Engineer verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day29-founder-documentation-engineer
+          path: founder-evidence/day29
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 30 multi-agent orchestration verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day30-founder-multi-agent-orchestration
+          path: founder-evidence/day30
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 31 isolated product workspace verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day31-founder-isolated-product-workspace
+          path: founder-evidence/day31
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 32 coding and review verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day32-founder-coding-review-loop
+          path: founder-evidence/day32
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 33 controlled GitHub delivery verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day33-founder-controlled-github-delivery
+          path: founder-evidence/day33
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 34 preview deployment verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day34-founder-preview-deployment
+          path: founder-evidence/day34
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 35 complete runtime acceptance verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day35-founder-complete-runtime-acceptance
+          path: founder-evidence/day35
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 36 end-to-end product pilot verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day36-founder-end-to-end-product-pilot
+          path: founder-evidence/day36
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload founder-safe Day 37 V1 hardening and acceptance verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day37-founder-v1-hardening-acceptance
+          path: founder-evidence/day37
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload unified local UAT verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascos-v1-unified-local-uat
+          path: founder-evidence/local-uat
           if-no-files-found: warn
           retention-days: 14
 

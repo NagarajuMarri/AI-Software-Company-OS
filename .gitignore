@@ -3,7 +3,9 @@
 .pytest_cache/
 .venv/
 venv/
+*.egg-info/
 coverage.xml
 .coverage
 htmlcov/
 .ascos-state/
+.ascos-uat-data/

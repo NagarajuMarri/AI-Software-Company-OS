@@ -65,6 +65,28 @@ class PlaywrightChromiumProvider:
         redactions: tuple[str, ...],
         artifact_store: BrowserArtifactStore,
     ) -> BrowserExecutionResult:
+        return self.execute_preview(
+            plan,
+            endpoint_origin(configuration.frontend_url),
+            tuple(configuration.allowed_origins),
+            inputs,
+            redactions,
+            artifact_store,
+        )
+
+    def execute_preview(
+        self,
+        plan: BrowserJourneyPlan,
+        frontend_url: str,
+        allowed_origin_values: tuple[str, ...],
+        inputs: dict[str, str],
+        redactions: tuple[str, ...],
+        artifact_store: BrowserArtifactStore,
+        *,
+        cdp_endpoint: str | None = None,
+    ) -> BrowserExecutionResult:
+        """Run a plan against an already-deployed exact-commit preview."""
+
         expected_inputs = {item.input_id for item in plan.inputs}
         if set(inputs) != expected_inputs:
             raise ValueError("Resolved browser inputs do not match the exact plan")
@@ -76,6 +98,13 @@ class PlaywrightChromiumProvider:
             for value in inputs.values()
         ):
             raise ValueError("Resolved browser input is outside policy")
+        if cdp_endpoint is not None and (
+            not isinstance(cdp_endpoint, str)
+            or not cdp_endpoint
+            or len(cdp_endpoint) > 8_192
+            or "\0" in cdp_endpoint
+        ):
+            raise ValueError("Cloud browser CDP endpoint is outside policy")
         started = _now()
         try:
             from playwright.sync_api import Error as PlaywrightError
@@ -90,16 +119,19 @@ class PlaywrightChromiumProvider:
         journey_results: list[JourneyResult] = []
         any_failed = False
         failure_code: str | None = None
-        allowed_origins = {
-            endpoint_origin(value) for value in configuration.allowed_origins
-        }
-        frontend_origin = endpoint_origin(configuration.frontend_url)
+        allowed_origins = {endpoint_origin(value) for value in allowed_origin_values}
+        frontend_origin = endpoint_origin(frontend_url)
+        if frontend_origin not in allowed_origins:
+            raise ValueError("Preview frontend origin is outside browser policy")
 
         try:
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(
-                    headless=True,
-                    executable_path=playwright.chromium.executable_path,
+                browser = (
+                    playwright.chromium.connect_over_cdp(cdp_endpoint)
+                    if cdp_endpoint is not None
+                    else playwright.chromium.launch(
+                        headless=True,
+                    )
                 )
                 try:
                     for journey in plan.journeys:

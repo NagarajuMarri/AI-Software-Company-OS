@@ -67,12 +67,30 @@ class CustomerWorkspaceApplication:
         prd_approval: RoutedCustomerApplication | None = None,
         roadmap: RoutedCustomerApplication | None = None,
         roadmap_approval: RoutedCustomerApplication | None = None,
+        estimate: RoutedCustomerApplication | None = None,
+        progress: RoutedCustomerApplication | None = None,
+        evidence: RoutedCustomerApplication | None = None,
+        execution: RoutedCustomerApplication | None = None,
+        delivery: RoutedCustomerApplication | None = None,
+        acceptance: RoutedCustomerApplication | None = None,
     ) -> None:
         self._portal = portal
         self._requirements = requirements
         self._extensions = tuple(
             item
-            for item in (approval, prd, prd_approval, roadmap, roadmap_approval)
+            for item in (
+                approval,
+                prd,
+                prd_approval,
+                roadmap,
+                roadmap_approval,
+                estimate,
+                progress,
+                evidence,
+                execution,
+                delivery,
+                acceptance,
+            )
             if item is not None
         )
 

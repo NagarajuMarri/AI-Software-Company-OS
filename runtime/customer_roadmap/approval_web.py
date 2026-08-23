@@ -295,6 +295,7 @@ def _approved_receipt(
 <dt>Receipt digest</dt><dd><code>{escape(receipt.digest)}</code></dd></dl></div>
 <div class="notice"><strong>Locked planning scope — implementation has not started</strong>
 <p>No estimate, date, schedule, staffing, agent assignment, repository access, task creation, coding, merge, deployment, billing, release, or official pilot-product selection has been authorized.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(roadmap.request_id)}/prd/approved">View locked PRD</a>
+<div class="actions"><a class="button" href="/customer/requests/{escape(roadmap.request_id)}/estimate">Create delivery estimate draft</a>
+<a class="button secondary" href="/customer/requests/{escape(roadmap.request_id)}/prd/approved">View locked PRD</a>
 <a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
     return _layout(f"Approved roadmap for {locked.title} · ASCOS", content, csrf)

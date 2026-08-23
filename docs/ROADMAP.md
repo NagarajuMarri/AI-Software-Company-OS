@@ -1,5 +1,493 @@
 # Runtime Roadmap
 
+# ASCOS Completion Module 5 — Isolated preview and end-user acceptance
+
+Completion Module 5 consumes one exact Module 4 `DRAFT_PR_CREATED` record and adds no Codex call or
+source mutation. Operator-owned configuration binds a canonical isolated preview origin, a
+preview-only GitHub Actions workflow, exact automated-test/security job names, and one immutable
+declarative browser plan. The customer separately approves the exact delivery/configuration/plan
+digest and confirms preview deployment and browser execution.
+
+The closed adapter rechecks the open draft PR and exact head commit, dispatches one correlated
+preview workflow, requires both named CI gates and preview health, then executes all locked
+Playwright journeys with origin allow-listing, opaque input resolution, secret masking, and
+content-addressed browser/console/network/screenshot evidence. Success publishes one exact evidence
+package for customer ACCEPT/REVISE review. Ambiguous post-dispatch failure is reconciliation-only.
+Module 5 cannot approve or merge the PR, target production, release, or start FamilyVault.
+
+# ASCOS Completion Module 4 — Governed review and draft delivery
+
+Completion Module 4 consumes the exact accepted Module 3 `REVIEW_REQUIRED`
+patch and adds no new Codex call. It independently reloads the provider patch
+effect, verifies the customer/execution/workspace/branch/pre-turn-commit chain,
+checks every changed file digest, and renders a bounded canonical patch in the
+authenticated dashboard. Customer approval binds the exact review digest.
+
+Repository delivery has a separate operator-owned repository, base branch,
+remote, enablement, and product-write confirmation. The closed adapter stages
+only reviewed paths, creates one single-parent commit, performs one non-force
+push of the existing `agent/*` branch, verifies the remote commit, and opens one
+open draft PR with exact base/head/title/body bindings. Duplicate remote state
+fails before mutation; any ambiguous post-effect error becomes
+`RECONCILIATION_REQUIRED` and is never blindly retried. Module 4 cannot approve
+or merge the PR, deploy preview or production, release, or start FamilyVault.
+
+# ASCOS Completion Module 3 — Customer dashboard to governed execution
+
+Completion Module 3 connects the authenticated ASCOS customer dashboard to the
+exact locked planning chain and the accepted Completion Module 2 Codex SDK
+adapter. An operator—not a browser user—binds one trusted clean local product
+workspace, existing `agent/*` branch, exact commit, allowed path prefixes, and
+candidate context files. The customer creates an immutable task plan, approves
+its exact digest, and separately confirms both task scope and usage consumption
+before one Codex turn.
+
+The dashboard displays the selected provider, model, authentication mode,
+billing source, branch, commit, ordered tasks, usage receipt, changed paths, and
+patch-manifest digest. Codex remains read-only and deny-all; ASCOS alone validates
+and applies the text patch. Execution stops at `REVIEW_REQUIRED` with an
+uncommitted dirty product workspace. Module 3 cannot commit, push, open a pull
+request, merge, deploy, release, or start FamilyVault.
+
+# ASCOS Completion Module 2 — Governed Codex SDK execution
+
+Completion Module 2 adds the supported Python Codex SDK as a real coding
+specialist behind the existing managed-product execution bridge. One approved
+task becomes one identifiable, schema-constrained Codex thread with read-only
+sandboxing and denied approval requests. The selected ChatGPT-plan or Platform
+API billing source is fail-closed and recorded in the durable provider receipt.
+Codex cannot write the workspace directly; ASCOS verifies unchanged Git state,
+validates returned file operations, applies them through the controlled patch
+boundary, and runs the already-approved quality gates. Live use requires both
+provider enablement and a separate usage-consumption confirmation.
+
+This module does not add automatic planning retries, customer-dashboard
+composition, GitHub credentials, merge, deployment, release, or a product
+pilot. Those remain later completion modules and human-controlled effects.
+
+# Day 37 — ASCOS V1 Hardening and Acceptance
+
+Bind one current founder-issued start authority to the exact persisted Day 36 product-pilot
+artifact and seven immutable control contracts. Recheck the complete source chain, all eight pilot
+stages, four passing journeys, repository/branch/commit/tree/draft-PR/preview identity, zero
+elevated effects, validity windows, and fixed evidence budgets before any provider execution.
+
+Produce seven ordered, hash-chained receipts covering security, a verified canonical backup, an
+explicit exact-state recovery drill, tamper-evident audit, five healthy operational monitoring
+signals, seven required documentation records, and technical readiness for founder UAT. Persist
+one mode-0600 primary and one byte-identical recovery copy; strict reads fail on corruption or
+disagreement, while explicit recovery accepts only the verified backup.
+
+Rerun all four fixture end-user journeys and the final founder-safe page in real Chromium at the
+exact commit. The artifact must remain `PENDING_FOUNDER_ACCEPTANCE` and
+`BLOCKED_PENDING_FOUNDER_ACCEPTANCE`: automated verification cannot make a subjective founder
+decision. Day 37 does not mutate a repository, PR, or preview; merge; deploy production; release;
+bill; spend budget; accept risk; or select a live pilot product.
+
+# Day 36 — First End-to-End Product Pilot
+
+Bind one current human-issued pilot authority to seven exact persisted records: customer request,
+PRD, PRD approval, roadmap, roadmap approval, healthy preview, and complete runtime acceptance.
+Recheck the complete customer approval chain, explicit customer/runtime product binding,
+Day 26–35 execution digests, repository/branch/commit/tree, open draft PR, preview identity/origin,
+ordered journeys, validity windows, and budgets before composing pilot evidence.
+
+Produce eight ordered receipts covering customer idea, locked PRD, approved plan, governed agents,
+reviewed code and tests, draft PR, healthy preview, and complete runtime acceptance. The closed
+provider reads the verified snapshot only and has no repository, GitHub mutation, preview platform,
+browser, credential, deployment, billing, or command capability. Changed sources, missing approval,
+failed journeys, non-draft delivery, unhealthy preview, product-binding drift, or elevated authority
+fail closed.
+
+Persist one canonical mode-0600 write-once pilot artifact with every upstream digest and zero
+repository-write, PR-mutation, preview-mutation, merge, production, release, billing,
+risk-acceptance, or Day 37 counts. Exact retry/restart executes no second provider. The real
+Chromium fixture pilot proves the pipeline without choosing a live customer product or production
+target. Day 37 hardening and founder UAT remain separately authorized.
+
+# Day 35 — Complete Runtime Acceptance
+
+Bind one current human-issued authority to the exact persisted Day 34 healthy preview, exact
+persisted runtime-configuration revision, and exact persisted declarative browser plan. Recheck the
+tenant, opportunity, product, repository, feature branch, commit/tree, environment, preview origin,
+deployment revision, configuration digest, locked acceptance profile, ordered capability/journey
+set, authentication journey, opaque login references, validity windows, and budgets before opening
+Chromium.
+
+Resolve only opaque login inputs at invocation and execute the complete locked browser plan once.
+Every module-specific end-user journey must authenticate as required and return passing browser,
+console, network, and masked-screenshot evidence. Wrong sources, missing journeys, failed steps,
+console errors, network failures, incomplete screenshots, provider drift, or raw-secret material
+fail closed and never become terminal acceptance.
+
+Persist a canonical mode-0600 write-once artifact containing the Day
+26/27/28/30/31/32/33/34 chain, exact runtime configuration/profile/plan/execution, ordered passing
+journey receipts, one browser launch, one authenticated session per journey, and one screenshot per journey.
+Exact retry/restart causes no second browser run. Day 35 grants no preview mutation, repository
+write, PR approval, merge, production deployment, release, billing, budget, risk acceptance,
+official pilot, or Day 36 authority.
+
+# Day 34 — Preview Deployment
+
+Bind one current human-issued preview authority to the exact persisted Day 33 delivery and matching
+Day 28 DevOps plans. Recheck tenant, opportunity, repository, draft PR, feature branch, commit/tree,
+QA/Security source chain, isolated environment identity, preview-only URL, plan digests, closed
+configuration digest, opaque secret references, health endpoints, and TTL before a platform effect.
+
+Through a closed provider-neutral preview gateway, require the environment to be absent, deploy the
+exact approved commit once, apply preview-only migration preparation, enable monitoring, inspect the
+immutable receipt, and prove every declared health check returns HTTP 200. Duplicate or partially
+created environments require human reconciliation and are never adopted, overwritten, promoted,
+or blindly retried.
+
+Persist an exact mode-0600 write-once artifact containing the Day 26/27/28/30/31/32/33 chain,
+deployment revision, commit/tree, health receipts, active isolated-preview state, bounded expiry,
+and rollback readiness without raw credentials or host paths. Exact retry/restart performs no second
+effect. Exact-head Chromium evidence must show one preview deployment, one migration, one monitoring
+configuration, two healthy checks, and zero production, merge, release, billing, secret, or pilot
+effects. Complete module-specific product runtime acceptance remains separately authorized Day 35.
+
+# Day 33 — Controlled GitHub Delivery
+
+Bind one current human-issued product-repository authority and work order to the exact persisted Day
+32 coding/review artifact, registered HTTPS GitHub identity, isolated workspace, approved base,
+feature branch, reviewed paths/digests, final diff, commit message, and draft-PR request. Reject
+changed or unpersisted sources, wrong tenants/assignments, stale authority, unsafe repository
+configuration, unrelated/staged/linked paths, digest drift, or elevated authority before mutation.
+
+Stage only exact reviewed paths; create one commit whose sole parent is the approved base; push only
+the isolated feature branch without force; and create one open draft PR with exact base/head/title/
+body binding. Duplicate remote branches or PRs stop before mutation. Any failure after an external
+effect requires human reconciliation and never triggers reset, deletion, overwrite, force push, or
+blind retry. Source preservation and exact workspace commit/tree/path/content/remote/PR equality are
+mandatory after delivery.
+
+Persist a canonical mode-0600 write-once artifact with stable identities, exact upstream digests,
+commit/tree/remote and draft-PR receipts, bounded counts, and no host path or raw credential. Exact
+retry/restart causes no second effect. Mandatory exact-head Chromium CI exercises real local Git
+commit/push behavior through a generic bare remote and a closed draft-PR gateway. Day 33 performs
+no approval, merge, preview or production deployment, release, risk acceptance, billing, budget
+action, or official pilot selection. Preview deployment remains Day 34.
+
+# Day 32 — Coding and Review Loop
+
+Bind one current human-issued authority and work order to the exact persisted Day 30 source set,
+Day 31 isolated product workspace, Day 26 QA artifact, and Day 27 Security artifact. Require four
+ordered role-owned Engineering assignments, one bounded QA test path, exact repository/workspace
+identity, approved base commit/tree, isolated feature branch, and a strict local tool profile.
+Missing, fabricated, changed, unpersisted, differently assigned, cross-tenant, expired, or elevated
+sources or authority fail before workspace mutation.
+
+Apply UTF-8 text changes only to exact role-owned paths in the isolated workspace. Run fixed-argv
+pytest with a credential-free environment and no plugin cache, then run AST-based dependency,
+network/command-capability, dynamic-execution, and secret checks. A failed review creates a typed
+route to the responsible Engineering role; the next round must consume the exact finding codes.
+The generic fixture proves one QA failure and one Security failure before a third candidate passes
+both reviews. Source branch/HEAD/tree/status preservation, unchanged workspace HEAD/tree, a dirty
+but unstaged reviewed diff, zero delivery effects, and canonical mode-0600 write-once persistence
+are mandatory. Exact retry and restart return the same artifact without another coding effect.
+
+The final state is `DIRTY_REVIEWED_NOT_COMMITTED` and
+`CODING_AND_REVIEWS_PASSED_AWAITING_CONTROLLED_GITHUB_DELIVERY`. Day 32 performs no live-provider,
+network, credential, general-command, staging, commit, push, pull-request, merge, deployment,
+release, billing, budget, risk-acceptance, or pilot-selection action. Controlled GitHub delivery
+remains Day 33.
+
+# Day 31 — Isolated Product Workspace
+
+Bind one current human-issued authority and work order to the exact persisted Day 30 orchestration
+artifact, registered repository identity, approved base branch, exact commit, new `agent/*` feature
+branch, and caller-owned workspace identity. Reject stale or unpersisted sources, wrong or dirty
+repositories, existing targets/branches, symlinks, submodules, executable Git configuration,
+protected branches, path escape, and authority drift before any Git write.
+
+Create one contained linked worktree and feature branch at the exact base through a specialized
+no-network Git adapter. Prove after creation that the approved source branch, HEAD, tree, and clean
+status did not change, while the new workspace is clean at the same HEAD/tree. Persist a canonical
+mode-0600 write-once artifact containing stable IDs and digests but no host path. Exact retry and
+restart return the same artifact without another Git effect. Mandatory exact-head Chromium CI uses
+a generic fixture to inspect the source binding, containment, exact refs/trees, preservation,
+browser health, and operational boundary.
+
+The workspace remains `READY_NOT_USED` and no official pilot is selected. Day 31 performs no
+coding, general command execution, network access, credentials use, product-file mutation, test or
+Security execution, commit, push, pull request, merge, deployment, release, billing, budget action,
+or risk acceptance. Coding and review remain Day 32.
+
+# Day 30 — Multi-agent Orchestration
+
+Coordinate the exact persisted Day 23–29 workforce chain through one provider-neutral planning
+service. The work order and current authority bind CEO, Product Manager, Architecture, Backend,
+Frontend, AI, Data, QA, Security, DevOps, and Documentation artifacts in canonical order. Missing,
+extra, reordered, stale, fabricated, differently bound, or cross-tenant sources fail before the
+planning provider is invoked.
+
+Produce eleven dependency nodes, nine ordered waves, one four-way Engineering parallel wave,
+eleven source-limited context packages, seven draft handoffs, three fail-closed conflict routes,
+three human-owned escalation records, and explicit status. Exact retry and restart reopen the same
+mode-0600 write-once artifact without repeating provider planning. Mandatory exact-head Chromium CI
+inspects the graph, parallelism, context exclusions, handoffs, conflicts, escalations, all source
+bindings, restrictive headers, browser health, and authority boundary.
+
+Every node and wave remains `PLAN_ONLY_NOT_EXECUTED`; handoffs remain
+`DRAFT_HANDOFF_NOT_DISPATCHED`; conflicts remain `DRAFT_CONFLICT_POLICY_NOT_INVOKED`; escalations
+remain `PENDING_ONLY_IF_TRIGGERED`; and the artifact remains
+`DRAFT_ORCHESTRATION_PLAN_AWAITING_HUMAN_AUTHORIZATION`. Day 30 performs no agent or product
+execution, filesystem, workspace, repository, command, network, credential, approval, risk
+acceptance, merge, deployment, release, billing, budget, or official pilot-selection action.
+
+# Day 29 — Documentation Engineer Agent
+
+Operationalize one `AgentRole.DOCUMENTATION_ENGINEER` Digital Twin through the Day 22
+provider-neutral runtime. The assignment binds one exact Documentation work order, ordered
+role/capability/action profile, current authority, persisted Day 24 architecture, four ordered Day
+25 Engineering artifacts, exact Day 26 QA artifact, exact Day 27 Security artifact, and exact Day
+28 DevOps artifact. It has zero tools, zero tool calls, and no live-provider authorization.
+Missing, extra, reordered, stale, fabricated, differently bound, or cross-tenant sources fail
+before provider activity.
+
+Produce a closed typed Documentation artifact containing technical, user, API, operations, and
+release records plus one customer handoff, acceptance checks, coverage, and status. Rebuild the
+deterministic request and output, reconcile both digests with the terminal receipt, and only then
+persist canonical mode-0600 write-once state. Exact retry and restart return the same receipt and
+artifact without another provider effect. Mandatory exact-head Chromium CI inspects all five
+records, exact Day 24–28 bindings, restrictive headers, browser health, and the zero-tool boundary.
+
+Every record remains source-validated, draft, and `NOT_PUBLISHED`; the artifact remains
+`DRAFT_DOCUMENTATION_OUTPUT_AWAITING_HUMAN_REVIEW`. Day 29 performs no filesystem, workspace,
+repository, command, network, customer-channel, publication, product implementation, test, scan,
+CI, infrastructure, deployment, release, orchestration, commit, merge, billing, budget, approval,
+or official pilot-selection action.
+
+# Day 28 — DevOps Engineer Agent
+
+Operationalize one `AgentRole.DEVOPS_ENGINEER` Digital Twin through the Day 22 provider-neutral
+runtime. The assignment binds one exact DevOps work order, ordered role/capability/action profile,
+current authority, persisted Day 24 architecture, four ordered Day 25 Engineering artifacts, exact
+Day 26 QA artifact, and exact Day 27 Security artifact. It has zero tools, zero tool calls, and no
+live-provider authorization. Missing, extra, reordered, stale, fabricated, or cross-tenant sources
+fail before provider activity.
+
+Produce a closed typed DevOps artifact containing CI-pipeline, isolated-preview, migration,
+deployment, monitoring, and rollback preparation plus coverage, handoff, and status. Rebuild the
+deterministic request and output, reconcile both digests with the terminal runtime receipt, and only
+then persist canonical mode-0600 write-once state. Exact retry and restart return the same receipt
+and artifact without a second provider effect. Mandatory exact-head Chromium CI inspects all six
+plans, exact Architecture/Engineering/QA/Security bindings, restrictive headers, browser health,
+and the zero-tool boundary using generic verification data.
+
+Every plan remains `NOT_EXECUTED`; preview/deployment/monitoring/rollback are constrained to
+`ISOLATED_NON_PRODUCTION_PREVIEW`; the artifact remains
+`DRAFT_DEVOPS_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 28 performs no infrastructure,
+credential, filesystem, workspace, repository, command, network, CI, provisioning, migration,
+deployment, monitoring, rollback, promotion, production, release, Documentation, orchestration,
+commit, merge, billing, budget, risk acceptance, approval, or official pilot-selection action.
+
+# Day 27 — Security Engineer Agent
+
+Operationalize one `AgentRole.SECURITY_ENGINEER` Digital Twin through the Day 22 provider-neutral
+runtime. The assignment must bind one exact Security work order, ordered role/capability/action
+profile, current authority, the persisted Day 24 architecture, exactly four ordered persisted Day
+25 Engineering artifacts, and the exact persisted Day 26 QA artifact. The profile has zero tools,
+zero tool calls, and no live-provider authorization. Missing, extra, reordered, stale, fabricated,
+or cross-tenant sources must fail before provider activity.
+
+Produce a closed typed Security artifact containing all six STRIDE threat categories, one
+dependency-check and one secret-check specification per Engineering source, three draft findings,
+coverage requirements, handoff notes, and status. Rebuild the deterministic request and output,
+reconcile both digests with the terminal runtime receipt, and only then persist canonical mode-0600
+write-once state. Exact retry and restart return the same receipt and artifact without a second
+provider effect. Mandatory exact-head Chromium CI inspects the plan, specifications, draft
+findings, exact architecture/Engineering/QA bindings, restrictive headers, browser health, and
+zero-tool boundary using generic verification data.
+
+Every threat validation, dependency check, and secret check remains `NOT_EXECUTED`; findings remain
+`DRAFT_FINDING_AWAITING_AUTHORIZED_SECURITY_VALIDATION`; the artifact remains
+`DRAFT_SECURITY_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 27 performs no scan, workspace or
+repository access, command, network request, credential access, remediation, security or quality
+approval, risk acceptance, DevOps, Documentation, orchestration, commit, merge, deployment,
+release, billing, budget action, or official pilot selection.
+
+# Day 26 — QA Engineer Agent
+
+Operationalize one `AgentRole.QA_ENGINEER` Digital Twin through the Day 22 provider-neutral runtime.
+The assignment must bind one exact QA work order, ordered role/capability/action profile, Twin,
+tenant, objective, current authority, persisted Day 24 architecture, and exactly four ordered
+persisted Day 25 Engineering outputs. The profile has zero tools, zero tool calls, and no
+live-provider authorization. Missing, extra, reordered, stale, fabricated, or cross-tenant sources
+must fail before provider activity.
+
+Produce a closed typed QA artifact containing one role-bound test-plan item and automated-test
+specification for each Engineering source, two cross-role integration-test specifications, two draft
+defect reports, coverage requirements, handoff notes, and status. Rebuild the deterministic request
+and output, reconcile both digests with the terminal runtime receipt, and only then persist canonical
+mode-0600 write-once state. Exact retry and restart return the same receipt and artifact without a
+second provider effect. Mandatory exact-head Chromium CI inspects the plan, specifications, draft
+defects, exact source/receipt bindings, restrictive headers, browser health, and zero-tool boundary
+using generic verification data.
+
+Every automated and integration specification remains `NOT_EXECUTED`; defects remain
+`DRAFT_DEFECT_AWAITING_AUTHORIZED_TEST_EXECUTION`; the artifact remains
+`DRAFT_QA_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 26 creates no test file, product workspace,
+repository change, command, product test execution, verified runtime defect, quality approval,
+Security review, DevOps behavior, Documentation workflow, multi-agent orchestration, commit, merge,
+deployment, release, billing, budget action, or official pilot selection. Those execution and
+delivery boundaries remain in later locked modules.
+
+# Day 25 — Engineering Agent Family
+
+Operationalize Backend, Frontend, AI, and Data Engineer Digital Twins through one shared bounded
+Engineering service on the Day 22 provider-neutral runtime. Each work order must select one exact
+role, ordered capability profile, ordered action profile, Twin, tenant, assignment, objective, and
+current delegated authority. Every role has zero tools, zero tool calls, and no live-provider
+authorization. The service must consume the exact persisted Day 24 architecture artifact and allow
+only target component IDs contained in that source.
+
+Each role produces a closed typed Engineering artifact containing role-specific implementation
+instructions, an interface contract, exact acceptance checks, engineering self-validation checks,
+handoff notes, and status. Rebuild the deterministic request and output, reconcile both digests with
+the terminal runtime receipt, and only then persist canonical mode-0600 write-once state. Exact retry
+and restart return the same receipt and artifact without repeating a provider effect. Mandatory
+exact-head Chromium CI inspects all four roles, exact architecture/work-order/receipt bindings,
+restrictive headers, browser health, and zero-tool authority using generic verification data.
+
+The architecture remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; Engineering artifacts remain
+`DRAFT_ENGINEERING_OUTPUT_AWAITING_AUTHORIZED_WORKSPACE`. Day 25 creates no product workspace,
+repository change, patch, command, migration, live AI call, QA plan or sign-off, security review,
+DevOps behavior, documentation workflow, multi-agent orchestration, commit, merge, deployment,
+release, billing, budget action, architecture approval, or official pilot selection. These later
+boundaries remain in Days 26–35.
+
+# Day 24 — Software Architect Agent
+
+Operationalize one `AgentRole.SOFTWARE_ARCHITECT` Digital Twin through the Day 22 runtime. It must
+consume the exact persisted Day 23 Product Manager plan and produce one closed typed draft covering
+the product domain boundary, architecture principles, components and interfaces, integrations, data
+lifecycle, security controls, quality strategy, concrete technology recommendations, proposed ADRs,
+technical risks and mitigations, and a status report. The role has one exact action/capability
+profile, zero tools and tool calls, no live-provider authority, and one tenant-bound expiring grant.
+
+Persist the proposal only after the provider request/output and runtime receipt digests reconcile and
+the complete nested schema validates. The record is canonical, mode 0600, write once, tenant and
+execution scoped, integrity checked, bounded, and restart-safe. Exact retry and restart must reopen
+the same receipt and artifact without repeating the provider effect. Mandatory exact-head Chromium
+CI must inspect the proposal, technology choices, ADRs, risks, Product-Manager handoff, status,
+authority exclusions, restrictive headers, and browser health using generic verification data.
+
+The artifact remains `DRAFT_AWAITING_HUMAN_ARCHITECTURE_REVIEW`; every technology recommendation and
+ADR remains `PROPOSED`. Day 24 grants no architecture approval, engineering-task creation,
+repository, command, network, coding, merge, deployment, release, billing, budget, orchestration, or
+pilot-selection authority. Backend, frontend, AI, and data engineering execution remains Day 25.
+
+# Day 23 — CEO and Product Manager Agents
+
+Operationalize exactly two Business Roles through the Day 22 Digital Twin runtime. The CEO profile
+must accept one bounded opportunity, frame its problem, users, goals, constraints, clarification
+questions, and current status, and produce a draft opportunity brief. The Product Manager profile
+maps to the existing `AgentRole.PROJECT_MANAGER`; it must consume the exact persisted CEO brief,
+clarify in/out scope, propose an ordered draft product plan, ask bounded questions, and report
+status. Each profile has an exact action/capability set, zero tool calls, one expiring authority,
+one assignment, one execution receipt, and one validated immutable artifact.
+
+Persist only typed, closed, canonical mode-0600 artifacts after the untrusted provider output has
+passed schema and receipt-digest validation. Exact retry and restart must reopen the same runtime
+receipt and artifact without a second provider effect. Mandatory Chromium CI executes both roles,
+inspects the exact CEO-to-Product-Manager digest handoff, verifies restrictive headers and browser
+health, and uploads founder-safe exact-commit evidence using generic fixture data.
+
+Both artifacts remain `DRAFT_AWAITING_HUMAN_REVIEW`. Day 23 grants no investment, budget, product,
+scope, architecture, repository, coding, task, approval, merge, deployment, billing, release,
+multi-agent-orchestration, or official pilot-selection authority. Software architecture proposal,
+technology selection, ADRs, and technical risk identification remain Day 24 work.
+
+# Day 22 — Provider-Neutral Digital Twin Execution Runtime
+
+Introduce one generic operational boundary that aligns a Digital Twin to exactly one existing
+Business Role and dispatches one exact assignment to one explicitly selected replaceable provider.
+The immutable assignment must bind the tenant, Twin, role, objective, non-secret context,
+capabilities, requested tools, and exact delegated-authority digest. The authority must bind the
+same identities and objective, list allowed actions and tools, expire within 24 hours, and set
+bounded tool-call and output budgets.
+
+Register only explicitly read-only Day 22 tools. Expose tools to a provider only through a gateway
+that checks the assignment allowlist and budget on every invocation and records digest-only success
+or failure evidence. Persist a canonical mode-0600 execution intent before provider activity and a
+canonical terminal receipt afterward. Exact retry and restart must return the same receipt without
+a second provider effect. A prepared live-provider intent without a receipt requires reconciliation;
+live execution requires both delegation-grant authority and operator enablement.
+
+Mandatory Chromium CI executes the offline deterministic provider through the real typed boundary,
+uses one allowlisted fixture-record tool, restarts, reopens the same receipt, and inspects a
+founder-safe exact-commit report. The fixture is generic runtime verification only. Day 22 does not
+implement CEO, Product Manager, architect, engineering, QA, security, DevOps, documentation, or
+multi-agent role behavior; create a product workspace or executable product task; access a product
+repository; run a command or network tool; approve, merge, deploy, release, bill, or select a pilot.
+
+# Day 21 — Customer Preview and Evidence Centre
+
+Let the authenticated owner open one already-produced product preview, inspect a governed package
+of exact-commit automated-test, browser, console, network, screenshot, and security evidence, and
+submit exactly one explicit `ACCEPT` or `REVISE` decision. Bind the package to the exact Day 20
+progress projection, locked roadmap, Day 19 estimate, customer, request, product, full commit SHA,
+allowlisted preview origin, and every evidence digest. Do not expose evidence publication through a
+customer web route and do not accept any binding from the browser.
+
+Persist one canonical write-once package and one canonical write-once review receipt. Require the
+exact rendered package digest, session CSRF, a fixed reviewed-evidence confirmation, and one of the
+two exact decisions. Block `ACCEPT` unless all required evidence passes; require bounded comments
+for `REVISE`. Preserve exact-retry idempotency, restart-safe reconstruction, tenant isolation,
+mode-0600 exclusive writes, closed schemas/directories, path containment, safe credential-free
+URLs, escaping, restrictive headers, and symlink/tamper rejection. Mandatory Chromium CI opens a
+separate loopback verification preview, inspects all evidence, records acceptance, signs out/in, and
+reopens the same receipt with founder-safe screenshots and a digested manifest.
+
+Day 21 reviews existing evidence only. It does not create a preview, workspace, task, or agent; run
+an agent or subprocess; connect or write a product repository; generate code; merge; deploy; bill;
+release; select an official pilot product; or begin the Day 22 Digital Twin runtime.
+
+# Day 20 — Customer Project Progress Dashboard
+
+Let the authenticated owner open a deterministic, read-only progress projection for the exact
+Day 19 estimate and its locked roadmap. Reload and verify the complete governed authority chain on
+every request. Reuse the existing Project Manager domain to calculate totals and progress, project
+each governed roadmap item as one visible milestone, and map every locked requirement exactly once
+as a planned task in roadmap order.
+
+Show truthful overall and per-milestone progress, completed/total and in-progress/blocked task
+counts, operational-agent assignment state, open execution blockers, and governed planning
+decisions with their exact authority digests. Keep all tasks and milestones `NOT_STARTED`, progress
+at zero, and assignments empty because execution authority and the operational workforce do not yet
+exist. The projection is content-digested, customer-scoped, non-persistent, CSRF/session protected,
+escaped, non-cacheable, and GET-only. Mandatory Chromium CI proves authenticated opening,
+logout/login, exact projection recovery, browser protections, and founder-safe evidence.
+
+Day 20 is visibility only. It does not approve an estimate, assign an agent, persist execution
+state, create an executable task, select a pilot product, connect or write a repository, generate or
+execute code, merge, deploy, bill, release, or perform Day 21. Day 21 remains a separately approved
+Preview and Evidence Centre module.
+
+# Day 19 — Traceable Customer Delivery Estimate Draft
+
+Let the authenticated owner generate and reopen one deterministic delivery-effort estimate v0.1
+only from the exact Day 18 locked roadmap. Reload the complete request, requirements, requirements
+approval, PRD, PRD approval, roadmap, roadmap approval, and governed locked projection server-side.
+Require the rendered roadmap-approval digest and bind the write-once estimate to every upstream
+identity and digest.
+
+Preserve exact roadmap-item order, stable IDs, and exactly-once locked-requirement mappings. Derive
+transparent relative engineering-day ranges from governed requirement priorities, categories, data
+sensitivity, and scope count. Show complexity points, effort bands, confidence, drivers, and explicit
+assumptions. Preserve exact-retry idempotency, restart-safe reconstruction, canonical integrity
+records, mode-0600 exclusive writes, customer isolation, path containment, closed schemas,
+symlink/tamper detection, session CSRF, escaping, and restrictive browser headers. Mandatory
+Chromium CI proves the full generation and returning-customer journey.
+
+The estimate remains `DRAFT`; an engineering day is a relative effort unit rather than a calendar
+duration. Day 19 does not approve an estimate, create a price or quote, set a date or schedule,
+assign staff or agents, select a pilot, connect a repository, create implementation tasks, generate
+or execute code, merge, deploy, bill, or release. Day 20 remains separate and requires founder
+approval.
+
 # Day 18 — Customer Roadmap Approval and Immutable Lock
 
 Let the authenticated owner review every milestone and requirement mapping in one exact Day 17

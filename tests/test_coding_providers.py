@@ -282,7 +282,7 @@ def test_live_structured_response_is_parsed_without_network(provider_execution):
         service.submit("product", operation.provider_operation_id, request)
     submitted = service.submit(
         "product", operation.provider_operation_id, request,
-        allow_live_provider=True)
+        allow_live_provider=True, confirm_usage_consumption=True)
     assert submitted.provider_task_id == "resp-1"
 
 
@@ -677,7 +677,7 @@ def test_live_restart_reconciles_only_from_durable_receipt(provider_execution):
         workspace_path=workspace, provider_id="openai-codex")
     first.submit(
         "product", operation.provider_operation_id, request,
-        allow_live_provider=True)
+        allow_live_provider=True, confirm_usage_consumption=True)
     store.save_operation(replace(
         store.load_operation("product", operation.provider_operation_id),
         state=ProviderOperationState.UNCERTAIN))
@@ -757,11 +757,11 @@ def test_live_sink_failure_never_resubmits_uncertain_call(provider_execution):
     with pytest.raises(ProviderStateError):
         service.submit(
             "product", operation.provider_operation_id, request,
-            allow_live_provider=True)
+            allow_live_provider=True, confirm_usage_consumption=True)
     with pytest.raises(ProviderReconciliationError):
         service.submit(
             "product", operation.provider_operation_id, request,
-            allow_live_provider=True)
+            allow_live_provider=True, confirm_usage_consumption=True)
     assert calls == 1
 
 
