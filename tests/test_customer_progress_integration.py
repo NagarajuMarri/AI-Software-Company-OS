@@ -145,7 +145,7 @@ def test_real_customer_opens_and_reopens_exact_project_progress(tmp_path):
                 "heading", name="Community workshop planner — Project Progress"
             ).wait_for()
             assert page.get_by_text("Overall progress0%", exact=True).is_visible()
-            assert page.get_by_text("Tasks0/5 complete", exact=True).is_visible()
+            assert page.get_by_text("Tasks0/6 complete", exact=True).is_visible()
             assert page.get_by_text("Assigned agents0", exact=True).is_visible()
             assert page.get_by_text("No operational agents assigned").is_visible()
             assert page.get_by_role("heading", name="Open blockers").is_visible()
@@ -195,7 +195,7 @@ def test_real_customer_opens_and_reopens_exact_project_progress(tmp_path):
     assert reopened.digest == first.digest
     assert reopened.estimate_digest == estimate.digest
     assert reopened.progress_percentage == 0
-    assert reopened.total_tasks == 5
+    assert reopened.total_tasks == 6
     assert reopened.assigned_agent_ids == ()
 
     target = os.environ.get("ASCOS_DAY20_FOUNDER_EVIDENCE_DIR")

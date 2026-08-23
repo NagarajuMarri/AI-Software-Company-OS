@@ -36,7 +36,12 @@ from runtime.customer_requirements import (
     FileCustomerRequirementsApprovalStore,
     FileCustomerRequirementsStore,
 )
-from runtime.product_requirements import ProductRequirementsService, RequirementStatus, validate_prd
+from runtime.product_requirements import (
+    ProductRequirementsService,
+    RequirementCategory,
+    RequirementStatus,
+    validate_prd,
+)
 
 
 NOW = datetime(2026, 8, 20, 16, tzinfo=timezone.utc)
@@ -55,7 +60,7 @@ def _services(root: Path, *, approve: bool = True, with_draft: bool = True):
         product_summary="Answer calls and convert questions into appointments.",
         target_users="Independent clinic teams",
         features=("Answer incoming calls", "Book appointments"),
-        constraints=("No autonomous medical advice",),
+        constraints=("Encrypt patient data in transit and at rest",),
     )
     approval_store = FileCustomerRequirementsApprovalStore(root / "approvals")
     requirements = CustomerRequirementsService(
@@ -198,13 +203,25 @@ def test_generated_prd_maps_all_approved_scope_with_stable_source_references(tmp
         "REQ-JOURNEY-001",
         "REQ-FEATURE-001",
         "REQ-FEATURE-002",
+        "REQ-CONSTRAINT-001",
         "REQ-PLATFORM-001",
         "REQ-DATA-001",
     )
     assert tuple(item.title for item in value.requirements[1:3]) == draft.must_have_features
     assert value.requirements[0].description == draft.primary_user_journey
     assert value.requirements[0].acceptance_criteria == draft.desired_outcomes
-    assert value.requirements[1].acceptance_criteria == draft.success_metrics
+    first_feature, second_feature = value.requirements[1:3]
+    assert first_feature.acceptance_criteria != draft.success_metrics
+    assert first_feature.acceptance_criteria != second_feature.acceptance_criteria
+    assert all(first_feature.title in criterion for criterion in first_feature.acceptance_criteria)
+    assert all(second_feature.title in criterion for criterion in second_feature.acceptance_criteria)
+    constraint = value.requirements[3]
+    assert constraint.category is RequirementCategory.NON_FUNCTIONAL
+    assert "Encrypt patient data in transit and at rest" in constraint.description
+    assert all(
+        "Encrypt patient data in transit and at rest" in criterion
+        for criterion in constraint.acceptance_criteria[:1]
+    )
     assert value.explicit_exclusions == (
         "No autonomous medical advice",
         "No payment processing",
@@ -213,6 +230,7 @@ def test_generated_prd_maps_all_approved_scope_with_stable_source_references(tmp
         "primary_user_journey + desired_outcomes",
         "must_have_features[1]",
         "must_have_features[2]",
+        "request.constraints[1]",
         "platforms",
         "data_sensitivity",
     }

@@ -14,11 +14,13 @@ request, revision, source-request digest, requirements digest, and receipt diges
 `ascos-deterministic-customer-prd-v1` maps the approved baseline without an external model call:
 
 - the primary journey and desired outcomes become `REQ-JOURNEY-001`;
-- each ordered must-have feature becomes `REQ-FEATURE-NNN`;
+- each ordered must-have feature becomes `REQ-FEATURE-NNN` with capability-specific,
+  testable success, validation-failure, and authorization criteria;
+- each source constraint becomes a mandatory, traceable `REQ-CONSTRAINT-NNN` requirement;
 - platforms become `REQ-PLATFORM-001`;
 - declared data sensitivity becomes `REQ-DATA-001`;
-- success metrics become acceptance criteria and remain visible as PRD metrics;
-- source constraints and non-goals become de-duplicated explicit exclusions; and
+- success metrics remain visible as product-level PRD metrics;
+- only non-goals become de-duplicated explicit exclusions; and
 - every generated requirement records the exact approved field that sourced it.
 
 The result has stable artifact, product, and PRD identifiers, version `0.1`, and immutable digest
