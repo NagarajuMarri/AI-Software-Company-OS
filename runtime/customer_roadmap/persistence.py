@@ -15,6 +15,8 @@ from runtime.customer_roadmap.errors import (
     CustomerRoadmapNotFound,
 )
 from runtime.customer_roadmap.models import (
+    GENERATION_PROFILE,
+    LEGACY_GENERATION_PROFILE,
     CustomerRoadmapDraft,
     CustomerRoadmapMilestone,
     roadmap_id_for,
@@ -52,6 +54,36 @@ class FileCustomerRoadmapStore:
         if not path.exists():
             return None
         return self.load(customer_id, request_id)
+
+    def replace_legacy(
+        self,
+        expected: CustomerRoadmapDraft,
+        value: CustomerRoadmapDraft,
+    ) -> CustomerRoadmapDraft:
+        """Atomically replace only one exact unapproved v1 draft with v2 output."""
+
+        if (
+            expected.customer_id != value.customer_id
+            or expected.request_id != value.request_id
+            or expected.roadmap_id != value.roadmap_id
+            or expected.product_id != value.product_id
+            or expected.prd_id != value.prd_id
+            or expected.prd_version != value.prd_version
+            or expected.source_request_digest != value.source_request_digest
+            or expected.requirements_digest != value.requirements_digest
+            or expected.requirements_approval_digest != value.requirements_approval_digest
+            or expected.prd_digest != value.prd_digest
+            or expected.prd_approval_id != value.prd_approval_id
+            or expected.prd_approval_digest != value.prd_approval_digest
+            or expected.generation_profile != LEGACY_GENERATION_PROFILE
+            or value.generation_profile != GENERATION_PROFILE
+        ):
+            raise CustomerRoadmapConflict("Legacy roadmap replacement authority is invalid")
+        path = self._path(expected.customer_id, expected.request_id)
+        if self.load(expected.customer_id, expected.request_id) != expected:
+            raise CustomerRoadmapConflict("Legacy roadmap changed before regeneration")
+        _atomic_replace(path, _encode(value))
+        return value
 
     def load(self, customer_id: str, request_id: str) -> CustomerRoadmapDraft:
         path = self._path(customer_id, request_id)
@@ -116,6 +148,28 @@ def _exclusive_write(path: Path, content: bytes) -> None:
     except Exception:
         try:
             path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _atomic_replace(path: Path, content: bytes) -> None:
+    temporary = path.with_name(f".{path.name}.regenerating")
+    descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except Exception:
+        try:
+            temporary.unlink()
         except FileNotFoundError:
             pass
         raise

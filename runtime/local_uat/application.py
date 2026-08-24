@@ -11,6 +11,7 @@ from secrets import token_bytes
 from runtime.customer_application import (
     CustomerPortalApplication,
     CustomerProductRequestService,
+    CustomerRequestProgress,
     FileCustomerProductRequestStore,
 )
 from runtime.customer_acceptance import (
@@ -149,8 +150,9 @@ def create_local_uat_application(
     requirements_approval_store = FileCustomerRequirementsApprovalStore(
         root / "requirements-approvals"
     )
+    requirements_store = FileCustomerRequirementsStore(root / "requirements")
     requirements = CustomerRequirementsService(
-        FileCustomerRequirementsStore(root / "requirements"),
+        requirements_store,
         requests,
         clock,
         requirements_approval_store.is_locked,
@@ -160,8 +162,9 @@ def create_local_uat_application(
         requirements,
         clock,
     )
+    prd_store = FileCustomerPrdStore(root / "prds")
     prds = CustomerPrdService(
-        FileCustomerPrdStore(root / "prds"),
+        prd_store,
         requirements_approvals,
         clock,
     )
@@ -178,13 +181,18 @@ def create_local_uat_application(
         clock,
         criteria=prd_criteria,
     )
+    roadmap_store = FileCustomerRoadmapStore(root / "roadmaps")
+    roadmap_approval_store = FileCustomerRoadmapApprovalStore(
+        root / "roadmap-approvals"
+    )
     roadmaps = CustomerRoadmapService(
-        FileCustomerRoadmapStore(root / "roadmaps"),
+        roadmap_store,
         prd_approvals,
         clock,
+        roadmap_approval_locked=roadmap_approval_store.is_locked,
     )
     roadmap_approvals = CustomerRoadmapApprovalService(
-        FileCustomerRoadmapApprovalStore(root / "roadmap-approvals"),
+        roadmap_approval_store,
         roadmaps,
         clock,
     )
@@ -270,8 +278,59 @@ def create_local_uat_application(
         clock,
     )
 
+    def customer_progress(customer_id: str, request_id: str) -> CustomerRequestProgress:
+        prefix = f"/customer/requests/{request_id}"
+        if roadmap_approval_store.is_locked(customer_id, request_id):
+            return CustomerRequestProgress(
+                request_id,
+                "Roadmap approved",
+                "Open approved roadmap",
+                f"{prefix}/roadmap/approved",
+            )
+        if roadmap_store.find(customer_id, request_id) is not None:
+            return CustomerRequestProgress(
+                request_id,
+                "Roadmap draft",
+                "Review roadmap",
+                f"{prefix}/roadmap/review",
+            )
+        if prd_approval_store.is_locked(customer_id, request_id):
+            return CustomerRequestProgress(
+                request_id,
+                "PRD approved",
+                "Open approved PRD",
+                f"{prefix}/prd/approved",
+            )
+        if prd_store.find(customer_id, request_id) is not None:
+            return CustomerRequestProgress(
+                request_id,
+                "PRD draft",
+                "Review PRD",
+                f"{prefix}/prd/review",
+            )
+        if requirements_approval_store.is_locked(customer_id, request_id):
+            return CustomerRequestProgress(
+                request_id,
+                "Requirements approved",
+                "Open approved requirements",
+                f"{prefix}/requirements/approved",
+            )
+        if requirements_store.latest(customer_id, request_id) is not None:
+            return CustomerRequestProgress(
+                request_id,
+                "Requirements draft",
+                "Continue requirements",
+                f"{prefix}/requirements",
+            )
+        return CustomerRequestProgress(
+            request_id,
+            "Submitted",
+            "Open product request",
+            prefix,
+        )
+
     customer_workspace = CustomerWorkspaceApplication(
-        CustomerPortalApplication(requests),
+        CustomerPortalApplication(requests, customer_progress),
         CustomerRequirementsApplication(requirements),
         CustomerRequirementsApprovalApplication(requirements_approvals),
         CustomerPrdApplication(prds, prd_approvals, criteria=prd_criteria),

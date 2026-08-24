@@ -218,7 +218,14 @@ def test_real_customer_generates_and_reopens_traceable_roadmap_draft(tmp_path):
                 page.get_by_role("button", name="Generate roadmap draft").click()
 
             page.get_by_text("Draft generated", exact=True).wait_for()
-            assert page.get_by_text("Customer MVP", exact=True).is_visible()
+            assert page.get_by_text(
+                "Platform, data, and delivery foundation",
+                exact=True,
+            ).is_visible()
+            assert page.get_by_text(
+                "End-to-end journey and release acceptance",
+                exact=True,
+            ).is_visible()
             assert page.get_by_text("REQ-JOURNEY-001", exact=True).is_visible()
             assert page.get_by_text("REQ-DATA-001", exact=True).is_visible()
             assert page.get_by_text("Draft plan — no execution authority").is_visible()

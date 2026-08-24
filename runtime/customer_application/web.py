@@ -14,7 +14,7 @@ from runtime.customer_application.errors import (
     ProductRequestConflict,
     ProductRequestNotFound,
 )
-from runtime.customer_application.models import CustomerProductRequest
+from runtime.customer_application.models import CustomerProductRequest, CustomerRequestProgress
 from runtime.customer_application.service import CustomerProductRequestService
 
 
@@ -34,8 +34,13 @@ _MAX_BODY = 32_768
 class CustomerPortalApplication:
     """Render a customer dashboard and accept one secure product brief."""
 
-    def __init__(self, service: CustomerProductRequestService) -> None:
+    def __init__(
+        self,
+        service: CustomerProductRequestService,
+        progress: Callable[[str, str], CustomerRequestProgress] | None = None,
+    ) -> None:
         self._service = service
+        self._progress = progress
 
     def __call__(
         self,
@@ -92,13 +97,7 @@ class CustomerPortalApplication:
     def _dashboard(self, customer_id: str, csrf: str | None) -> str:
         requests = tuple(reversed(self._service.dashboard(customer_id)))
         if requests:
-            cards = "".join(
-                f"""<a class="request-card" href="/customer/requests/{escape(item.request_id)}">
-<span class="status">Submitted</span><strong>{escape(item.product_name)}</strong>
-<small>{escape(item.submitted_at.astimezone(timezone.utc).strftime("%d %b %Y, %H:%M UTC"))}</small>
-</a>"""
-                for item in requests
-            )
+            cards = "".join(self._request_card(customer_id, item) for item in requests)
         else:
             cards = """<div class="empty"><strong>No product requests yet</strong>
 <p>Describe your idea and ASCOS will turn it into a governed delivery plan.</p></div>"""
@@ -109,6 +108,26 @@ class CustomerPortalApplication:
 <section><div class="section-title"><h2>Your product requests</h2>
 <span>{len(requests)} submitted</span></div><div class="request-grid">{cards}</div></section>"""
         return _layout("ASCOS Customer Workspace", content, csrf)
+
+    def _request_card(
+        self,
+        customer_id: str,
+        item: CustomerProductRequest,
+    ) -> str:
+        progress = (
+            self._progress(customer_id, item.request_id)
+            if self._progress is not None
+            else CustomerRequestProgress(
+                item.request_id,
+                "Submitted",
+                "Open product request",
+                f"/customer/requests/{item.request_id}",
+            )
+        )
+        return f'''<a class="request-card" href="{escape(progress.href)}">
+<span class="status">{escape(progress.status)}</span><strong>{escape(item.product_name)}</strong>
+<small>{escape(item.submitted_at.astimezone(timezone.utc).strftime("%d %b %Y, %H:%M UTC"))}</small>
+<small class="card-action">{escape(progress.action)} →</small></a>'''
 
     def _submit(
         self,
@@ -284,6 +303,7 @@ h1{font-size:clamp(34px,5vw,58px);line-height:1.05;letter-spacing:-.04em;margin:
 .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#3157d5;font-weight:800}.button,button{display:inline-flex;border:0;border-radius:12px;padding:14px 20px;background:#3157d5;color:#fff;text-decoration:none;font-weight:750;white-space:nowrap;cursor:pointer;box-shadow:0 10px 28px #3157d533}
 .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.section-title h2{margin:0}.section-title span{font-size:14px;color:#728096}.request-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
 .request-card,.empty{display:flex;flex-direction:column;gap:10px;padding:24px;border:1px solid #dce3ee;border-radius:16px;background:#fff;text-decoration:none;color:#101d35;box-shadow:0 7px 22px #2c42600a}.request-card:hover{border-color:#9fb2ed;transform:translateY(-1px)}.request-card small{color:#728096}.empty{grid-column:1/-1;text-align:center;padding:45px}
+.request-card .card-action{color:#3157d5;font-weight:750;margin-top:4px}
 .status{display:inline-flex;width:max-content;padding:6px 10px;border-radius:999px;background:#dff6ea;color:#137a49;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .form-shell,.detail{max-width:820px;margin:0 auto;background:#fff;border:1px solid #dce3ee;border-radius:22px;padding:40px;box-shadow:0 22px 60px #263c6012}.form-shell h1,.detail h1{font-size:42px}.back{display:block;margin-bottom:32px;color:#53627a;text-decoration:none;font-weight:650}
 form{display:grid;gap:22px;margin-top:34px}label{display:grid;gap:9px;font-weight:750;color:#27344b}label span{font-weight:500;color:#7a879a;font-size:13px}input,textarea{width:100%;border:1px solid #cbd5e4;border-radius:11px;padding:13px 14px;font:inherit;color:#15223b;background:#fbfcfe;resize:vertical}input:focus,textarea:focus{outline:3px solid #dbe4ff;border-color:#3157d5}.form-actions{display:flex;align-items:center;justify-content:flex-end;gap:22px;padding-top:8px}.form-actions a{color:#53627a;text-decoration:none}

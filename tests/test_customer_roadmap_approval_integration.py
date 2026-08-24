@@ -232,7 +232,14 @@ def test_real_customer_approves_locks_and_reopens_exact_roadmap(tmp_path):
 
             page.get_by_text("Approved and locked", exact=True).wait_for()
             assert page.get_by_text("LOCKED", exact=True).first.is_visible()
-            assert page.get_by_text("Customer MVP", exact=True).is_visible()
+            assert page.get_by_text(
+                "Platform, data, and delivery foundation",
+                exact=True,
+            ).is_visible()
+            assert page.get_by_text(
+                "End-to-end journey and release acceptance",
+                exact=True,
+            ).is_visible()
             assert page.get_by_text("REQ-DATA-001", exact=True).is_visible()
             assert page.get_by_text(
                 "Locked planning scope — implementation has not started"

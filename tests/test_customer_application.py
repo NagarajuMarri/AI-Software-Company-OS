@@ -12,6 +12,7 @@ import pytest
 from runtime.customer_application import (
     CustomerPortalApplication,
     CustomerProductRequest,
+    CustomerRequestProgress,
     CustomerProductRequestService,
     FileCustomerProductRequestStore,
     ProductRequestConflict,
@@ -262,6 +263,45 @@ def test_customer_can_submit_reopen_and_list_product_request(tmp_path):
         "Answer incoming calls",
         "Book appointments",
     )
+
+
+def test_dashboard_links_to_latest_governed_checkpoint(tmp_path):
+    service = _service(tmp_path / "requests")
+    service.submit(
+        request_id="req-progress",
+        customer_id="customer-1",
+        product_name="Family vault",
+        product_summary="Keep family information ready.",
+        target_users="Families",
+        features=("Store records",),
+        constraints=(),
+    )
+    application = CustomerPortalApplication(
+        service,
+        lambda customer_id, request_id: CustomerRequestProgress(
+            request_id,
+            "PRD approved",
+            "Open approved PRD",
+            f"/customer/requests/{request_id}/prd/approved",
+        ),
+    )
+
+    status, _, content = _call(application)
+
+    assert status == "200 OK"
+    assert b"PRD approved" in content
+    assert b"Open approved PRD" in content
+    assert b'href="/customer/requests/req-progress/prd/approved"' in content
+
+
+def test_customer_progress_rejects_ungoverned_navigation():
+    with pytest.raises(ValueError, match="governed"):
+        CustomerRequestProgress(
+            "req-1",
+            "Unsafe",
+            "Leave ASCOS",
+            "/customer/requests/req-1/../../../outside",
+        )
 
 
 def test_detail_escapes_customer_text_and_blocks_cross_customer_read(tmp_path):

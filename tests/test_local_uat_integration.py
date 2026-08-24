@@ -203,6 +203,8 @@ def test_founder_runs_unified_local_uat_and_reopens_persisted_product(tmp_path):
             server, thread, restarted_origin = _start(data_dir)
             page.goto(f"{restarted_origin}/customer", wait_until="networkidle")
             assert page.get_by_text("Founder UAT project hub", exact=True).is_visible()
+            assert page.get_by_text("Roadmap approved", exact=True).is_visible()
+            assert page.get_by_text("Open approved roadmap →", exact=True).is_visible()
             assert console_errors == []
             assert request_failures == []
         finally:
