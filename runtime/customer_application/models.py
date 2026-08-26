@@ -11,12 +11,43 @@ import re
 
 
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
+_PROGRESS_SUFFIXES = frozenset(
+    {
+        "",
+        "/requirements",
+        "/requirements/approved",
+        "/prd/review",
+        "/prd/approved",
+        "/roadmap/review",
+        "/roadmap/approved",
+    }
+)
 
 
 class ProductRequestStage(str, Enum):
     """Day 11 accepts one terminal intake state only."""
 
     SUBMITTED = "SUBMITTED"
+
+
+@dataclass(frozen=True)
+class CustomerRequestProgress:
+    """Trusted navigation target for the latest governed customer checkpoint."""
+
+    request_id: str
+    status: str
+    action: str
+    href: str
+
+    def __post_init__(self) -> None:
+        _identifier(self.request_id, "customer progress request ID")
+        _text(self.status, "customer progress status", 80)
+        _text(self.action, "customer progress action", 120)
+        prefix = f"/customer/requests/{self.request_id}"
+        if not isinstance(self.href, str) or not self.href.startswith(prefix):
+            raise ValueError("Customer progress href is invalid")
+        if self.href.removeprefix(prefix) not in _PROGRESS_SUFFIXES:
+            raise ValueError("Customer progress destination is not governed")
 
 
 @dataclass(frozen=True)

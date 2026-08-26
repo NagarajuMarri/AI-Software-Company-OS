@@ -29,7 +29,11 @@ from runtime.customer_roadmap.errors import (
     CustomerRoadmapConflict,
     CustomerRoadmapCorrupt,
 )
-from runtime.customer_roadmap.models import CustomerRoadmapDraft, CustomerRoadmapMilestone
+from runtime.customer_roadmap.models import (
+    GENERATION_PROFILE,
+    CustomerRoadmapDraft,
+    CustomerRoadmapMilestone,
+)
 from runtime.customer_roadmap.service import CustomerRoadmapService
 
 
@@ -115,13 +119,17 @@ class CustomerRoadmapApplication:
                     csrf,
                 )
             if review and method == "GET":
-                _, prd, _, roadmap = self._service.context(customer_id, request_id)
-                if roadmap is None or prd is None:
+                _, prd, approval, roadmap = self._service.context(customer_id, request_id)
+                if roadmap is None or prd is None or approval is None:
                     return _redirect(
                         start_response,
                         f"/customer/requests/{request_id}/roadmap",
                     )
-                return _respond(start_response, "200 OK", _roadmap_review(prd, roadmap, csrf))
+                return _respond(
+                    start_response,
+                    "200 OK",
+                    _roadmap_review(prd, roadmap, approval.digest, csrf),
+                )
         except ProductRequestNotFound:
             return _respond(
                 start_response,
@@ -245,15 +253,32 @@ Approval <code>{escape(prd_approval_digest)}</code></footer></section>'''
 def _roadmap_review(
     prd: CustomerPrdDraft,
     roadmap: CustomerRoadmapDraft,
+    prd_approval_digest: str,
     csrf: str,
 ) -> str:
     requirements = {item.requirement_id: item for item in prd.requirements}
     milestones = "".join(_milestone_card(item, requirements) for item in roadmap.milestones)
     generated = roadmap.generated_at.strftime("%d %b %Y, %H:%M UTC")
+    current = roadmap.generation_profile == GENERATION_PROFILE
+    status = "Draft generated" if current else "Regeneration required"
+    controls = (
+        f'''<div class="actions"><a class="button secondary" href="/customer/requests/{escape(prd.request_id)}/prd/approved">View locked PRD</a>
+<a class="button" href="/customer/requests/{escape(prd.request_id)}/roadmap/approve">Review and approve roadmap</a>
+<a class="button secondary" href="/customer">Return to workspace</a></div>'''
+        if current
+        else f'''<div class="notice"><strong>Legacy single-milestone draft — regeneration required</strong>
+<p>This unapproved v1 draft cannot be approved. Regeneration preserves the exact locked PRD authority and replaces only this legacy draft with dependency-ordered, independently testable milestones.</p></div>
+<form method="post" action="/customer/requests/{escape(prd.request_id)}/roadmap">
+<input type="hidden" name="csrf_token" value="{escape(csrf)}">
+<input type="hidden" name="expected_prd_approval_digest" value="{escape(prd_approval_digest)}">
+<div class="actions"><a class="button secondary" href="/customer/requests/{escape(prd.request_id)}/prd/approved">View locked PRD</a>
+<button type="submit">Regenerate decomposed roadmap</button>
+<a class="button secondary" href="/customer">Return to workspace</a></div></form>'''
+    )
     content = f'''<section class="review"><a class="back" href="/customer/requests/{escape(prd.request_id)}/prd/approved">← Locked PRD</a>
 <div class="review-head"><div><span class="eyebrow">Customer delivery roadmap · Version 0.1</span>
 <h1>{escape(roadmap.title)}</h1><p>Every item is derived from the exact locked PRD.</p></div>
-<span class="status">Draft generated</span></div>
+<span class="status">{escape(status)}</span></div>
 <div class="signals"><span><strong>Status</strong>{escape(roadmap.status)}</span>
 <span><strong>Milestones</strong>{len(roadmap.milestones)}</span>
 <span><strong>Mapped requirements</strong>{len(roadmap.requirement_ids)}</span></div>
@@ -264,9 +289,7 @@ def _roadmap_review(
 <dt>Roadmap digest</dt><dd><code>{escape(roadmap.digest)}</code></dd></dl></div>
 <div class="notice"><strong>Draft plan — no execution authority</strong>
 <p>No estimates, dates, schedule commitments, staffing, agents, repositories, coding, merge, deployment, billing, release, or pilot-product selection have been authorized.</p></div>
-<div class="actions"><a class="button secondary" href="/customer/requests/{escape(prd.request_id)}/prd/approved">View locked PRD</a>
-<a class="button" href="/customer/requests/{escape(prd.request_id)}/roadmap/approve">Review and approve roadmap</a>
-<a class="button secondary" href="/customer">Return to workspace</a></div></section>'''
+{controls}</section>'''
     return _layout(f"Draft roadmap for {prd.title} · ASCOS", content, csrf)
 
 

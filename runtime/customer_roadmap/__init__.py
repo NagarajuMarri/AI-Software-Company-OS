@@ -25,6 +25,7 @@ from runtime.customer_roadmap.errors import (
 )
 from runtime.customer_roadmap.models import (
     GENERATION_PROFILE,
+    LEGACY_GENERATION_PROFILE,
     ROADMAP_STATUS,
     CustomerRoadmapDraft,
     CustomerRoadmapMilestone,
@@ -36,6 +37,7 @@ from runtime.customer_roadmap.web import CustomerRoadmapApplication
 
 __all__ = [
     "GENERATION_PROFILE",
+    "LEGACY_GENERATION_PROFILE",
     "ROADMAP_STATUS",
     "ROADMAP_CONFIRMATION_VERSION",
     "CustomerRoadmapApplication",

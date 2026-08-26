@@ -17,7 +17,7 @@ from runtime.customer_roadmap.approval_models import (
 )
 from runtime.customer_roadmap.approval_persistence import FileCustomerRoadmapApprovalStore
 from runtime.customer_roadmap.errors import CustomerRoadmapApprovalConflict
-from runtime.customer_roadmap.models import CustomerRoadmapDraft
+from runtime.customer_roadmap.models import GENERATION_PROFILE, CustomerRoadmapDraft
 from runtime.customer_roadmap.service import CustomerRoadmapService
 
 
@@ -111,6 +111,10 @@ class CustomerRoadmapApprovalService:
         _, _, _, roadmap, existing = self.context(customer_id, request_id)
         if roadmap is None:
             raise CustomerRoadmapApprovalConflict("A customer roadmap draft is required")
+        if roadmap.generation_profile != GENERATION_PROFILE:
+            raise CustomerRoadmapApprovalConflict(
+                "The legacy roadmap must be regenerated before approval"
+            )
         if (
             not isinstance(expected_roadmap_digest, str)
             or not hmac.compare_digest(expected_roadmap_digest, roadmap.digest)

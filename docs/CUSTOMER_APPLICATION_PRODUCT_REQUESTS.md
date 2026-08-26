@@ -10,7 +10,9 @@ deployment.
 
 1. The Day 12 authentication middleware validates a server-side session and supplies `REMOTE_USER`
    and `ascos.csrf_token` (a trusted upstream gateway remains a supported composition boundary).
-2. `GET /customer` renders the customer-scoped workspace and prior product requests.
+2. `GET /customer` renders the customer-scoped workspace and prior product requests. In the unified
+   composition, every card displays the latest governed checkpoint and links directly to the current
+   requirements, approved requirements, PRD draft, approved PRD, roadmap draft, or approved roadmap.
 3. `GET /customer/requests/new` renders a CSRF-protected product form.
 4. The customer supplies product name, outcome, target users, one or more required features, and
    optional constraints.
@@ -44,6 +46,11 @@ The portal accepts only bounded URL-encoded forms with a closed single-value fie
 constant-time CSRF comparison, escapes all customer values, never echoes an invalid submission, and
 sets no-store, restrictive CSP, frame denial, content-type sniffing denial, and no-referrer headers.
 Requests can be read only through the current customer identity.
+
+The optional progress resolver is a trusted composition boundary, not browser input. Its model
+accepts only the current request identity and a closed set of same-origin governed destinations. The
+standalone Day 11 portal therefore remains “Submitted,” while the unified local journey truthfully
+surfaces later persisted state without weakening customer scoping.
 
 ## Physical evidence
 

@@ -11,11 +11,25 @@ service reloads the complete customer-owned request, requirements, requirements 
 approval, and governed locked document server-side. The resulting record binds every identity and
 digest in that authority chain.
 
-ASCOS reuses `ProductRequirementsService.roadmap` and `roadmap_items`. Only `APPROVED` or `LOCKED`
-requirements may enter those governed projections; Day 17 additionally requires the complete PRD to
-be valid and `LOCKED`. Each stable roadmap item preserves its milestone, deterministic sequence,
-ordered requirement IDs, and requirement priorities. Every locked requirement must appear exactly
-once and no other requirement may appear.
+The v2 deterministic profile requires the complete PRD to be valid and `LOCKED`, then decomposes it
+into bounded dependency-ordered stages. Platform, data, and cross-cutting constraints establish the
+foundation and guardrails first; feature requirements are delivered in ordered increments of no
+more than five; remaining operational requirements follow; and the primary journey becomes the
+final end-to-end acceptance milestone. Each stable roadmap item preserves deterministic sequence,
+ordered requirement IDs, and requirement priorities. Every locked requirement appears exactly once
+and no other requirement may appear.
+
+Complexity is never collapsed merely because every generated PRD requirement originally carried the
+same placeholder milestone. A 43-requirement PRD, for example, produces multiple bounded milestones
+rather than one unactionable “Customer MVP” bucket.
+
+## Legacy draft regeneration
+
+Existing v1 single-milestone drafts remain readable so the authority chain does not become corrupt.
+They cannot receive a new approval. If and only if no roadmap approval receipt exists, the review
+page offers explicit regeneration into the v2 profile. Regeneration preserves the customer, request,
+product, PRD, approval identities, and every upstream digest while atomically replacing the exact
+legacy draft. Approved legacy roadmaps remain immutable and cannot be regenerated.
 
 ## Draft boundary
 
@@ -35,11 +49,12 @@ ASCOS pilot product has been selected.
 ## Persistence and security
 
 The adapter writes one `roadmap-v0.1.json` envelope per customer/request with exclusive mode-0600
-creation and a full canonical integrity digest. Reads revalidate the complete upstream authority,
-regenerate the governed projection, and compare the exact milestone mapping. Exact retries return the
-same record; changed content conflicts. Containment, closed directories, bounded identities, symlink
-rejection, output escaping, no-store responses, CSP, framing, sniffing, and referrer controls remain
-mandatory.
+creation and a full canonical integrity digest. Reads revalidate the complete upstream authority and
+compare the exact milestone mapping for that record's generation profile. Exact v2 retries return the
+same record; changed content conflicts. The one legacy-regeneration path uses an exact source digest,
+approval-state guard, mode-0600 temporary file, fsync, and atomic replacement. Containment, closed
+directories, bounded identities, symlink rejection, output escaping, no-store responses, CSP,
+framing, sniffing, and referrer controls remain mandatory.
 
 This file adapter is deterministic single-instance evidence. Production exposure requires
 transactional uniqueness, encryption and managed keys, backup/restore, retention/deletion,

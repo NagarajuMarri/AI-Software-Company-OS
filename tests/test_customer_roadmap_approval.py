@@ -20,16 +20,20 @@ from runtime.customer_requirements import (
     CustomerWorkspaceApplication,
 )
 from runtime.customer_roadmap import (
+    LEGACY_GENERATION_PROFILE,
     ROADMAP_CONFIRMATION_VERSION,
     CustomerRoadmapApplication,
     CustomerRoadmapApprovalApplication,
     CustomerRoadmapApprovalConflict,
     CustomerRoadmapApprovalCorrupt,
     CustomerRoadmapApprovalService,
+    CustomerRoadmapService,
     FileCustomerRoadmapApprovalStore,
+    FileCustomerRoadmapStore,
     governed_locked_roadmap,
     roadmap_approval_id_for,
 )
+from runtime.customer_roadmap.service import _legacy_milestones
 from tests.test_customer_prd_approval import CSRF, NOW, _call
 from tests.test_customer_roadmap import _generate, _ready
 
@@ -187,6 +191,27 @@ def test_approval_requires_roadmap_confirmation_exact_digest_and_customer_scope(
         _approve(ready[15], ready[13], customer_id="customer-2")
 
 
+def test_approval_rejects_legacy_single_milestone_draft(tmp_path):
+    values = _ready(tmp_path / "authority")
+    current = _generate(values[12], values[10])
+    locked = values[4].governed_document("customer-1", "req-1")
+    legacy = replace(
+        current,
+        generation_profile=LEGACY_GENERATION_PROFILE,
+        milestones=_legacy_milestones(locked),
+    )
+    roadmap_store = FileCustomerRoadmapStore(tmp_path / "legacy-roadmaps")
+    roadmap_store.save(legacy)
+    roadmaps = CustomerRoadmapService(roadmap_store, values[4])
+    approvals = CustomerRoadmapApprovalService(
+        FileCustomerRoadmapApprovalStore(tmp_path / "legacy-approvals"),
+        roadmaps,
+    )
+
+    with pytest.raises(CustomerRoadmapApprovalConflict, match="legacy"):
+        _approve(approvals, legacy)
+
+
 def test_store_restart_corruption_unknown_entry_and_symlink_detection(tmp_path):
     values = _services(tmp_path)
     roadmaps, roadmap, store, approvals = values[12:]
@@ -230,7 +255,7 @@ def test_approval_checkpoint_is_complete_customer_scoped_and_hardened(tmp_path):
     assert status == "200 OK"
     assert b"Approve and lock Community workshop planner" in content
     assert b"REQ-JOURNEY-001" in content
-    assert b"Customer MVP" in content
+    assert b"Platform, data, and delivery foundation" in content
     assert roadmap.digest.encode() in content
     assert b'name="customer_id"' not in content
     assert b"does not estimate or schedule work" in content

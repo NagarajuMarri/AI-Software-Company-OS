@@ -16,6 +16,10 @@ cross-customer, corrupt, tampered, invalid, or mismatched state. One canonical w
 binds the customer, request, roadmap, product, PRD version and identity, all six source/artifact
 digests, confirmation contract, and UTC approval time.
 
+Only the current decomposed roadmap generation profile may receive a new approval. Legacy
+single-milestone drafts remain readable but must pass the separately guarded, unapproved-only
+regeneration checkpoint first. A legacy draft with an existing approval remains immutable.
+
 ## Locked governed projection
 
 The receipt projects only its exact source roadmap into terminal `LOCKED` state. The roadmap and

@@ -14,7 +14,11 @@ from runtime.product_requirements import RequirementPriority
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _REQUIREMENT_ID = re.compile(r"^REQ-[A-Z0-9][A-Z0-9-]{0,59}$")
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
-GENERATION_PROFILE = "ascos-deterministic-customer-roadmap-v1"
+LEGACY_GENERATION_PROFILE = "ascos-deterministic-customer-roadmap-v1"
+GENERATION_PROFILE = "ascos-deterministic-customer-roadmap-v2"
+SUPPORTED_GENERATION_PROFILES = frozenset(
+    {LEGACY_GENERATION_PROFILE, GENERATION_PROFILE}
+)
 ROADMAP_STATUS = "DRAFT"
 
 
@@ -102,7 +106,7 @@ class CustomerRoadmapDraft:
         ):
             if not isinstance(value, str) or not _DIGEST.fullmatch(value):
                 raise ValueError(f"{label} is invalid")
-        if self.generation_profile != GENERATION_PROFILE:
+        if self.generation_profile not in SUPPORTED_GENERATION_PROFILES:
             raise ValueError("Customer roadmap generation profile is invalid")
         _text(self.title, "customer roadmap title", 300)
         if (
